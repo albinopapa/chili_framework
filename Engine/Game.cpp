@@ -26,6 +26,7 @@ Game::Game( MainWindow& wnd )
 	wnd( wnd ),
 	gfx( wnd )
 {
+	// Test
 }
 
 void Game::Go()
