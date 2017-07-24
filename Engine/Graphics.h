@@ -34,7 +34,7 @@ public:
 		:
 		m_count( CountElements ),
 		m_alignment( Alignment ),
-		m_pPtr( _aligned_malloc( CountElements * sizeof( T ), Alignment ) )
+		m_pPtr( reinterpret_cast<T*>( _aligned_malloc( CountElements * sizeof( T ), Alignment ) ) )
 	{
 	}
 	aligned_ptr( aligned_ptr &&Src )

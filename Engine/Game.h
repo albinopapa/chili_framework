@@ -23,6 +23,8 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Graphics.h"
+#include "Sound.h"
+#include "WicInitializer.h"
 
 class Game
 {
@@ -42,5 +44,7 @@ private:
 	Graphics gfx;
 	/********************************/
 	/*  User Variables              */
+	WicInitializer m_wic;
+	Microsoft::WRL::ComPtr<IWICBitmap> m_pBitmap;
 	/********************************/
 };
