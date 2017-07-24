@@ -27,7 +27,7 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	m_pBitmap( ImageLoader::Load( "Images/MrGodinD3DError.png", m_wic ) )
+	m_sprite( "Images/MrGodinD3DError.png", m_wic )
 {
 
 }
@@ -46,29 +46,8 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
-	int width, height;
-		
-	m_pBitmap->GetSize( reinterpret_cast< UINT* >( &width ), reinterpret_cast< UINT* >( &height ) );
-	UINT bufferSize = static_cast< UINT >( width * height ) * sizeof( Color );
-	Microsoft::WRL::ComPtr<IWICBitmapLock> pLock;
-	WICRect wr{ 0, 0, width, height };
-	
-	m_pBitmap->Lock( &wr, WICBitmapLockRead, &pLock );
-	Color* pPixels = nullptr;
-	UINT stride = 0u;
-	pLock->GetStride( &stride );
-	const auto testStride = width * sizeof( Color );
-	pLock->GetDataPointer( &bufferSize, reinterpret_cast< WICInProcPointer* >( &pPixels ) );
+	const auto x = ( Graphics::ScreenWidth - m_sprite.GetWidth() ) >> 1;
+	const auto y = ( Graphics::ScreenHeight - m_sprite.GetHeight() ) >> 1;
 
-	const auto x = ( Graphics::ScreenWidth - width ) >> 1;
-	const auto y = ( Graphics::ScreenHeight - height ) >> 1;
-
-	for( auto iy = 0; iy < height; ++iy )
-	{
-		for( auto ix = 0; ix < width; ++ix )
-		{
-			const Color color = pPixels[ ix + ( iy * width ) ];
-			gfx.PutPixel( x + ix, y + iy, color );
-		}
-	}
+	m_sprite.Draw( x, y, gfx );
 }

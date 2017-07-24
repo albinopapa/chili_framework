@@ -24,7 +24,7 @@
 #include "Mouse.h"
 #include "Graphics.h"
 #include "Sound.h"
-#include "WicInitializer.h"
+#include "Sprite.h"
 
 class Game
 {
@@ -45,6 +45,6 @@ private:
 	/********************************/
 	/*  User Variables              */
 	WicInitializer m_wic;
-	Microsoft::WRL::ComPtr<IWICBitmap> m_pBitmap;
+	Sprite m_sprite;
 	/********************************/
 };
