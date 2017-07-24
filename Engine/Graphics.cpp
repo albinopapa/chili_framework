@@ -41,8 +41,86 @@ namespace FramebufferShaders
 using Microsoft::WRL::ComPtr;
 
 Graphics::Graphics( HWNDKey& key )
+	:
+	m_direct3d( key.hWnd, *this ),
+	pSysBuffer( ScreenWidth * ScreenHeight, 16u )
 {
-	assert( key.hWnd != nullptr );
+}
+
+void Graphics::EndFrame()
+{
+	m_direct3d.Present( pSysBuffer );
+}
+
+void Graphics::BeginFrame()
+{
+	// clear the sysbuffer
+	pSysBuffer.Clear();
+}
+
+void Graphics::PutPixel( int x, int y, int r, int g, int b )
+{
+	PutPixel( x, y, { unsigned char( r ), unsigned char( g ), unsigned char( b ) } );
+}
+
+void Graphics::PutPixel( int x, int y, Color c )
+{
+	assert( x >= 0 );
+	assert( x < int( Graphics::ScreenWidth ) );
+	assert( y >= 0 );
+	assert( y < int( Graphics::ScreenHeight ) );
+	pSysBuffer[ Graphics::ScreenWidth * y + x ] = c;
+}
+
+
+//////////////////////////////////////////////////
+//           Graphics Exception
+Graphics::Exception::Exception( HRESULT hr, const std::wstring& note, const wchar_t* file, unsigned int line )
+	:
+	ChiliException( file, line, note ),
+	hr( hr )
+{
+}
+
+std::wstring Graphics::Exception::GetFullMessage() const
+{
+	const std::wstring empty = L"";
+	const std::wstring errorName = GetErrorName();
+	const std::wstring errorDesc = GetErrorDescription();
+	const std::wstring& note = GetNote();
+	const std::wstring location = GetLocation();
+	return    ( !errorName.empty() ? std::wstring( L"Error: " ) + errorName + L"\n"
+				: empty )
+		+ ( !errorDesc.empty() ? std::wstring( L"Description: " ) + errorDesc + L"\n"
+			: empty )
+		+ ( !note.empty() ? std::wstring( L"Note: " ) + note + L"\n"
+			: empty )
+		+ ( !location.empty() ? std::wstring( L"Location: " ) + location
+			: empty );
+}
+
+std::wstring Graphics::Exception::GetErrorName() const
+{
+	return DXGetErrorString( hr );
+}
+
+std::wstring Graphics::Exception::GetErrorDescription() const
+{
+	std::array<wchar_t, 512> wideDescription;
+	DXGetErrorDescription( hr, wideDescription.data(), wideDescription.size() );
+	return wideDescription.data();
+}
+
+std::wstring Graphics::Exception::GetExceptionType() const
+{
+	return L"Chili Graphics Exception";
+}
+
+Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
+	:
+	m_parent( Parent )
+{
+	assert( WinHandle != nullptr );
 
 	//////////////////////////////////////////////////////
 	// create device and swap chain/get render target view
@@ -54,7 +132,7 @@ Graphics::Graphics( HWNDKey& key )
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.OutputWindow = key.hWnd;
+	sd.OutputWindow = WinHandle;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.Windowed = TRUE;
@@ -250,24 +328,15 @@ Graphics::Graphics( HWNDKey& key )
 		throw CHILI_GFX_EXCEPTION( hr, L"Creating sampler state" );
 	}
 
-	// allocate memory for sysbuffer (16-byte aligned for faster access)
-	pSysBuffer = reinterpret_cast<Color*>(
-		_aligned_malloc( sizeof( Color ) * Graphics::ScreenWidth * Graphics::ScreenHeight, 16u ) );
 }
 
-Graphics::~Graphics()
+Graphics::Direct3D::~Direct3D()
 {
-	// free sysbuffer memory (aligned free)
-	if( pSysBuffer )
-	{
-		_aligned_free( pSysBuffer );
-		pSysBuffer = nullptr;
-	}
 	// clear the state of the device context before destruction
 	if( pImmediateContext ) pImmediateContext->ClearState();
 }
 
-void Graphics::EndFrame()
+void Graphics::Direct3D::Present( const aligned_ptr<Color>& pSysBuffer )
 {
 	HRESULT hr;
 
@@ -314,63 +383,4 @@ void Graphics::EndFrame()
 			throw CHILI_GFX_EXCEPTION( hr, L"Presenting back buffer" );
 		}
 	}
-}
-
-void Graphics::BeginFrame()
-{
-	// clear the sysbuffer
-	memset( pSysBuffer, 0u, sizeof( Color ) * Graphics::ScreenHeight * Graphics::ScreenWidth );
-}
-
-void Graphics::PutPixel( int x, int y, Color c )
-{
-	assert( x >= 0 );
-	assert( x < int( Graphics::ScreenWidth ) );
-	assert( y >= 0 );
-	assert( y < int( Graphics::ScreenHeight ) );
-	pSysBuffer[ Graphics::ScreenWidth * y + x ] = c;
-}
-
-
-//////////////////////////////////////////////////
-//           Graphics Exception
-Graphics::Exception::Exception( HRESULT hr, const std::wstring& note, const wchar_t* file, unsigned int line )
-	:
-	ChiliException( file, line, note ),
-	hr( hr )
-{
-}
-
-std::wstring Graphics::Exception::GetFullMessage() const
-{
-	const std::wstring empty = L"";
-	const std::wstring errorName = GetErrorName();
-	const std::wstring errorDesc = GetErrorDescription();
-	const std::wstring& note = GetNote();
-	const std::wstring location = GetLocation();
-	return    ( !errorName.empty() ? std::wstring( L"Error: " ) + errorName + L"\n"
-				: empty )
-		+ ( !errorDesc.empty() ? std::wstring( L"Description: " ) + errorDesc + L"\n"
-			: empty )
-		+ ( !note.empty() ? std::wstring( L"Note: " ) + note + L"\n"
-			: empty )
-		+ ( !location.empty() ? std::wstring( L"Location: " ) + location
-			: empty );
-}
-
-std::wstring Graphics::Exception::GetErrorName() const
-{
-	return DXGetErrorString( hr );
-}
-
-std::wstring Graphics::Exception::GetErrorDescription() const
-{
-	std::array<wchar_t, 512> wideDescription;
-	DXGetErrorDescription( hr, wideDescription.data(), wideDescription.size() );
-	return wideDescription.data();
-}
-
-std::wstring Graphics::Exception::GetExceptionType() const
-{
-	return L"Chili Graphics Exception";
 }
