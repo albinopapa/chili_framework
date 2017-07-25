@@ -91,6 +91,17 @@ public:
 	{
 		dword = (dword & 0xFFFFFF00u) | b;
 	}
+	Color BlendWith( Color Src )
+	{
+		const auto srcAlpha0 = GetA();
+		const auto srcAlpha1 = 255u - srcAlpha0;
+
+		const auto resultRed   = static_cast<unsigned char>( ( ( GetR() * srcAlpha0 ) + ( Src.GetR() * srcAlpha1 ) ) >> 8u );
+		const auto resultGreen = static_cast<unsigned char>( ( ( GetG() * srcAlpha0 ) + ( Src.GetG() * srcAlpha1 ) ) >> 8u );
+		const auto resultBlue  = static_cast<unsigned char>( ( ( GetB() * srcAlpha0 ) + ( Src.GetB() * srcAlpha1 ) ) >> 8u );
+
+		return{ 255u, resultRed, resultGreen, resultBlue };
+	}
 };
 
 namespace Colors

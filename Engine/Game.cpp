@@ -27,8 +27,8 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	m_walk( 30, "Images/RangerWalk", ".png", m_wic ),
-	m_stand( 1, "Images/RangerStand", ".png", m_wic ),
+	m_walk( Frames::SpriteType::Alpha, 30, "Images/RangerWalk", ".png", m_wic ),
+	m_stand( Frames::SpriteType::Alpha, 1, "Images/RangerStand", ".png", m_wic ),
 	m_pAnimController( std::make_unique<AnimationController>( 30.f / 900.f, m_stand ) ),
 	m_animController( 30.f / 900.f, m_stand )
 {
@@ -50,20 +50,31 @@ void Game::UpdateModel()
 		const auto e = wnd.kbd.ReadKey();
 		if( e.GetCode() == VK_RIGHT )
 		{
+			isFacingLeft = false;
 			if( e.IsPress() )
 			{
-				//m_pAnimController = std::make_unique<AnimationController>( 30.f / 900.f, m_walk );
 				m_animController = AnimationController( 30.f / 900.f, m_walk );
 			}
 			else if( e.IsRelease() )
 			{
-				//m_pAnimController = std::make_unique<AnimationController>( 30.f / 900.f, m_stand );
+				m_animController = AnimationController( 30.f / 900.f, m_stand );
+			}
+		}
+		else if( e.GetCode() == VK_LEFT )
+		{
+			isFacingLeft = true;
+
+			if( e.IsPress() )
+			{
+				m_animController = AnimationController( 30.f / 900.f, m_walk );
+			}
+			else if( e.IsRelease() )
+			{
 				m_animController = AnimationController( 30.f / 900.f, m_stand );
 			}
 		}
 	}
 
-	//m_pAnimController->Advance( .016f );
 	m_animController.Advance( .016f );
 }
 
@@ -72,6 +83,12 @@ void Game::ComposeFrame()
 	const auto x = ( Graphics::ScreenWidth -  m_pAnimController->GetWidth() ) >> 1;
 	const auto y = ( Graphics::ScreenHeight - m_pAnimController->GetHeight() ) >> 1;
 
-	//m_pAnimController->Draw( x, y, gfx );
-	m_animController.Draw( x, y, gfx );
+	if( isFacingLeft )
+	{
+		m_animController.DrawReverse( x, y, gfx );
+	}
+	else
+	{
+		m_animController.Draw( x, y, gfx );
+	}
 }

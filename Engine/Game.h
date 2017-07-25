@@ -49,5 +49,6 @@ private:
 	Frames m_walk, m_stand;
 	std::unique_ptr<AnimationController> m_pAnimController;
 	AnimationController m_animController;
+	bool isFacingLeft = false;
 	/********************************/
 };

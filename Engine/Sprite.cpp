@@ -8,7 +8,7 @@ Sprite::Sprite( const std::string & Filename, const WicInitializer & Wic )
 	m_pBitmap( ImageLoader::Load( Filename, Wic ) ),
 	m_width( GatherWidth() ),
 	m_height( GatherHeight() ),
-	m_pLock( Lock() )
+	m_pPixels( GatherBitmapPixels() )
 {
 }
 
@@ -22,15 +22,28 @@ void Sprite::Draw( float OffsetX, float OffsetY, Graphics & Gfx ) const
 	int xStart = offsetX, yStart = offsetY, xEnd = offsetX + m_width, yEnd = offsetY + m_height;
 	Rectify( xStart, xEnd, yStart, yEnd );
 
-	Color *pPixels = nullptr;
-	UINT buffSize = sizeof( Color ) * static_cast< UINT >( m_width * m_height );
-	m_pLock->GetDataPointer( &buffSize, reinterpret_cast< BYTE** >( &pPixels ) );
-
 	for( auto y = yStart; y < yEnd; ++y )
 	{
 		for( auto x = xStart; x < xEnd; ++x )
 		{
-			Gfx.PutPixel( x + OffsetX, y + OffsetY, pPixels[ x + ( y * m_width ) ] );
+			Gfx.PutPixel( x + OffsetX, y + OffsetY, m_pPixels[ x + ( y * m_width ) ] );
+		}
+	}
+}
+
+void Sprite::DrawReverse( float OffsetX, float OffsetY, Graphics & Gfx ) const
+{
+	const auto offsetX = std::lroundf( OffsetX );
+	const auto offsetY = std::lroundf( OffsetY );
+
+	int xStart = offsetX, yStart = offsetY, xEnd = offsetX + m_width, yEnd = offsetY + m_height;
+	Rectify( xStart, xEnd, yStart, yEnd );
+
+	for( auto y = yStart; y < yEnd; ++y )
+	{
+		for( auto rx = xEnd - 1, x = 0; rx >= xStart; --rx, ++x )
+		{
+			Gfx.PutPixel( x + offsetX, y + offsetY, m_pPixels[ rx + ( y * m_width ) ] );
 		}
 	}
 }
@@ -53,12 +66,17 @@ void Sprite::Rectify( int & xStart, int & xEnd, int & yStart, int & yEnd )const
 	yEnd = std::min( Graphics::ScreenHeight - yStart, m_height );
 }
 
-Microsoft::WRL::ComPtr<IWICBitmapLock> Sprite::Lock()const
+Color *Sprite::GatherBitmapPixels()const
 {
 	Microsoft::WRL::ComPtr<IWICBitmapLock> pLock;
 	WICRect wr{ 0, 0, m_width, m_height };
 	m_pBitmap->Lock( &wr, WICBitmapLockRead, &pLock );
-	return pLock;
+
+	UINT buffSize = 0u;
+	Color *pPixels = nullptr;
+	pLock->GetDataPointer( &buffSize, reinterpret_cast< BYTE** >( &pPixels ) );
+	
+	return pPixels;
 }
 
 int Sprite::GatherWidth()const

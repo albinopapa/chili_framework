@@ -10,6 +10,7 @@ public:
 	virtual~Sprite();
 
 	virtual void Draw( float OffsetX, float OffsetY, Graphics &Gfx )const;
+	virtual void DrawReverse( float OffsetX, float OffsetY, Graphics &Gfx )const;
 
 	int GetWidth()const;
 	int GetHeight()const;
@@ -18,13 +19,13 @@ protected:
 	void Rectify( int &xStart, int &xEnd, int &yStart, int &yEnd )const;
 
 private:
-	Microsoft::WRL::ComPtr<IWICBitmapLock> Lock()const;
+	Color *GatherBitmapPixels()const;
 	int GatherWidth()const;
 	int GatherHeight()const;
-private:
+
+protected:
 	Microsoft::WRL::ComPtr<IWICBitmap> m_pBitmap;
 	int m_width = 0, m_height = 0;
-	Microsoft::WRL::ComPtr<IWICBitmapLock> m_pLock;
-
+	Color *m_pPixels = nullptr;
 };
 

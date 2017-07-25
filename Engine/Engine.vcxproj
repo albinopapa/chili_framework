@@ -136,6 +136,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AlphaSprite.h" />
     <ClInclude Include="AnimatedSprite.h" />
     <ClInclude Include="ChiliException.h" />
     <ClInclude Include="ChiliWin.h" />
@@ -155,6 +156,7 @@
     <ClInclude Include="WicInitializer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AlphaSprite.cpp" />
     <ClCompile Include="AnimatedSprite.cpp" />
     <ClCompile Include="COMInitializer.cpp" />
     <ClCompile Include="DXErr.cpp" />

@@ -72,6 +72,17 @@ void Graphics::PutPixel( int x, int y, Color c )
 	pSysBuffer[ Graphics::ScreenWidth * y + x ] = c;
 }
 
+void Graphics::PutPixelAlpha( int X, int Y, Color C )
+{
+	assert( X >= 0 );
+	assert( X < int( Graphics::ScreenWidth ) );
+	assert( Y >= 0 );
+	assert( Y < int( Graphics::ScreenHeight ) );
+
+	auto &pixel = pSysBuffer[ Graphics::ScreenWidth * Y + X ];
+	pixel = C.BlendWith( pixel );
+}
+
 
 //////////////////////////////////////////////////
 //           Graphics Exception
