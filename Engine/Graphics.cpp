@@ -52,10 +52,10 @@ void Graphics::EndFrame()
 	m_direct3d.Present( pSysBuffer );
 }
 
-void Graphics::BeginFrame()
+void Graphics::BeginFrame( Color C )
 {
 	// clear the sysbuffer
-	pSysBuffer.Clear();
+	pSysBuffer.Fill( C );
 }
 
 void Graphics::PutPixel( int x, int y, int r, int g, int b )

@@ -14,9 +14,12 @@ Sprite::Sprite( const std::string & Filename, const WicInitializer & Wic )
 
 Sprite::~Sprite() = default;
 
-void Sprite::Draw( int OffsetX, int OffsetY, Graphics & Gfx ) const
+void Sprite::Draw( float OffsetX, float OffsetY, Graphics & Gfx ) const
 {
-	int xStart = OffsetX, yStart = OffsetY, xEnd = OffsetX + m_width, yEnd = OffsetY + m_height;
+	const auto offsetX = std::lroundf( OffsetX );
+	const auto offsetY = std::lroundf( OffsetY );
+
+	int xStart = offsetX, yStart = offsetY, xEnd = offsetX + m_width, yEnd = offsetY + m_height;
 	Rectify( xStart, xEnd, yStart, yEnd );
 
 	Color *pPixels = nullptr;

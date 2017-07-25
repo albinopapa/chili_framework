@@ -124,9 +124,12 @@ public:
 		return m_pPtr;
 	}
 
-	void Fill( int Val )
+	void Fill( const T &Val )
 	{
-		memset( m_pPtr, Val, Size() );
+		for( size_t i = 0; i < Count(); ++i )
+		{
+			m_pPtr[ i ] = Val;
+		}
 	}
 	void Clear()
 	{
@@ -163,9 +166,6 @@ private:
 		void Present( const aligned_ptr<Color>& pSysBuffer );
 
 	private:
-
-
-	private:
 		Graphics &m_parent;
 		Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;
 		Microsoft::WRL::ComPtr<ID3D11Device>				pDevice;
@@ -196,7 +196,7 @@ public:
 	Graphics& operator=( const Graphics& ) = delete;
 
 	void EndFrame();
-	void BeginFrame();
+	void BeginFrame( Color C = Colors::Black );
 
 	void PutPixel( int x, int y, int r, int g, int b );
 	void PutPixel( int x,int y,Color c );

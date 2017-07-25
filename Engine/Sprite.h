@@ -9,7 +9,7 @@ public:
 	Sprite(const std::string &Filename, const WicInitializer &Wic);
 	virtual~Sprite();
 
-	virtual void Draw( int OffsetX, int OffsetY, Graphics &Gfx )const;
+	virtual void Draw( float OffsetX, float OffsetY, Graphics &Gfx )const;
 
 	int GetWidth()const;
 	int GetHeight()const;

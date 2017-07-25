@@ -27,14 +27,17 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	m_sprite( "Images/MrGodinD3DError.png", m_wic )
+	m_walk( 30, "Images/RangerWalk", ".png", m_wic ),
+	m_stand( 1, "Images/RangerStand", ".png", m_wic ),
+	m_pAnimController( std::make_unique<AnimationController>( 30.f / 900.f, m_stand ) ),
+	m_animController( 30.f / 900.f, m_stand )
 {
 
 }
 
 void Game::Go()
 {
-	gfx.BeginFrame();	
+	gfx.BeginFrame( Colors::Gray );
 	UpdateModel();
 	ComposeFrame();
 	gfx.EndFrame();
@@ -42,12 +45,33 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	while( !wnd.kbd.KeyIsEmpty() )
+	{
+		const auto e = wnd.kbd.ReadKey();
+		if( e.GetCode() == VK_RIGHT )
+		{
+			if( e.IsPress() )
+			{
+				//m_pAnimController = std::make_unique<AnimationController>( 30.f / 900.f, m_walk );
+				m_animController = AnimationController( 30.f / 900.f, m_walk );
+			}
+			else if( e.IsRelease() )
+			{
+				//m_pAnimController = std::make_unique<AnimationController>( 30.f / 900.f, m_stand );
+				m_animController = AnimationController( 30.f / 900.f, m_stand );
+			}
+		}
+	}
+
+	//m_pAnimController->Advance( .016f );
+	m_animController.Advance( .016f );
 }
 
 void Game::ComposeFrame()
 {
-	const auto x = ( Graphics::ScreenWidth - m_sprite.GetWidth() ) >> 1;
-	const auto y = ( Graphics::ScreenHeight - m_sprite.GetHeight() ) >> 1;
+	const auto x = ( Graphics::ScreenWidth -  m_pAnimController->GetWidth() ) >> 1;
+	const auto y = ( Graphics::ScreenHeight - m_pAnimController->GetHeight() ) >> 1;
 
-	m_sprite.Draw( x, y, gfx );
+	//m_pAnimController->Draw( x, y, gfx );
+	m_animController.Draw( x, y, gfx );
 }

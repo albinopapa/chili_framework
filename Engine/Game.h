@@ -24,7 +24,8 @@
 #include "Mouse.h"
 #include "Graphics.h"
 #include "Sound.h"
-#include "Sprite.h"
+#include "AnimatedSprite.h"
+#include <memory>
 
 class Game
 {
@@ -45,6 +46,8 @@ private:
 	/********************************/
 	/*  User Variables              */
 	WicInitializer m_wic;
-	Sprite m_sprite;
+	Frames m_walk, m_stand;
+	std::unique_ptr<AnimationController> m_pAnimController;
+	AnimationController m_animController;
 	/********************************/
 };
