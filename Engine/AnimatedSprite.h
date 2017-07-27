@@ -27,11 +27,13 @@ private:
 class AnimationController
 {
 public:
-	AnimationController( float HoldFrameTime, Frames &FrameSet);
+	AnimationController( float HoldFrameTime, const Frames &FrameSet);
 	
 	void Advance( float DeltaTime );
-	void Draw( float OffsetX, float OffsetY, class Graphics &Gfx )const;
-	void DrawReverse( float OffsetX, float OffsetY, class Graphics &Gfx )const;
+	void Draw( const Rectf &Dst, class Graphics &Gfx )const;
+	void Draw( const Rectf &Src, const Rectf &Dst, class Graphics &Gfx )const;
+	void DrawReverse( const Rectf &Dst, class Graphics &Gfx )const;
+	void DrawReverse( const Rectf &Src, const Rectf &Dst, class Graphics &Gfx )const;
 
 	int GetWidth()const;
 	int GetHeight()const;

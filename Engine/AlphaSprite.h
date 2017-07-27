@@ -7,7 +7,7 @@ class AlphaSprite : public Sprite
 public:
 	using Sprite::Sprite;
 
-	void Draw( float OffsetX, float OffsetY, Graphics &Gfx )const override;
-	void DrawReverse( float OffsetX, float OffsetY, Graphics &Gfx )const override;
+	void Draw( const Rectf &Src, const Rectf &Dst, Graphics &Gfx )const override;
+	void DrawReverse( const Rectf &Src, const Rectf &Dst, Graphics &Gfx )const override;
 };
 

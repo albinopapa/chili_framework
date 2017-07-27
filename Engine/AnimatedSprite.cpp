@@ -56,14 +56,26 @@ void AnimationController::Advance( float DeltaTime )
 	}
 }
 
-void AnimationController::Draw( float OffsetX, float OffsetY, Graphics & Gfx ) const
+void AnimationController::Draw( const Rectf & Dst, Graphics & Gfx ) const
 {
-	m_pFrames->GetFrame( m_currFrame ).Draw( OffsetX, OffsetY, Gfx );
+	const auto &sprite = m_pFrames->GetFrame( m_currFrame );
+	sprite.Draw( sprite.GetRect(), Dst, Gfx );
 }
 
-void AnimationController::DrawReverse( float OffsetX, float OffsetY, Graphics & Gfx ) const
+void AnimationController::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 {
-	m_pFrames->GetFrame( m_currFrame ).DrawReverse( OffsetX, OffsetY, Gfx );
+	m_pFrames->GetFrame( m_currFrame ).Draw( Src, Dst, Gfx );
+}
+
+void AnimationController::DrawReverse( const Rectf & Dst, Graphics & Gfx ) const
+{
+	const auto &sprite = m_pFrames->GetFrame( m_currFrame );
+	sprite.DrawReverse( sprite.GetRect(), Dst, Gfx );
+}
+
+void AnimationController::DrawReverse( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
+{
+	m_pFrames->GetFrame( m_currFrame ).DrawReverse( Src, Dst, Gfx );
 }
 
 int AnimationController::GetWidth() const
@@ -76,7 +88,7 @@ int AnimationController::GetHeight() const
 	return m_pFrames->GetFrame( m_currFrame ).GetHeight();
 }
 
-AnimationController::AnimationController( float HoldFrameTime, Frames & FrameSet )
+AnimationController::AnimationController( float HoldFrameTime, const Frames &FrameSet )
 	:
 	m_holdFrameTime( HoldFrameTime ),
 	m_frameTimeCounter( HoldFrameTime ),

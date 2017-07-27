@@ -24,7 +24,11 @@
 #include "Mouse.h"
 #include "Graphics.h"
 #include "Sound.h"
+
 #include "AnimatedSprite.h"
+#include "Camera.h"
+#include "Character.h"
+#include "SpriteCache.h"
 #include <memory>
 
 class Game
@@ -46,9 +50,12 @@ private:
 	/********************************/
 	/*  User Variables              */
 	WicInitializer m_wic;
-	Frames m_walk, m_stand;
-	std::unique_ptr<AnimationController> m_pAnimController;
-	AnimationController m_animController;
-	bool isFacingLeft = false;
+	SpriteCache m_cache;
+
+	Character m_player;
+
+	TrackingCamera m_camera;
+
+	Rectf m_screenrect, m_levelrect;
 	/********************************/
 };

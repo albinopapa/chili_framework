@@ -23,14 +23,18 @@
 
 #include "ImageLoader.h"
 
+constexpr float fScreenWidth = static_cast< float >( Graphics::ScreenWidth );
+constexpr float fScreenHeight = static_cast< float >( Graphics::ScreenHeight );
+
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	m_walk( Frames::SpriteType::Alpha, 30, "Images/RangerWalk", ".png", m_wic ),
-	m_stand( Frames::SpriteType::Alpha, 1, "Images/RangerStand", ".png", m_wic ),
-	m_pAnimController( std::make_unique<AnimationController>( 30.f / 900.f, m_stand ) ),
-	m_animController( 30.f / 900.f, m_stand )
+	m_cache( m_wic ),
+	m_player( { 400.f, ( m_cache.m_background.GetHeight() * .667f ) },wnd.kbd, m_cache ),
+	m_camera( m_player.GetPosition() ),
+	m_levelrect( static_cast< Rectf >( m_cache.m_background.GetRect() ) ),
+	m_screenrect( 0.f, 0.f, fScreenWidth, fScreenHeight )
 {
 
 }
@@ -45,50 +49,19 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	while( !wnd.kbd.KeyIsEmpty() )
-	{
-		const auto e = wnd.kbd.ReadKey();
-		if( e.GetCode() == VK_RIGHT )
-		{
-			isFacingLeft = false;
-			if( e.IsPress() )
-			{
-				m_animController = AnimationController( 30.f / 900.f, m_walk );
-			}
-			else if( e.IsRelease() )
-			{
-				m_animController = AnimationController( 30.f / 900.f, m_stand );
-			}
-		}
-		else if( e.GetCode() == VK_LEFT )
-		{
-			isFacingLeft = true;
+	const auto dt = .016f;
 
-			if( e.IsPress() )
-			{
-				m_animController = AnimationController( 30.f / 900.f, m_walk );
-			}
-			else if( e.IsRelease() )
-			{
-				m_animController = AnimationController( 30.f / 900.f, m_stand );
-			}
-		}
-	}
-
-	m_animController.Advance( .016f );
+	m_player.Update( dt );
+	m_camera.Update( dt );
+	m_camera.ClampTo( m_screenrect.GetSize(), m_levelrect );
 }
 
 void Game::ComposeFrame()
 {
-	const auto x = ( Graphics::ScreenWidth -  m_pAnimController->GetWidth() ) >> 1;
-	const auto y = ( Graphics::ScreenHeight - m_pAnimController->GetHeight() ) >> 1;
+	const auto viewport = MakeRectFromCenter( m_camera.GetPosition(), m_screenrect.GetSize() );
+	{
+		m_cache.m_background.Draw( viewport, m_screenrect, gfx );
+	}
 
-	if( isFacingLeft )
-	{
-		m_animController.DrawReverse( x, y, gfx );
-	}
-	else
-	{
-		m_animController.Draw( x, y, gfx );
-	}
+	m_player.Draw( viewport, gfx );
 }

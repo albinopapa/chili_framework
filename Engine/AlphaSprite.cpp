@@ -1,36 +1,30 @@
 #include "AlphaSprite.h"
 
 
-void AlphaSprite::Draw( float OffsetX, float OffsetY, Graphics & Gfx ) const
+void AlphaSprite::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 {
-	const auto offsetX = std::lroundf( OffsetX );
-	const auto offsetY = std::lroundf( OffsetY );
+	const auto dst = Rectify( Dst ).Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
+	const auto src = GetRect().ClipTo( static_cast< Recti >( Src ) );
 
-	int xStart = offsetX, yStart = offsetY, xEnd = offsetX + m_width, yEnd = offsetY + m_height;
-	Rectify( xStart, xEnd, yStart, yEnd );
-
-	for( auto y = yStart; y < yEnd; ++y )
+	for( int srcy = src.top, dsty = dst.top; srcy < src.top + dst.GetHeight(); ++srcy, ++dsty )
 	{
-		for( auto x = xStart; x < xEnd; ++x )
+		for( int srcx = src.left, dstx = dst.left; srcx < src.left + dst.GetWidth(); ++srcx, ++dstx )
 		{
-			Gfx.PutPixelAlpha( x + OffsetX, y + OffsetY, m_pPixels[ x + ( y * m_width ) ] );
+			Gfx.PutPixelAlpha( dstx, dsty, m_pPixels[ srcx + ( srcy * m_width ) ] );
 		}
 	}
 }
 
-void AlphaSprite::DrawReverse( float OffsetX, float OffsetY, Graphics & Gfx ) const
+void AlphaSprite::DrawReverse( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 {
-	const auto offsetX = std::lroundf( OffsetX );
-	const auto offsetY = std::lroundf( OffsetY );
+	const auto dst = Rectify( Dst ).Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
+	const auto src = GetRect().ClipTo( static_cast< Recti >( Src ) );
 
-	int xStart = offsetX, yStart = offsetY, xEnd = offsetX + m_width, yEnd = offsetY + m_height;
-	Rectify( xStart, xEnd, yStart, yEnd );
-
-	for( auto y = yStart; y < yEnd; ++y )
+	for( int srcy = src.top, dsty = dst.top; srcy < src.top + dst.GetHeight(); ++srcy, ++dsty )
 	{
-		for( auto rx = xEnd - 1, x = 0; rx >= xStart; --rx, ++x )
+		for( int srcx = src.left + ( dst.GetWidth() - 1 ), dstx = dst.left; srcx >= src.left; --srcx, ++dstx )
 		{
-			Gfx.PutPixelAlpha( x + offsetX, y + offsetY, m_pPixels[ rx + ( y * m_width ) ] );
+			Gfx.PutPixelAlpha( dstx, dsty, m_pPixels[ srcx + ( srcy * m_width ) ] );
 		}
 	}
 }
