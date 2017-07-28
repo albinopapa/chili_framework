@@ -8,10 +8,9 @@ Frames::Frames(
 	SpriteType Type,
 	int NumFrames,
 	const std::string & BaseFilename,
-	const std::string &FileExtension,
-	const WicInitializer &Wic )
+	const std::string &FileExtension )
 {
-	auto ParseFilename = [ &BaseFilename, &FileExtension, &Wic ](unsigned int Idx)
+	auto ParseFilename = [ &BaseFilename, &FileExtension ](unsigned int Idx)
 	{
 		std::stringstream ss;
 		ss.fill( '0' );
@@ -23,14 +22,14 @@ Frames::Frames(
 	{
 		for( int i = 0; i < NumFrames; ++i )
 		{
-			m_pSprites.push_back( std::make_unique<Sprite>( ParseFilename( i ), Wic ) );
+			m_pSprites.push_back( std::make_unique<Sprite>( ParseFilename( i ) ) );
 		}
 	}
 	else
 	{
 		for( int i = 0; i < NumFrames; ++i )
 		{
-			m_pSprites.push_back( std::make_unique<AlphaSprite>( ParseFilename( i ), Wic ) );
+			m_pSprites.push_back( std::make_unique<AlphaSprite>( ParseFilename( i ) ) );
 		}
 	}
 }

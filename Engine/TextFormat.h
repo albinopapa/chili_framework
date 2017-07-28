@@ -17,7 +17,7 @@ public:
 	};
 public:
 	TextFormat() = default;
-	TextFormat( const Properties &Props, DWriteInitalizer &DWrite );
+	TextFormat( const Properties &Props );
 
 	IDWriteTextFormat *operator->();
 	IDWriteTextFormat *operator->()const;

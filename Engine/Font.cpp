@@ -1,8 +1,8 @@
 #include "Font.h"
 
-Font::Font( FontSheet &&Sheet )
+Font::Font( const TextFormat::Properties &Props )
 	:
-	m_fontsheet( std::move( Sheet ) )
+	m_fontsheet( TextFormat(Props) )
 {
 }
 

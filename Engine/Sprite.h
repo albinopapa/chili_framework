@@ -7,7 +7,7 @@
 class Sprite
 {
 public:
-	Sprite(const std::string &Filename, const WicInitializer &Wic);
+	Sprite( const std::string &Filename );
 	virtual~Sprite();
 
 	virtual void Draw( const Rectf &Src, const Rectf &Dst, Graphics &Gfx )const;

@@ -6,13 +6,13 @@
 
 using Microsoft::WRL::ComPtr;
 
-FontSheet::FontSheet( const TextFormat & Format, DWriteInitalizer & DWrite, const WicInitializer &Wic )
+FontSheet::FontSheet( const TextFormat & Format )
 {
-	auto CalculateFontSize = [ &DWrite, &Format ]()
+	auto CalculateFontSize = [ &Format ]()
 	{
 		ComPtr<IDWriteTextLayout> pLayout_H;
 
-		DWrite->CreateTextLayout( L"H", 1, Format.GetFormat(), 32.f, Format->GetFontSize(), &pLayout_H );
+		DWriteInitalizer::Instance()->CreateTextLayout( L"H", 1, Format.GetFormat(), 32.f, Format->GetFontSize(), &pLayout_H );
 
 		DWRITE_TEXT_METRICS metrics{};
 		pLayout_H->GetMetrics( &metrics );
@@ -32,11 +32,11 @@ FontSheet::FontSheet( const TextFormat & Format, DWriteInitalizer & DWrite, cons
 		} );
 		return charList;
 	};
-	auto CreateWICBitmap = [ this, &Wic ]()
+	auto CreateWICBitmap = [ this ]()
 	{
 		ComPtr<IWICBitmap> pBitmap;
 
-		Wic.GetFactory()->CreateBitmap(
+		WicInitializer::Instance().GetFactory()->CreateBitmap(
 			m_nCharsPerRow * m_charWidth,
 			3 * m_charHeight,
 			GUID_WICPixelFormat32bppPBGRA,
@@ -152,6 +152,7 @@ Rectf FontSheet::GetCharRect( const char C ) const
 
 	const float left = static_cast< float >( fontCol * m_charWidth );
 	const float top = static_cast< float >( fontRow * m_charHeight );
+
 	const auto fontSize = Sizef{
 		static_cast< float >( m_charWidth ),
 		static_cast< float >( m_charHeight )

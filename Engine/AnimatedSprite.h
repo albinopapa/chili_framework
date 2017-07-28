@@ -13,7 +13,7 @@ public:
 		Solid, Alpha
 	};
 public:
-	Frames( SpriteType Type, int NumFrames, const std::string &BaseFilename, const std::string &FileExtension, const WicInitializer &Wic );
+	Frames( SpriteType Type, int NumFrames, const std::string &BaseFilename, const std::string &FileExtension );
 
 	const Sprite &GetFrame( size_t Idx )const;
 	size_t Count()const;

@@ -4,7 +4,7 @@
 
 struct SpriteCache
 {
-	SpriteCache(const WicInitializer &Wic);
+	SpriteCache();
 
 public:
 	Frames m_character_walk, m_character_stand;

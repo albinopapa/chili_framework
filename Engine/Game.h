@@ -50,16 +50,11 @@ private:
 	Graphics gfx;
 	/********************************/
 	/*  User Variables              */
-	WicInitializer m_wic;
 	SpriteCache m_cache;
-
+	Font m_consola;
 	Character m_player;
-
 	TrackingCamera m_camera;
-
 	Rectf m_screenrect, m_levelrect;
 
-	DWriteInitalizer m_dwrite;
-	Font m_consola;
 	/********************************/
 };

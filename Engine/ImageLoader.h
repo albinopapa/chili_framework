@@ -7,6 +7,6 @@
 class ImageLoader
 {
 public:
-	static Microsoft::WRL::ComPtr<IWICBitmap> Load( const std::string &Filename, const WicInitializer &Wic );
+	static Microsoft::WRL::ComPtr<IWICBitmap> Load( const std::string &Filename );
 };
 

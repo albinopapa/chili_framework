@@ -30,7 +30,6 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	m_cache( m_wic ),
 	m_player( { 400.f, ( m_cache.m_background.GetHeight() * .667f ) }, wnd.kbd, m_cache ),
 	m_camera( m_player.GetPosition() ),
 	m_levelrect( static_cast< Rectf >( m_cache.m_background.GetRect() ) ),
@@ -39,8 +38,7 @@ Game::Game( MainWindow& wnd )
 	TextFormat::Properties props;
 	props.fontname = L"Consolas";
 	props.size = 28.f;
-	TextFormat textformat = { props, m_dwrite };
-	m_consola = Font{ { textformat, m_dwrite, m_wic } };
+	m_consola = Font{ props };
 }
 
 void Game::Go()

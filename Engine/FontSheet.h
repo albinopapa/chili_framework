@@ -11,7 +11,7 @@ class FontSheet
 {
 public:
 	FontSheet() = default;
-	FontSheet( const TextFormat &Format, DWriteInitalizer &DWrite, const WicInitializer &Wic );
+	FontSheet( const TextFormat &Format );
 
 	Color GetPixel( int X, int Y )const;
 	Rectf GetCharRect( const char C )const;

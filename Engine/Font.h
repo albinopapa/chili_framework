@@ -9,7 +9,7 @@ class Font
 {
 public:
 	Font() = default;
-	Font( FontSheet &&Sheet );
+	Font( const TextFormat::Properties &Props );
 
 	void DrawChar( float X, float Y, char C, Color Clr, Graphics &Gfx )const;
 	void DrawString( float X, float Y, const std::string &Str, Color Clr, Graphics &Gfx )const;

@@ -3,9 +3,9 @@
 
 
 
-Sprite::Sprite( const std::string & Filename, const WicInitializer & Wic )
+Sprite::Sprite( const std::string & Filename )
 	:
-	m_pBitmap( ImageLoader::Load( Filename, Wic ) ),
+	m_pBitmap( ImageLoader::Load( Filename ) ),
 	m_width( GatherWidth() ),
 	m_height( GatherHeight() ),
 	m_pPixels( GatherBitmapPixels() )

@@ -2,10 +2,10 @@
 
 using Microsoft::WRL::ComPtr;
 
-ComPtr<IWICBitmap> ImageLoader::Load( const std::string & Filename, const WicInitializer & Wic )
+ComPtr<IWICBitmap> ImageLoader::Load( const std::string & Filename )
 {
 	ComPtr<IWICBitmapDecoder> pDecoder;
-	Wic.GetFactory()->CreateDecoderFromFilename( 
+	WicInitializer::Instance().GetFactory()->CreateDecoderFromFilename(
 		std::wstring( Filename.begin(), Filename.end() ).c_str(), 
 		nullptr, 
 		GENERIC_READ, 
@@ -16,7 +16,7 @@ ComPtr<IWICBitmap> ImageLoader::Load( const std::string & Filename, const WicIni
 	pDecoder->GetFrame( 0, &pFrame );
 
 	ComPtr<IWICFormatConverter> pConverter;
-	Wic.GetFactory()->CreateFormatConverter( &pConverter );
+	WicInitializer::Instance().GetFactory()->CreateFormatConverter( &pConverter );
 	pConverter->Initialize( 
 		pFrame.Get(), 
 		GUID_WICPixelFormat32bppPBGRA, 
@@ -26,7 +26,7 @@ ComPtr<IWICBitmap> ImageLoader::Load( const std::string & Filename, const WicIni
 		WICBitmapPaletteTypeCustom );
 
 	ComPtr<IWICBitmap> pBitmap;
-	Wic.GetFactory()->CreateBitmapFromSource( pConverter.Get(), WICBitmapCacheOnDemand, &pBitmap );
+	WicInitializer::Instance().GetFactory()->CreateBitmapFromSource( pConverter.Get(), WICBitmapCacheOnDemand, &pBitmap );
 
 	return pBitmap;
 }

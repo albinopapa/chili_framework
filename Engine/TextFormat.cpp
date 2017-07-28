@@ -1,8 +1,8 @@
 #include "TextFormat.h"
 
-TextFormat::TextFormat( const Properties & Props, DWriteInitalizer & DWrite )
+TextFormat::TextFormat( const Properties & Props )
 {
-	DWrite->CreateTextFormat(
+	DWriteInitalizer::Instance()->CreateTextFormat(
 		Props.fontname.c_str(),
 		nullptr,
 		Props.weight,
