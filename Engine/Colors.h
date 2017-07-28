@@ -91,6 +91,7 @@ public:
 	{
 		dword = (dword & 0xFFFFFF00u) | b;
 	}
+	
 	Color BlendWith( Color Src )
 	{
 		const auto srcAlpha0 = GetA();
@@ -101,6 +102,14 @@ public:
 		const auto resultBlue  = static_cast<unsigned char>( ( ( GetB() * srcAlpha0 ) + ( Src.GetB() * srcAlpha1 ) ) >> 8u );
 
 		return{ 255u, resultRed, resultGreen, resultBlue };
+	}
+	constexpr bool operator==( const Color C )const
+	{
+		return dword == C.dword;
+	}
+	constexpr bool operator!=( const Color C )const
+	{
+		return !( *this == C );
 	}
 };
 

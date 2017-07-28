@@ -31,12 +31,16 @@ Game::Game( MainWindow& wnd )
 	wnd( wnd ),
 	gfx( wnd ),
 	m_cache( m_wic ),
-	m_player( { 400.f, ( m_cache.m_background.GetHeight() * .667f ) },wnd.kbd, m_cache ),
+	m_player( { 400.f, ( m_cache.m_background.GetHeight() * .667f ) }, wnd.kbd, m_cache ),
 	m_camera( m_player.GetPosition() ),
 	m_levelrect( static_cast< Rectf >( m_cache.m_background.GetRect() ) ),
 	m_screenrect( 0.f, 0.f, fScreenWidth, fScreenHeight )
 {
-
+	TextFormat::Properties props;
+	props.fontname = L"Consolas";
+	props.size = 28.f;
+	TextFormat textformat = { props, m_dwrite };
+	m_consola = Font{ { textformat, m_dwrite, m_wic } };
 }
 
 void Game::Go()
@@ -63,5 +67,6 @@ void Game::ComposeFrame()
 		m_cache.m_background.Draw( viewport, m_screenrect, gfx );
 	}
 
+	m_consola.DrawString( 0.f, 300.f, "Your score: ", Colors::Red, gfx );
 	m_player.Draw( viewport, gfx );
 }

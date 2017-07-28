@@ -28,6 +28,7 @@
 #include "AnimatedSprite.h"
 #include "Camera.h"
 #include "Character.h"
+#include "Font.h"
 #include "SpriteCache.h"
 #include <memory>
 
@@ -57,5 +58,8 @@ private:
 	TrackingCamera m_camera;
 
 	Rectf m_screenrect, m_levelrect;
+
+	DWriteInitalizer m_dwrite;
+	Font m_consola;
 	/********************************/
 };
