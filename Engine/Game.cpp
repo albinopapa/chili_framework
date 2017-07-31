@@ -20,8 +20,12 @@
  ******************************************************************************************/
 #include "MainWindow.h"
 #include "Game.h"
+
 #include "Scene_Particles.h"
 #include "Scene_Sprite.h"
+#include "Scene_AnimatedSprite.h"
+#include "Scene_Camera.h"
+#include "Scene_FontRendering.h"
 
 
 Game::Game( MainWindow& wnd )
@@ -29,6 +33,9 @@ Game::Game( MainWindow& wnd )
 	wnd( wnd ),
 	gfx( wnd ),
 	//m_scene( std::make_unique<Scene_Particles>( wnd.kbd, gfx ) )
+	//m_scene( std::make_unique<Scene_Camera>( wnd.kbd, gfx ) )
+	//m_scene( std::make_unique<Scene_AnimatedSprite>( wnd.kbd, gfx ) )
+	//m_scene( std::make_unique<Scene_FontRendering>( wnd.kbd, gfx ) )
 	m_scene( std::make_unique<Scene_Sprite>( wnd.kbd, gfx ) )
 {
 }
