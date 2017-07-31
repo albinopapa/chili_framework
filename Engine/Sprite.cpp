@@ -14,6 +14,11 @@ Sprite::Sprite( const std::string & Filename )
 
 Sprite::~Sprite() = default;
 
+void Sprite::Draw( const Rectf & Dst, Graphics & Gfx ) const
+{
+	Draw( GetRect(), Dst, Gfx );
+}
+
 void Sprite::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 {
 	const auto dst = Rectify( Dst ).Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
@@ -26,6 +31,11 @@ void Sprite::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 			Gfx.PutPixel( dstx, dsty, m_pPixels[ srcx + ( srcy * m_width ) ] );
 		}
 	}
+}
+
+void Sprite::DrawReverse( const Rectf & Dst, Graphics & Gfx ) const
+{
+	DrawReverse( GetRect(), Dst, Gfx );
 }
 
 void Sprite::DrawReverse( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
@@ -55,14 +65,6 @@ int Sprite::GetHeight() const
 Recti Sprite::GetRect() const
 {
 	return Recti( 0, 0, m_width, m_height );
-}
-
-void Sprite::Rectify( int & xStart, int & xEnd, int & yStart, int & yEnd )const
-{
-	xEnd = std::min( Graphics::ScreenWidth - xStart, m_width );
-	xStart = std::max( -xStart, 0 );
-	yEnd = std::min( Graphics::ScreenHeight - yStart, m_height );
-	yStart = std::max( -yStart, 0 );
 }
 
 Recti Sprite::Rectify( const Rectf &Src ) const

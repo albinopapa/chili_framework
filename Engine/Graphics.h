@@ -24,6 +24,7 @@
 #include <wrl.h>
 #include "ChiliException.h"
 #include "Colors.h"
+#include "Rect.h"
 
 template<class T>
 class aligned_ptr
@@ -201,7 +202,12 @@ public:
 	void PutPixel( int x, int y, int r, int g, int b );
 	void PutPixel( int x,int y,Color c );
 	void PutPixelAlpha( int X, int Y, Color C );
-	
+	void DrawCircle( const Vec2i &Center, int Radius, Color C );
+	void DrawCircleAlpha( const Vec2i &Center, int Radius, Color C );
+
+private:
+	void Rectify( int & xStart, int & xEnd, int & yStart, int & yEnd )const;
+
 private:
 	Direct3D			m_direct3d;
 	aligned_ptr<Color>	pSysBuffer;
@@ -209,4 +215,8 @@ private:
 public:
 	static constexpr int ScreenWidth = 800;
 	static constexpr int ScreenHeight = 600;
+	static constexpr Sizei ScreenSize = { ScreenWidth, ScreenHeight };
+	static constexpr Sizef fScreenSize = static_cast< Sizef >( Graphics::ScreenSize );
+	static constexpr Recti ScreenRect = { { 0, 0 }, ScreenSize };
+	static constexpr Rectf fScreenRect = static_cast< Rectf >( ScreenRect );
 };

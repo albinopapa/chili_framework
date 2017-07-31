@@ -39,11 +39,13 @@ namespace FramebufferShaders
 #define CHILI_GFX_EXCEPTION( hr,note ) Graphics::Exception( hr,note,_CRT_WIDE(__FILE__),__LINE__ )
 
 using Microsoft::WRL::ComPtr;
+//Sizei Graphics::ScreenSize = { ScreenWidth, ScreenHeight };
+//Sizef Graphics::fScreenSize = static_cast< Sizef >( Graphics::ScreenSize );
 
 Graphics::Graphics( HWNDKey& key )
 	:
 	m_direct3d( key.hWnd, *this ),
-	pSysBuffer( ScreenWidth * ScreenHeight, 16u )
+	pSysBuffer( ScreenSize.Area(), 16u )
 {
 }
 
@@ -81,6 +83,63 @@ void Graphics::PutPixelAlpha( int X, int Y, Color C )
 
 	auto &pixel = pSysBuffer[ Graphics::ScreenWidth * Y + X ];
 	pixel = C.BlendWith( pixel );
+}
+
+void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
+{
+	const auto sqRadius = sq( Radius );
+
+	const Vec2i vRadius = { Radius, Radius };
+	Vec2i lefttop = Center - vRadius;
+	Vec2i rightbottom = Center + vRadius;
+
+	Rectify( lefttop.x, rightbottom.x, lefttop.y, rightbottom.y );
+
+	for( int y = lefttop.y; y < rightbottom.y; ++y )
+	{
+		for( int x = lefttop.x; x < rightbottom.x; ++x )
+		{
+			const auto sqDist = sq( x ) + sq( y );
+			if( sqDist < sqRadius )
+			{
+				PutPixel( x, y, C );
+			}
+		}
+	}
+}
+
+void Graphics::DrawCircleAlpha( const Vec2i & Center, int Radius, Color C )
+{
+	const auto sqRadius = sq( Radius );
+
+	const Vec2i vRadius = { Radius, Radius };
+	Vec2i start( Center - vRadius ), stop( Center + vRadius );
+	Rectify( start.x, stop.x, start.y, stop.y );
+	start -= vRadius;
+	stop -= vRadius;
+
+	for( Vec2i pos = start; pos.y < stop.y; ++pos.y )
+	{
+		for( pos.x = start.x; pos.x < stop.x; ++pos.x )
+		{
+			const auto sqDist = sq( pos.x ) + sq( pos.y );
+			if( sqDist < sqRadius )
+			{
+				const auto step = ( sqDist / static_cast< float >( sqRadius ) );
+				const auto alpha = static_cast< unsigned int >( step * 255.f );
+				C.SetA( 255u - alpha );
+				PutPixelAlpha( pos.x + Center.x, pos.y + Center.y, C );
+			}
+		}
+	}
+}
+
+void Graphics::Rectify( int & xStart, int & xEnd, int & yStart, int & yEnd ) const
+{
+	xEnd = std::min( Graphics::ScreenWidth - xStart, xEnd - xStart );
+	xStart = std::max( -xStart, 0 );
+	yEnd = std::min( Graphics::ScreenHeight - yStart, yEnd - yStart );
+	yStart = std::max( -yStart, 0 );
 }
 
 
@@ -293,6 +352,7 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 		{ 1.0f, -1.0f, 0.5f, 1.0f, 1.0f },
 		{ -1.0f, -1.0f, 0.5f, 0.0f, 1.0f },
 	};
+
 	D3D11_BUFFER_DESC bd = {};
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof( FSQVertex ) * 6;

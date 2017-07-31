@@ -1,6 +1,11 @@
 #include "AlphaSprite.h"
 
 
+void AlphaSprite::Draw( const Rectf & Dst, Graphics & Gfx ) const
+{
+	Draw( GetRect(), Dst, Gfx );
+}
+
 void AlphaSprite::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 {
 	const auto dst = Rectify( Dst ).Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
@@ -13,6 +18,11 @@ void AlphaSprite::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) con
 			Gfx.PutPixelAlpha( dstx, dsty, m_pPixels[ srcx + ( srcy * m_width ) ] );
 		}
 	}
+}
+
+void AlphaSprite::DrawReverse( const Rectf & Dst, Graphics & Gfx ) const
+{
+	DrawReverse( GetRect(), Dst, Gfx );
 }
 
 void AlphaSprite::DrawReverse( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const

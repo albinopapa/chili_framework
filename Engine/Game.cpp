@@ -20,30 +20,22 @@
  ******************************************************************************************/
 #include "MainWindow.h"
 #include "Game.h"
+#include "Scene_Particles.h"
+#include "Scene_Sprite.h"
 
-#include "ImageLoader.h"
-
-constexpr float fScreenWidth = static_cast< float >( Graphics::ScreenWidth );
-constexpr float fScreenHeight = static_cast< float >( Graphics::ScreenHeight );
 
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	m_player( { 400.f, ( m_cache.m_background.GetHeight() * .667f ) }, wnd.kbd, m_cache ),
-	m_camera( m_player.GetPosition() ),
-	m_levelrect( static_cast< Rectf >( m_cache.m_background.GetRect() ) ),
-	m_screenrect( 0.f, 0.f, fScreenWidth, fScreenHeight )
+	//m_scene( std::make_unique<Scene_Particles>( wnd.kbd, gfx ) )
+	m_scene( std::make_unique<Scene_Sprite>( wnd.kbd, gfx ) )
 {
-	TextFormat::Properties props;
-	props.fontname = L"Consolas";
-	props.size = 28.f;
-	m_consola = Font{ props };
 }
 
 void Game::Go()
 {
-	gfx.BeginFrame( Colors::Gray );
+	gfx.BeginFrame( Colors::Black );
 	UpdateModel();
 	ComposeFrame();
 	gfx.EndFrame();
@@ -53,18 +45,10 @@ void Game::UpdateModel()
 {
 	const auto dt = .016f;
 
-	m_player.Update( dt );
-	m_camera.Update( dt );
-	m_camera.ClampTo( m_screenrect.GetSize(), m_levelrect );
+	m_scene->Update( dt );
 }
 
 void Game::ComposeFrame()
 {
-	const auto viewport = MakeRectFromCenter( m_camera.GetPosition(), m_screenrect.GetSize() );
-	{
-		m_cache.m_background.Draw( viewport, m_screenrect, gfx );
-	}
-
-	m_consola.DrawString( 0.f, 300.f, "Your score: ", Colors::Red, gfx );
-	m_player.Draw( viewport, gfx );
+	m_scene->Draw();
 }

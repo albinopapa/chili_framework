@@ -7,17 +7,19 @@
 class Sprite
 {
 public:
+	Sprite() = default;
 	Sprite( const std::string &Filename );
 	virtual~Sprite();
 
+	virtual void Draw( const Rectf &Dst, Graphics &Gfx )const;
 	virtual void Draw( const Rectf &Src, const Rectf &Dst, Graphics &Gfx )const;
+	virtual void DrawReverse( const Rectf &Dst, Graphics &Gfx )const;
 	virtual void DrawReverse( const Rectf &Src, const Rectf &Dst, Graphics &Gfx )const;
 
 	int GetWidth()const;
 	int GetHeight()const;
 	Recti GetRect()const;
 protected:
-	void Rectify( int &xStart, int &xEnd, int &yStart, int &yEnd )const;
 	Recti Rectify( const Rectf &Src )const;
 
 private:

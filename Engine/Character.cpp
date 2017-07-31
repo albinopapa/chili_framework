@@ -15,7 +15,7 @@ void Character::Update( float DeltaTime )
 	DoState( Transition(), DeltaTime );
 }
 
-void Character::Draw( const Rectf &Viewport, Graphics & Gfx )
+void Character::Draw( const Rectf &Viewport, Graphics & Gfx )const
 {
 	const auto playerrect = GetRect().Translate( -Viewport.LeftTop() );
 

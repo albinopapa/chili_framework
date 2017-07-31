@@ -19,7 +19,7 @@ public:
 	Character( const Vec2f &StartPos, Keyboard &Kbd, const SpriteCache &Cache );
 
 	void Update( float DeltaTime );
-	void Draw( const Rectf &Viewport, Graphics &Gfx );
+	void Draw( const Rectf &Viewport, Graphics &Gfx )const;
 
 	const Vec2f &GetPosition()const;
 	Rectf GetRect()const;

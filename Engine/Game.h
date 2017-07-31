@@ -25,12 +25,10 @@
 #include "Graphics.h"
 #include "Sound.h"
 
-#include "AnimatedSprite.h"
-#include "Camera.h"
-#include "Character.h"
-#include "Font.h"
-#include "SpriteCache.h"
+#include "Scene.h"
+
 #include <memory>
+#include <vector>
 
 class Game
 {
@@ -50,11 +48,6 @@ private:
 	Graphics gfx;
 	/********************************/
 	/*  User Variables              */
-	SpriteCache m_cache;
-	Font m_consola;
-	Character m_player;
-	TrackingCamera m_camera;
-	Rectf m_screenrect, m_levelrect;
-
+	std::unique_ptr<Scene> m_scene;
 	/********************************/
 };
