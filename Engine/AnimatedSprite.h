@@ -13,6 +13,8 @@ public:
 		Solid, Alpha
 	};
 public:
+	Frames() = default;
+	Frames( std::vector<std::unique_ptr<Sprite>> &&pSprites );
 	Frames( SpriteType Type, int NumFrames, const std::string &BaseFilename, const std::string &FileExtension );
 
 	const Sprite &GetFrame( size_t Idx )const;
@@ -27,6 +29,7 @@ private:
 class AnimationController
 {
 public:
+	AnimationController() = default; 
 	AnimationController( float HoldFrameTime, const Frames &FrameSet);
 	
 	void Advance( float DeltaTime );

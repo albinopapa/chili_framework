@@ -9,7 +9,13 @@ class Sprite
 public:
 	Sprite() = default;
 	Sprite( const std::string &Filename );
+	Sprite( Sprite &&Src );
+	Sprite( const Sizei &SrcSize, std::unique_ptr<Color[]> &&pPixels );
 	virtual~Sprite();
+
+	Sprite &operator=( Sprite &&Src );
+
+	virtual std::unique_ptr<Sprite> CopyFromRegion( const Recti &Src )const;
 
 	virtual void Draw( const Rectf &Dst, Graphics &Gfx )const;
 	virtual void Draw( const Rectf &Src, const Rectf &Dst, Graphics &Gfx )const;
@@ -23,13 +29,11 @@ protected:
 	Recti Rectify( const Rectf &Src )const;
 
 private:
-	Color *GatherBitmapPixels()const;
-	int GatherWidth()const;
-	int GatherHeight()const;
+	std::unique_ptr<Color[]> GatherBitmapPixels( Microsoft::WRL::ComPtr<IWICBitmap> pBitmap )const;
+	Sizei GatherSize( Microsoft::WRL::ComPtr<IWICBitmap> pBitmap );
 
-protected:
-	Microsoft::WRL::ComPtr<IWICBitmap> m_pBitmap;
-	int m_width = 0, m_height = 0;
-	Color *m_pPixels = nullptr;
+protected:	
+	Sizei m_size;
+	std::unique_ptr<Color[]> m_pPixels;
 };
 

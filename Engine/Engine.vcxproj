@@ -169,6 +169,7 @@
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteCache.h" />
+    <ClInclude Include="SpriteSheet.h" />
     <ClInclude Include="TextFormat.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="WicInitializer.h" />
@@ -201,6 +202,7 @@
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SpriteCache.cpp" />
+    <ClCompile Include="SpriteSheet.cpp" />
     <ClCompile Include="TextFormat.cpp" />
     <ClCompile Include="WicInitializer.cpp" />
   </ItemGroup>

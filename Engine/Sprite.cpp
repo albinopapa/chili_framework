@@ -3,16 +3,47 @@
 
 
 
-Sprite::Sprite( const std::string & Filename )
-	:
-	m_pBitmap( ImageLoader::Load( Filename ) ),
-	m_width( GatherWidth() ),
-	m_height( GatherHeight() ),
-	m_pPixels( GatherBitmapPixels() )
+Sprite::Sprite( const std::string & Filename )	
 {
+	auto pBitmap = ImageLoader::Load( Filename );
+	m_size = GatherSize( pBitmap );
+	m_pPixels = GatherBitmapPixels( pBitmap );
+}
+
+Sprite::Sprite( Sprite && Src )
+	:
+	m_size( Src.m_size ),
+	m_pPixels( std::move( Src.m_pPixels ) )
+{
+	Src.m_size = { 0, 0 };
 }
 
 Sprite::~Sprite() = default;
+
+Sprite & Sprite::operator=( Sprite && Src )
+{
+	m_size = Src.m_size;
+	m_pPixels = std::move( Src.m_pPixels );
+	Src.m_size = { 0, 0 };
+
+	return *this;
+}
+
+std::unique_ptr<Sprite> Sprite::CopyFromRegion( const Recti & Src ) const
+{
+	const Sizei size = Src.GetSize();
+	
+	std::unique_ptr<Color[]> pPixels = std::make_unique<Color[]>( Src.GetSize().Area() );
+
+	for( int srcy = Src.top, dsty = 0; srcy < Src.bottom; ++srcy, ++dsty )
+	{
+		Color *pSrc = &m_pPixels[ srcy * m_size.width ];
+		Color *pDst = &pPixels[ dsty * size.width ];
+		memcpy( pDst, pSrc, sizeof( Color ) * size.width );
+	}
+
+	return std::make_unique<Sprite>( size, std::move( pPixels ) );
+}
 
 void Sprite::Draw( const Rectf & Dst, Graphics & Gfx ) const
 {
@@ -28,7 +59,7 @@ void Sprite::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 	{
 		for( int srcx = src.left, dstx = dst.left; srcx < src.left + dst.GetWidth(); ++srcx, ++dstx )
 		{
-			Gfx.PutPixel( dstx, dsty, m_pPixels[ srcx + ( srcy * m_width ) ] );
+			Gfx.PutPixel( dstx, dsty, m_pPixels[ srcx + ( srcy * m_size.width ) ] );
 		}
 	}
 }
@@ -47,24 +78,24 @@ void Sprite::DrawReverse( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) c
 	{
 		for( int srcx = src.left + ( dst.GetWidth() - 1 ), dstx = dst.left; srcx >= src.left; --srcx, ++dstx )
 		{
-			Gfx.PutPixel( dstx, dsty, m_pPixels[ srcx + ( srcy * m_width ) ] );
+			Gfx.PutPixel( dstx, dsty, m_pPixels[ srcx + ( srcy * m_size.width ) ] );
 		}
 	}
 }
 
 int Sprite::GetWidth() const
 {
-	return m_width;
+	return m_size.width;
 }
 
 int Sprite::GetHeight() const
 {
-	return m_height;
+	return m_size.height;
 }
 
 Recti Sprite::GetRect() const
 {
-	return Recti( 0, 0, m_width, m_height );
+	return Recti( 0, 0, m_size.width, m_size.height );
 }
 
 Recti Sprite::Rectify( const Rectf &Src ) const
@@ -74,36 +105,46 @@ Recti Sprite::Rectify( const Rectf &Src ) const
 	return Recti(
 		std::max( -left, 0 ),
 		std::max( -top, 0 ),
-		std::min( Graphics::ScreenWidth - left, m_width ),
-		std::min( Graphics::ScreenHeight - top, m_height )
+		std::min( Graphics::ScreenWidth - left, m_size.width ),
+		std::min( Graphics::ScreenHeight - top, m_size.height )
 	);
 }
 
-Color *Sprite::GatherBitmapPixels()const
+Sprite::Sprite( const Sizei & SrcSize, std::unique_ptr<Color[]>&& pPixels )
+	:
+	m_size( SrcSize ),
+	m_pPixels( std::move( pPixels ) )
+{
+}
+
+std::unique_ptr<Color[]> Sprite::GatherBitmapPixels( Microsoft::WRL::ComPtr<IWICBitmap> pBitmap )const
 {
 	Microsoft::WRL::ComPtr<IWICBitmapLock> pLock;
-	WICRect wr{ 0, 0, m_width, m_height };
-	m_pBitmap->Lock( &wr, WICBitmapLockRead, &pLock );
+	WICRect wr{ 0, 0, m_size.width, m_size.height };
+	pBitmap->Lock( &wr, WICBitmapLockRead, &pLock );
 
 	UINT buffSize = 0u;
-	Color *pPixels = nullptr;
-	pLock->GetDataPointer( &buffSize, reinterpret_cast< BYTE** >( &pPixels ) );
+	Color *pBuffer = nullptr;
+	pLock->GetDataPointer( &buffSize, reinterpret_cast< BYTE** >( &pBuffer ) );
 	
+	std::unique_ptr<Color[]> pPixels = std::make_unique<Color[]>( m_size.Area() );
+
+	for( int y = 0; y < m_size.height; ++y )
+	{
+		Color *pSrc = &pBuffer[ y * m_size.width ];
+		Color *pDst = &pPixels[ y * m_size.width ];
+		memcpy( pDst, pSrc, sizeof( Color ) * m_size.width );
+	}
+
 	return pPixels;
 }
 
-int Sprite::GatherWidth()const
+Sizei Sprite::GatherSize( Microsoft::WRL::ComPtr<IWICBitmap> pBitmap )
 {
 	UINT width = 0u, height = 0u;
-	m_pBitmap->GetSize( &width, &height );
-
-	return static_cast<int>( width );
-}
-
-int Sprite::GatherHeight()const
-{
-	UINT width = 0u, height = 0u;
-	m_pBitmap->GetSize( &width, &height );
-
-	return static_cast<int>( height );
+	pBitmap->GetSize( &width, &height );
+	return Sizei(
+		static_cast< int >( width ),
+		static_cast< int >( height )
+	);
 }

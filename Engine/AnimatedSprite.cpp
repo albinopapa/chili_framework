@@ -4,6 +4,15 @@
 #include <sstream>
 #include <iomanip>
 
+Frames::Frames( std::vector<std::unique_ptr<Sprite>>&& pSprites )
+{
+	m_pSprites.resize( pSprites.size() );
+	for( int i = 0; i < pSprites.size(); ++i )
+	{
+		m_pSprites[ i ] = std::move( pSprites[ i ] );
+	}
+}
+
 Frames::Frames(
 	SpriteType Type,
 	int NumFrames,
