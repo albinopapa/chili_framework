@@ -45,10 +45,10 @@ public:
 	constexpr _Rect() :left( 0 ), top( 0 ), right( 0 ), bottom( 0 ) {}
 	constexpr _Rect( T Left, T Top, T Right, T Bottom )
 		:
-		top( Top ),
-		bottom( Bottom ),
 		left( Left ),
-		right( Right )
+		top( Top ),
+		right( Right ),
+		bottom( Bottom )
 	{
 	}
 	constexpr _Rect( const _Vec2<T> &LeftTop, const Size_t<T> &Size )
@@ -71,7 +71,7 @@ public:
 	template <typename T2>
 	constexpr operator _Rect<T2>() const
 	{
-		return{ ( T2 )left, ( T2 )top, ( T2 )right, ( T2 )bottom };
+		return{ _Vec2<T2>{( T2 )left, ( T2 )top}, _Vec2<T2>{( T2 )right, ( T2 )bottom } };
 	}
 
 	constexpr _Rect Translate( const _Vec2<T> &d )const
