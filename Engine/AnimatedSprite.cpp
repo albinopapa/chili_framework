@@ -103,3 +103,21 @@ AnimationController::AnimationController( float HoldFrameTime, const Frames &Fra
 	m_pFrames( &FrameSet )
 {
 }
+
+void PendulumAnimController::Advance( float DeltaTime )
+{
+	m_frameTimeCounter -= DeltaTime;
+	if( m_frameTimeCounter <= 0.f )
+	{
+		m_frameTimeCounter = m_holdFrameTime;
+		++m_frameCounter;
+
+		if( m_frameCounter >= m_pFrames->Count() )
+		{
+			m_frameCounter = 0;
+			m_forward = !m_forward;
+		}
+
+		m_currFrame = (m_forward) ? m_frameCounter : m_pFrames->Count() - ( m_frameCounter + 1 );
+	}
+}
