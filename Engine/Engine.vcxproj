@@ -136,6 +136,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="aligned_ptr.h" />
     <ClInclude Include="AlphaSprite.h" />
     <ClInclude Include="AnimatedSprite.h" />
     <ClInclude Include="Camera.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="COMInitializer.h" />
     <ClInclude Include="DWriteInitalizer.h" />
     <ClInclude Include="DXErr.h" />
+    <ClInclude Include="DXException.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FontSheet.h" />
     <ClInclude Include="Game.h" />
@@ -182,6 +184,7 @@
     <ClCompile Include="COMInitializer.cpp" />
     <ClCompile Include="DWriteInitalizer.cpp" />
     <ClCompile Include="DXErr.cpp" />
+    <ClCompile Include="DXException.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FontSheet.cpp" />
     <ClCompile Include="Game.cpp" />

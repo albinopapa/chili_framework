@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Graphics.h"
 #include "ImageLoader.h"
 #include "Rect.h"
-#include "Graphics.h"
 
 class Sprite
 {

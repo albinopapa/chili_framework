@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ChiliWin.h"
 #include <memory>
 #include <dwrite.h>
 #include <wrl/client.h>

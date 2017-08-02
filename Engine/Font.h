@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Colors.h"
-#include "FontSheet.h"
 #include "Graphics.h"
+#include "FontSheet.h"
 #include <string>
 
 class Font

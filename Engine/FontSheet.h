@@ -5,7 +5,7 @@
 #include "Rect.h"
 #include "WicInitializer.h"
 #include <memory>
-#undef GetCharWidth;
+#undef GetCharWidth
 
 class FontSheet
 {

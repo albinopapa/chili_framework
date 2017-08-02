@@ -1,7 +1,8 @@
 #include "Sprite.h"
 #include <algorithm>
+#include "DXException.h"
 
-
+#define MEM_EXCEPTION(hr, note)DXException(hr, note, _CRT_WIDE(__FILE__),__LINE__ )
 
 Sprite::Sprite( const std::string & Filename )	
 {
@@ -34,7 +35,10 @@ std::unique_ptr<Sprite> Sprite::CopyFromRegion( const Recti & Src ) const
 	const Sizei size = Src.GetSize();
 	
 	std::unique_ptr<Color[]> pPixels = std::make_unique<Color[]>( Src.GetSize().Area() );
-
+	if( !pPixels )
+	{
+		throw MEM_EXCEPTION( E_OUTOFMEMORY, L"It appears the image was so large, your computer had to take out a second mortgage and went bankrupt." );
+	}
 	for( int srcy = Src.top, dsty = 0; srcy < Src.bottom; ++srcy, ++dsty )
 	{
 		Color *pSrc = &m_pPixels[ srcy * m_size.width ];
@@ -128,6 +132,10 @@ std::unique_ptr<Color[]> Sprite::GatherBitmapPixels( Microsoft::WRL::ComPtr<IWIC
 	pLock->GetDataPointer( &buffSize, reinterpret_cast< BYTE** >( &pBuffer ) );
 	
 	std::unique_ptr<Color[]> pPixels = std::make_unique<Color[]>( m_size.Area() );
+	if( !pPixels )
+	{
+		throw MEM_EXCEPTION( E_OUTOFMEMORY, L"It appears the image was so large, your computer had to take out a second mortgage and went bankrupt." );
+	}
 
 	for( int y = 0; y < m_size.height; ++y )
 	{

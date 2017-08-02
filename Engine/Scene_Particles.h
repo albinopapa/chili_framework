@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+#include "Camera.h"
 #include "ParticleEmitter.h"
 #include <vector>
 

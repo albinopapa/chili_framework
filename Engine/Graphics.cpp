@@ -18,6 +18,7 @@
 *	You should have received a copy of the GNU General Public License					  *
 *	along with The Chili DirectX Framework.  If not, see <http://www.gnu.org/licenses/>.  *
 ******************************************************************************************/
+
 #include "MainWindow.h"
 #include "Graphics.h"
 #include "DXErr.h"
@@ -36,7 +37,7 @@ namespace FramebufferShaders
 
 #pragma comment( lib,"d3d11.lib" )
 
-#define CHILI_GFX_EXCEPTION( hr,note ) Graphics::Exception( hr,note,_CRT_WIDE(__FILE__),__LINE__ )
+#define CHILI_GFX_EXCEPTION( hr,note ) DXException( hr,note,_CRT_WIDE(__FILE__),__LINE__ )
 
 using Microsoft::WRL::ComPtr;
 //Sizei Graphics::ScreenSize = { ScreenWidth, ScreenHeight };
@@ -142,49 +143,6 @@ void Graphics::Rectify( int & xStart, int & xEnd, int & yStart, int & yEnd ) con
 	yStart = std::max( -yStart, 0 );
 }
 
-
-//////////////////////////////////////////////////
-//           Graphics Exception
-Graphics::Exception::Exception( HRESULT hr, const std::wstring& note, const wchar_t* file, unsigned int line )
-	:
-	ChiliException( file, line, note ),
-	hr( hr )
-{
-}
-
-std::wstring Graphics::Exception::GetFullMessage() const
-{
-	const std::wstring empty = L"";
-	const std::wstring errorName = GetErrorName();
-	const std::wstring errorDesc = GetErrorDescription();
-	const std::wstring& note = GetNote();
-	const std::wstring location = GetLocation();
-	return    ( !errorName.empty() ? std::wstring( L"Error: " ) + errorName + L"\n"
-				: empty )
-		+ ( !errorDesc.empty() ? std::wstring( L"Description: " ) + errorDesc + L"\n"
-			: empty )
-		+ ( !note.empty() ? std::wstring( L"Note: " ) + note + L"\n"
-			: empty )
-		+ ( !location.empty() ? std::wstring( L"Location: " ) + location
-			: empty );
-}
-
-std::wstring Graphics::Exception::GetErrorName() const
-{
-	return DXGetErrorString( hr );
-}
-
-std::wstring Graphics::Exception::GetErrorDescription() const
-{
-	std::array<wchar_t, 512> wideDescription;
-	DXGetErrorDescription( hr, wideDescription.data(), wideDescription.size() );
-	return wideDescription.data();
-}
-
-std::wstring Graphics::Exception::GetExceptionType() const
-{
-	return L"Chili Graphics Exception";
-}
 
 Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 	:

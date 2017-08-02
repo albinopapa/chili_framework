@@ -1,3 +1,6 @@
+#ifndef WINLOADED
+#define WINLOADED
+#endif
 #include "Font.h"
 
 Font::Font( const TextFormat::Properties &Props )

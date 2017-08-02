@@ -19,6 +19,7 @@
  *	along with this source code.  If not, see <http://www.gnu.org/licenses/>.			  *
  ******************************************************************************************/
 #pragma once
+
 #include "ChiliWin.h"
 #include <memory>
 #include <vector>

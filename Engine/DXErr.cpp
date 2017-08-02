@@ -12,7 +12,6 @@
 //--------------------------------------------------------------------------------------
 
 // This version only supports UNICODE.
-
 #include "dxerr.h"
 
 #include <stdio.h>

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Character.h"
+#include "Keyboard.h"
+#include "Graphics.h"
 
 constexpr float fScreenWidth = static_cast< float >( Graphics::ScreenWidth );
 constexpr float fScreenHeight = static_cast< float >( Graphics::ScreenHeight );
