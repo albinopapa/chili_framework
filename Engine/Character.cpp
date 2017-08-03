@@ -3,7 +3,7 @@
 Character::Character( const Vec2f & StartPos, Keyboard &Kbd, const SpriteCache & Cache )
 	:
 	m_cache( Cache ),
-	m_animController( 30.f / 900.f, m_cache.m_character_stand ),
+	m_animController( 30.f / 900.f, m_cache.m_character_standR ),
 	m_size( 24.f, 128.f ),
 	m_position( StartPos ),
 	m_keyboard( Kbd )
@@ -18,16 +18,7 @@ void Character::Update( float DeltaTime )
 void Character::Draw( const Rectf &Viewport, Graphics & Gfx )const
 {
 	const auto playerrect = GetRect().Translate( -Viewport.LeftTop() );
-
-	if( m_state == State::StandingLeft ||
-		m_state == State::WalkingLeft )
-	{
-		m_animController.DrawReverse( playerrect, Gfx );
-	}
-	else
-	{
-		m_animController.Draw( playerrect, Gfx );
-	}
+	m_animController.Draw( playerrect, Gfx );
 }
 
 const Vec2f & Character::GetPosition() const
@@ -65,12 +56,12 @@ bool Character::Transition()
 	{
 		if( m_state == State::WalkingLeft )
 		{
-			state_change = m_state != State::StandingLeft;
+			state_change = true;
 			m_state = State::StandingLeft;
 		}
 		else if( m_state == State::WalkingRight )
 		{
-			state_change = m_state != State::StandingRight;
+			state_change = true;
 			m_state = State::StandingRight;
 		}
 	}
@@ -84,23 +75,28 @@ void Character::DoState( bool DidTransition, float DeltaTime )
 	switch( m_state )
 	{
 		case State::StandingLeft:
+			if( DidTransition )
+			{
+				m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_standL );
+			}
+			break;
 		case State::StandingRight:
 			if( DidTransition )
 			{
-				m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_stand );
+				m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_standR );
 			}
 			break;
 		case State::WalkingLeft:
 			if( DidTransition )
 			{
-				m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_walk );
+				m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_walkL );
 			}
 			m_position.x -= speed;
 			break;
 		case State::WalkingRight:
 			if( DidTransition )
 			{
-				m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_walk );
+				m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_walkR );
 			}
 			m_position.x += speed;
 			break;

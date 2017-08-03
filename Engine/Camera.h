@@ -12,8 +12,11 @@ public:
 	const Vec2f &GetPosition()const;
 	void ClampTo( const Sizef &ViewSize, const Rectf &Boundary );
 	virtual void Update( float DeltaTime ) = 0;
+	void SetTarget( const Vec2f &TargetPosition );
+
 protected:
-	Vec2f m_position;
+	Vec2f m_position, m_target;
+
 };
 
 class TrackingCamera : public Camera
@@ -22,6 +25,4 @@ public:
 	TrackingCamera( const Vec2f &TrackMe );
 
 	void Update( float DeltaTime )override;
-private:
-	const Vec2f &m_tracking_position;
 };

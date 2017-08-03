@@ -30,8 +30,9 @@ void AlphaSprite::Draw( const Rectf & Dst, Graphics & Gfx ) const
 
 void AlphaSprite::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 {
-	const auto src = Rectify( Dst ); ;
-	const auto dst = src.Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
+	const auto rectified = Rectify( Dst );
+	const auto src = rectified.Translate( static_cast<Vec2i>( Src.LeftTop() ) );
+	const auto dst = rectified.Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
 
 	if( dst.right < dst.left || dst.bottom < dst.top ) return;
 

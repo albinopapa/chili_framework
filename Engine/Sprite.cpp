@@ -47,8 +47,12 @@ void Sprite::Draw( const Rectf & Dst, Graphics & Gfx ) const
 
 void Sprite::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 {
-	const auto dst = Rectify( Dst ).Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
-	const auto src = GetRect().ClipTo( static_cast< Recti >( Src ) );
+	const auto rectified = Rectify( Dst );
+	const auto src = rectified.Translate( static_cast<Vec2i>( Src.LeftTop() ) );
+	const auto dst = rectified.Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
+
+	// No point in even going through the loop if completely off screen
+	if( dst.right < dst.left || dst.bottom < dst.top ) return;
 
 	for( int srcy = src.top, dsty = dst.top; srcy < src.top + dst.GetHeight(); ++srcy, ++dsty )
 	{

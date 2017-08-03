@@ -7,7 +7,7 @@ struct SpriteCache
 	SpriteCache();
 
 public:
-	Frames m_character_walk, m_character_stand;
+	Frames m_character_walkR, m_character_walkL,  m_character_standR, m_character_standL;
 	Sprite m_background;
 
 };
