@@ -2,6 +2,7 @@
 
 #include "Scene.h"
 #include "AlphaSprite.h"
+#include "TraceLog.h"
 
 class Scene_Sprite :public Scene
 {
@@ -13,5 +14,6 @@ public:
 
 private:
 	AlphaSprite m_sprite;
+
 };
 

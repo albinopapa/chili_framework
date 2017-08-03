@@ -173,6 +173,7 @@
     <ClInclude Include="SpriteCache.h" />
     <ClInclude Include="SpriteSheet.h" />
     <ClInclude Include="TextFormat.h" />
+    <ClInclude Include="TraceLog.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="WicInitializer.h" />
   </ItemGroup>
@@ -187,6 +188,7 @@
     <ClCompile Include="DXException.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FontSheet.cpp" />
+    <ClCompile Include="Frametimer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
@@ -207,6 +209,7 @@
     <ClCompile Include="SpriteCache.cpp" />
     <ClCompile Include="SpriteSheet.cpp" />
     <ClCompile Include="TextFormat.cpp" />
+    <ClCompile Include="TraceLog.cpp" />
     <ClCompile Include="WicInitializer.cpp" />
   </ItemGroup>
   <ItemGroup>

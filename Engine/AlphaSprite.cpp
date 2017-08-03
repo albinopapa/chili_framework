@@ -1,5 +1,5 @@
 #include "AlphaSprite.h"
-
+#include "TraceLog.h"
 
 std::unique_ptr<Sprite> AlphaSprite::CopyFromRegion( const Recti & Src ) const
 {
@@ -15,7 +15,12 @@ std::unique_ptr<Sprite> AlphaSprite::CopyFromRegion( const Recti & Src ) const
 		memcpy( pDst, pSrc, sizeof( Color ) * size.width );
 	}
 
-	return std::make_unique<AlphaSprite>( size, std::move( pPixels ) );
+	return std::make_unique<AlphaSprite>( Clone( Src ) );
+}
+
+std::unique_ptr<Sprite> AlphaSprite::CloneMirrored( const Recti &Src ) const
+{
+	return std::make_unique<AlphaSprite>( ReverseClone( Src ) );
 }
 
 void AlphaSprite::Draw( const Rectf & Dst, Graphics & Gfx ) const
@@ -25,31 +30,14 @@ void AlphaSprite::Draw( const Rectf & Dst, Graphics & Gfx ) const
 
 void AlphaSprite::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 {
-	const auto dst = Rectify( Dst ).Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
-	const auto src = GetRect().ClipTo( static_cast< Recti >( Src ) );
+	const auto src = Rectify( Dst ); ;
+	const auto dst = src.Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
 
-	for( int srcy = src.top, dsty = dst.top; srcy < src.top + dst.GetHeight(); ++srcy, ++dsty )
+	if( dst.right < dst.left || dst.bottom < dst.top ) return;
+
+	for( int srcy = src.top, dsty = dst.top; srcy < src.bottom; ++srcy, ++dsty )
 	{
-		for( int srcx = src.left, dstx = dst.left; srcx < src.left + dst.GetWidth(); ++srcx, ++dstx )
-		{
-			Gfx.PutPixelAlpha( dstx, dsty, m_pPixels[ srcx + ( srcy * m_size.width ) ] );
-		}
-	}
-}
-
-void AlphaSprite::DrawReverse( const Rectf & Dst, Graphics & Gfx ) const
-{
-	DrawReverse( GetRect(), Dst, Gfx );
-}
-
-void AlphaSprite::DrawReverse( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
-{
-	const auto dst = Rectify( Dst ).Translate( static_cast<Vec2i>( Dst.LeftTop() ) );
-	const auto src = GetRect().ClipTo( static_cast< Recti >( Src ) );
-
-	for( int srcy = src.top, dsty = dst.top; srcy < src.top + dst.GetHeight(); ++srcy, ++dsty )
-	{
-		for( int srcx = src.left + ( dst.GetWidth() - 1 ), dstx = dst.left; srcx >= src.left; --srcx, ++dstx )
+		for( int srcx = src.left, dstx = dst.left; srcx < src.right; ++srcx, ++dstx )
 		{
 			Gfx.PutPixelAlpha( dstx, dsty, m_pPixels[ srcx + ( srcy * m_size.width ) ] );
 		}

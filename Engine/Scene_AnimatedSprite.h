@@ -21,8 +21,14 @@ public:
 	void Draw()const override;
 
 private:
-	Frames m_walk, m_stand;
+	void DetermineState();
+	void UpdateState( float DeltaTime );
+
+private:
+	Frames m_walk_right, m_walk_left, m_stand_right, m_stand_left;
 	AnimationController m_animController;
 	Direction m_direction = Direction::Right;
 	Action m_action = Action::Standing;
+	Vec2f m_charPosition;
+	Rectf m_charRect;
 };

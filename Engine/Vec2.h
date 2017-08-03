@@ -39,33 +39,20 @@ public:
 		:
 		_Vec2( vect.x,vect.y )
 	{}
+
 	template <typename T2>
 	constexpr explicit operator _Vec2<T2>() const
 	{
 		return{ (T2)x,(T2)y };
 	}
-	constexpr T		LenSq() const
-	{
-		return sq( *this );
-	}
-	constexpr T		Len() const
-	{
-		return sqrt( LenSq() );
-	}
-	_Vec2&	Normalize()
-	{
-		const auto len = Len();
-		*this *= ( len != static_cast< T >( 0 ) ? 1.f / len : len );
-		return *this;
-	}
-	constexpr _Vec2	GetNormalized() const
-	{
-		return _Vec2( *this ).Normalize();
-	}
+
+	// Unary operator
 	constexpr _Vec2	operator-() const
 	{
 		return _Vec2( -x,-y );
 	}
+
+	// Assignment operators
 	_Vec2&	operator=( const _Vec2 &rhs )
 	{
 		x = rhs.x;
@@ -84,10 +71,20 @@ public:
 		y -= rhs.y;
 		return *this;
 	}
-	constexpr T		operator*( const _Vec2 &rhs ) const
+	_Vec2&	operator*=( const T &rhs )
 	{
-		return x * rhs.x + y * rhs.y;
+		x *= rhs;
+		y *= rhs;
+		return *this;
 	}
+	_Vec2&	operator/=( const T &rhs )
+	{
+		x /= rhs;
+		y /= rhs;
+		return *this;
+	}
+
+	// Binary operators
 	constexpr _Vec2	operator+( const _Vec2 &rhs ) const
 	{
 		return _Vec2( *this ) += rhs;
@@ -96,26 +93,19 @@ public:
 	{
 		return _Vec2( *this ) -= rhs;
 	}
-	_Vec2&	operator*=( const T &rhs )
-	{
-		x *= rhs;
-		y *= rhs;
-		return *this;
-	}
 	constexpr _Vec2	operator*( const T &rhs ) const
 	{
 		return _Vec2( *this ) *= rhs;
 	}
-	_Vec2&	operator/=( const T &rhs )
+	constexpr T		operator*( const _Vec2 &rhs ) const
 	{
-		x /= rhs;
-		y /= rhs;
-		return *this;
+		return x * rhs.x + y * rhs.y;
 	}
 	constexpr _Vec2	operator/( const T &rhs ) const
 	{
 		return _Vec2( *this ) /= rhs;
 	}
+
 	constexpr bool	operator==( const _Vec2 &rhs ) const
 	{
 		return x == rhs.x && y == rhs.y;
@@ -124,10 +114,37 @@ public:
 	{
 		return !(*this == rhs);
 	}
+
+	constexpr T		LenSq() const
+	{
+		return sq( *this );
+	}
+	constexpr T		Len() const
+	{
+		return sqrt( LenSq() );
+	}
+
+	_Vec2&	Normalize()
+	{
+		const auto len = Len();
+		*this *= ( len != static_cast< T >( 0 ) ? 1.f / len : len );
+		return *this;
+	}
+	constexpr _Vec2	Normalize() const
+	{
+		return _Vec2( *this ).Normalize();
+	}
+
 	constexpr _Vec2	InterpolateTo( const _Vec2& dest,T alpha ) const
 	{
-		return *this + (dest - *this) * alpha;
+		return _Vec2( *this ).InterpolateTo( dest, alpha );
 	}
+	_Vec2 &InterpolateTo( const _Vec2 &dest, T alpha )
+	{
+		*this += ( ( dest - *this ) * alpha );
+		return *this;
+	}
+
 public:
 	T x;
 	T y;

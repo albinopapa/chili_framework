@@ -24,6 +24,7 @@
 #include "Mouse.h"
 #include "Graphics.h"
 #include "Sound.h"
+#include "Frametimer.h"
 
 #include "Scene.h"
 
@@ -49,5 +50,6 @@ private:
 	/********************************/
 	/*  User Variables              */
 	std::unique_ptr<Scene> m_scene;
+	FrameTimer ft;
 	/********************************/
 };

@@ -43,6 +43,19 @@ Frames::Frames(
 	}
 }
 
+std::vector<std::unique_ptr<Sprite>> Frames::CloneMirrored() const
+{
+	std::vector<std::unique_ptr<Sprite>> result( m_pSprites.size() );
+	for( int i = 0; i < m_pSprites.size(); ++i )
+	{
+		auto &pResult = result[ i ];
+		const auto &pSprite = m_pSprites[ i ];
+		pResult = pSprite->CloneMirrored( pSprite->GetRect() );
+	}
+
+	return result;
+}
+
 const Sprite & Frames::GetFrame( size_t Idx )const
 {
 	return *m_pSprites[ Idx ];
@@ -73,17 +86,6 @@ void AnimationController::Draw( const Rectf & Dst, Graphics & Gfx ) const
 void AnimationController::Draw( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
 {
 	m_pFrames->GetFrame( m_currFrame ).Draw( Src, Dst, Gfx );
-}
-
-void AnimationController::DrawReverse( const Rectf & Dst, Graphics & Gfx ) const
-{
-	const auto &sprite = m_pFrames->GetFrame( m_currFrame );
-	sprite.DrawReverse( sprite.GetRect(), Dst, Gfx );
-}
-
-void AnimationController::DrawReverse( const Rectf &Src, const Rectf &Dst, Graphics & Gfx ) const
-{
-	m_pFrames->GetFrame( m_currFrame ).DrawReverse( Src, Dst, Gfx );
 }
 
 int AnimationController::GetWidth() const

@@ -1,5 +1,6 @@
 #include "ImageLoader.h"
 #include "DXException.h"
+#include "TraceLog.h"
 
 #define WIC_EXCEPTION( hr,note ) DXException( hr,note,_CRT_WIDE(__FILE__),__LINE__ )
 
@@ -7,6 +8,8 @@ using Microsoft::WRL::ComPtr;
 
 ComPtr<IWICBitmap> ImageLoader::Load( const std::string & Filename )
 {
+	AutoLogger logger( GetFunctionName() );
+
 	HRESULT hr = S_OK;
 	ComPtr<IWICBitmapDecoder> pDecoder;
 	if( FAILED( hr = WicInitializer::Instance().GetFactory()->CreateDecoderFromFilename(
@@ -17,7 +20,7 @@ ComPtr<IWICBitmap> ImageLoader::Load( const std::string & Filename )
 		&pDecoder ) ) )
 	{
 		std::wstring wFilename( Filename.begin(), Filename.end() );
-		throw WIC_EXCEPTION( hr, L"Failed to create load image file: " + wFilename );
+		throw WIC_EXCEPTION( hr, L"Failed to load image file: " + wFilename );
 	}
 
 	ComPtr<IWICBitmapFrameDecode> pFrame;

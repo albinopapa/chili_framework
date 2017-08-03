@@ -18,6 +18,7 @@ public:
 		width( Width ), height( Height )
 	{
 	}
+
 	template<class T2>
 	constexpr operator Size_t<T2>()const
 	{
@@ -26,12 +27,40 @@ public:
 			static_cast< T2 >( height )
 			);
 	}
+
+	constexpr operator _Vec2<T>()const
+	{
+		return{ width, height };
+	}
+
 	constexpr T Area()const
 	{
 		return width * height;
 	}
 
+	Size_t &operator*=( const T &S )
+	{
+		width *= S;
+		height *= S;
+		return *this;
+	}
+	Size_t operator*( const T &S )const
+	{
+		return Size_t( *this ) *= S;
+	}
 
+	Size_t &operator/=( const T &S )
+	{
+		width  /= S;
+		height /= S;
+		return *this;
+	}
+	Size_t operator/( const T &S )const
+	{
+		return Size_t( *this ) /= S;
+	}
+
+public:
 	T width, height;
 };
 
@@ -56,15 +85,14 @@ public:
 		_Rect( LeftTop.x, LeftTop.y, LeftTop.x + Size.width, LeftTop.y + Size.height )
 	{
 	}
-	constexpr _Rect( float Left, float Top, const Size_t<T> &Size )
+	constexpr _Rect( T Left, T Top, const Size_t<T> &Size )
 		:
 		_Rect( _Vec2<T>{ Left, Top }, Size )
 	{
 	}
 	constexpr _Rect( const _Vec2<T> &p0, const _Vec2<T> &p1 )
 		:
-		_Rect( std::min( p0.x, p1.x ), std::min( p0.y, p1.y ),
-			   std::max( p0.x, p1.x ), std::max( p0.y, p1.y ) )
+		_Rect( p0.x, p0.y, p1.x, p1.y )
 	{
 	}
 
@@ -124,7 +152,7 @@ public:
 	}
 	constexpr _Vec2<T> GetCenter()const
 	{
-		return _Vec2<T>( left + ( GetWidth() * .5f ), top + ( GetHeight() * .5f ) );
+		return _Vec2<T>( left + ( GetWidth() / 2 ), top + ( GetHeight() / 2 ) );
 	}
 	constexpr Size_t<T> GetSize()const
 	{
@@ -151,6 +179,24 @@ public:
 			( ( p.left >= left ) && ( p.right <= right ) );
 	}
 
+	constexpr _Rect FlipHorizontal()const
+	{
+		return _Rect( *this ).FlipHorizontal();
+	}
+	_Rect &FlipHorizontal()
+	{
+		std::swap( left, right );		
+		return *this;
+	}
+	constexpr _Rect FlipVertical()const
+	{
+		return _Rect( *this ).FlipVertical();
+	}
+	_Rect &FlipVertical()
+	{
+		std::swap( top, bottom );
+		return *this;
+	}
 public:
 	T left, top, right, bottom;
 };
@@ -164,7 +210,7 @@ template<class T>
 _Rect<T> MakeRectFromCenter( const _Vec2<T> &Center, const Size_t<T> &Size )
 {
 	const _Rect<T> result( Center, Size );
-	return result.Translate( -Center );
+	return result.Translate( -static_cast<_Vec2<T>>( Size / static_cast< T >( 2 ) ) );
 }
 
 inline Rectf RectF_FromInt( int Left, int Top, int Right, int Bottom )

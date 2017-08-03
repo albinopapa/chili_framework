@@ -17,6 +17,8 @@ public:
 	Frames( std::vector<std::unique_ptr<Sprite>> &&pSprites );
 	Frames( SpriteType Type, int NumFrames, const std::string &BaseFilename, const std::string &FileExtension );
 
+	std::vector<std::unique_ptr<Sprite>> CloneMirrored()const;
+
 	const Sprite &GetFrame( size_t Idx )const;
 	size_t Count()const;
 
@@ -31,12 +33,10 @@ class AnimationController
 public:
 	AnimationController() = default; 
 	AnimationController( float HoldFrameTime, const Frames &FrameSet);
-	
+
 	virtual void Advance( float DeltaTime );
 	void Draw( const Rectf &Dst, class Graphics &Gfx )const;
 	void Draw( const Rectf &Src, const Rectf &Dst, class Graphics &Gfx )const;
-	void DrawReverse( const Rectf &Dst, class Graphics &Gfx )const;
-	void DrawReverse( const Rectf &Src, const Rectf &Dst, class Graphics &Gfx )const;
 
 	int GetWidth()const;
 	int GetHeight()const;

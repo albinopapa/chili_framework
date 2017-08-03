@@ -9,6 +9,21 @@ Font::Font( const TextFormat::Properties &Props )
 {
 }
 
+Sizei Font::GetCharSize() const
+{
+	return m_fontsheet.GetCharRect(0).GetSize();
+}
+
+size_t Font::MaxCharsPerRow( size_t LineWidth ) const
+{
+	return LineWidth / GetCharSize().width;
+}
+
+size_t Font::MaxCharsPerColumn( size_t ColumnHeight ) const
+{
+	return ColumnHeight / GetCharSize().height;
+}
+
 void Font::DrawChar( float X, float Y, char C, Color Clr, Graphics & Gfx ) const
 {
 	const auto rect = static_cast<Recti>( m_fontsheet.GetCharRect( C ) );

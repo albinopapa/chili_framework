@@ -1,12 +1,14 @@
 #include "DXException.h"
 #include "DXErr.h"
 #include <array>
+#include "TraceLog.h"
 
 DXException::DXException( HRESULT hr, const std::wstring & note, const wchar_t * file, unsigned int line )
 	:
 	ChiliException( file, line, note ),
 	hr( hr )
 {
+	TraceLog::Instance().Flush();
 }
 
 std::wstring DXException::GetErrorName() const
