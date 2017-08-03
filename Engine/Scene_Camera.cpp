@@ -21,9 +21,7 @@ void Scene_Camera::Update( float DeltaTime )
 
 void Scene_Camera::Draw() const
 {
-	const auto vpOffset = static_cast< Vec2f >( m_screenrect.GetSize() ) * ( .5f );
-	const auto viewport =
-		m_screenrect.Translate( m_camera.GetPosition() - vpOffset );
+	const auto viewport = MakeRectFromCenter( m_camera.GetPosition(), m_screenrect.GetSize() );
 
 	m_cache.m_background.Draw( viewport, m_screenrect, m_graphics );
 	m_player.Draw( viewport, m_graphics );
