@@ -1,6 +1,6 @@
 #include "ImageLoader.h"
 #include "DXException.h"
-#include "TraceLog.h"
+#include "Logger.h"
 
 #define WIC_EXCEPTION( hr,note ) DXException( hr,note,_CRT_WIDE(__FILE__),__LINE__ )
 

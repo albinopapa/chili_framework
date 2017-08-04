@@ -1,7 +1,7 @@
 #include "DXException.h"
 #include "DXErr.h"
 #include <array>
-#include "TraceLog.h"
+#include "Logger.h"
 
 DXException::DXException( HRESULT hr, const std::wstring & note, const wchar_t * file, unsigned int line )
 	:

@@ -2,7 +2,7 @@
 
 #include "Scene.h"
 #include "AlphaSprite.h"
-#include "TraceLog.h"
+#include "Logger.h"
 
 class Scene_Sprite :public Scene
 {

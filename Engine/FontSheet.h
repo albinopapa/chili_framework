@@ -16,6 +16,7 @@ public:
 	Color GetPixel( int X, int Y )const;
 	Rectf GetCharRect( const char C )const;
 	int GetCharWidth()const;
+	int GetCharHeight()const;
 
 private:
 	Color GetPixel( int Idx )const;

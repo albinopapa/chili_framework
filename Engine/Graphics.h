@@ -78,8 +78,8 @@ public:
 	void DrawCircle( const Vec2i &Center, int Radius, Color C );
 	void DrawCircleAlpha( const Vec2i &Center, int Radius, Color C );
 
-private:
-	void Rectify( int & xStart, int & xEnd, int & yStart, int & yEnd )const;
+	Recti Rectify( const Recti &Rect )const;
+	Recti Rectify( int Left, int Width, int Top, int Height )const;
 
 private:
 	Direct3D			m_direct3d;

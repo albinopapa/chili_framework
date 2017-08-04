@@ -1,6 +1,6 @@
 #include "WicInitializer.h"
 #include "DXException.h"
-#include "TraceLog.h"
+#include "Logger.h"
 
 using Microsoft::WRL::ComPtr;
 std::unique_ptr<WicInitializer> WicInitializer::s_pInstance;

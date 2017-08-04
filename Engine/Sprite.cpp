@@ -1,7 +1,7 @@
 #include "Sprite.h"
 #include <algorithm>
 #include "DXException.h"
-#include "TraceLog.h"
+#include "Logger.h"
 
 #define MEM_EXCEPTION(hr, note)DXException(hr, note, _CRT_WIDE(__FILE__),__LINE__ )
 

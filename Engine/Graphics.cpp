@@ -91,19 +91,16 @@ void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
 	const auto sqRadius = sq( Radius );
 
 	const Vec2i vRadius = { Radius, Radius };
-	Vec2i lefttop = Center - vRadius;
-	Vec2i rightbottom = Center + vRadius;
+	const auto bounds = Rectify( Recti( Vec2i( Center - vRadius ), Vec2i( Center + vRadius ) ) );
 
-	Rectify( lefttop.x, rightbottom.x, lefttop.y, rightbottom.y );
-
-	for( int y = lefttop.y; y < rightbottom.y; ++y )
+	for( int y = bounds.top - vRadius.y; y < bounds.bottom - vRadius.y; ++y )
 	{
-		for( int x = lefttop.x; x < rightbottom.x; ++x )
+		for( int x = bounds.left - vRadius.x; x < bounds.right - vRadius.x; ++x )
 		{
 			const auto sqDist = sq( x ) + sq( y );
 			if( sqDist < sqRadius )
 			{
-				PutPixel( x, y, C );
+				PutPixel( x + Center.x, y + Center.y, C );
 			}
 		}
 	}
@@ -114,33 +111,36 @@ void Graphics::DrawCircleAlpha( const Vec2i & Center, int Radius, Color C )
 	const auto sqRadius = sq( Radius );
 
 	const Vec2i vRadius = { Radius, Radius };
-	Vec2i start( Center - vRadius ), stop( Center + vRadius );
-	Rectify( start.x, stop.x, start.y, stop.y );
-	start -= vRadius;
-	stop -= vRadius;
+	const auto bounds = Rectify( Recti( Vec2i( Center - vRadius ), Vec2i( Center + vRadius ) ) );
 
-	for( Vec2i pos = start; pos.y < stop.y; ++pos.y )
+	for( int y = bounds.top - vRadius.y; y < bounds.bottom - vRadius.y; ++y )
 	{
-		for( pos.x = start.x; pos.x < stop.x; ++pos.x )
+		for( int x = bounds.left - vRadius.x; x < bounds.right - vRadius.x; ++x )
 		{
-			const auto sqDist = sq( pos.x ) + sq( pos.y );
+			const auto sqDist = sq( x ) + sq( y );
 			if( sqDist < sqRadius )
 			{
-				const auto step = ( sqDist / static_cast< float >( sqRadius ) );
+				const auto step = ( sqrtf( static_cast< float >( sqDist ) ) / static_cast< float >( Radius ) );
 				const auto alpha = static_cast< unsigned int >( step * 255.f );
 				C.SetA( 255u - alpha );
-				PutPixelAlpha( pos.x + Center.x, pos.y + Center.y, C );
+				PutPixelAlpha( x + Center.x, y + Center.y, C );
 			}
 		}
 	}
 }
 
-void Graphics::Rectify( int & xStart, int & xEnd, int & yStart, int & yEnd ) const
+Recti Graphics::Rectify( const Recti & Rect ) const
 {
-	xEnd = std::min( Graphics::ScreenWidth - xStart, xEnd - xStart );
-	xStart = std::max( -xStart, 0 );
-	yEnd = std::min( Graphics::ScreenHeight - yStart, yEnd - yStart );
-	yStart = std::max( -yStart, 0 );
+	return Rectify( Rect.left, Rect.GetWidth(), Rect.top, Rect.GetHeight() );
+}
+
+Recti Graphics::Rectify( int Left, int Width, int Top, int Height ) const
+{
+	return Recti(
+		std::max( -Left, 0 ),
+		std::max( -Top, 0 ),
+		std::min( Graphics::ScreenWidth - Left, Width ),
+		std::min( Graphics::ScreenHeight - Top, Height ) );
 }
 
 

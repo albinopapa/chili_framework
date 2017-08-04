@@ -204,3 +204,8 @@ int FontSheet::GetCharWidth() const
 	return m_charWidth;
 }
 
+int FontSheet::GetCharHeight() const
+{
+	return m_charHeight;
+}
+

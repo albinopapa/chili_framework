@@ -1,5 +1,5 @@
 #include "AlphaSprite.h"
-#include "TraceLog.h"
+#include "Logger.h"
 
 std::unique_ptr<Sprite> AlphaSprite::CopyFromRegion( const Recti & Src ) const
 {
