@@ -12,7 +12,13 @@
 // TODO: Make a global unit of measure
 // NOTE: Currently hard coded to be 64 pixels per meter
 
+#define USE_SMART_POINTER 0
+#if USE_SMART_POINTER
 using ParticleVector = std::vector<std::unique_ptr<Particle>>;
+#else
+using ParticleVector = std::vector<Particle>;
+#endif
+
 
 struct EmitterData
 {
@@ -22,6 +28,7 @@ public:
 		:
 		position( Position ), launchCount( LaunchCount ), maxParticles( MaxParticles )
 	{
+		
 	}
 
 public:

@@ -7,27 +7,15 @@ Emitter::Emitter( EmitterData &&DataTemplate )
 	:
 	EmitterData( std::move( DataTemplate ) )
 {
+	m_particles.reserve( maxParticles );
 }
 
 Emitter::Emitter( const Vec2f & Position, size_t LaunchCount, size_t MaxParticles )
 	:
 	EmitterData( Position, LaunchCount, MaxParticles )
 {
+	m_particles.reserve( MaxParticles );
 }
-
-//Emitter::Emitter(
-//	const Particles::Description & PartDesc, 
-//	const EmitterData & DataTemplate ) 
-//	:
-//	EmitterData( DataTemplate ),
-//	m_particleDesc( PartDesc ),
-//	m_rng( std::random_device()( ) ),
-//	m_ttlDist( PartDesc.minTimeToLive, PartDesc.maxTimeToLive ),
-//	m_radiusDist( PartDesc.minRadius, PartDesc.maxRadius ),
-//	m_delayDist( DataTemplate.minDelay, DataTemplate.maxDelay )
-//{
-//
-//}
 
 void Emitter::SetPosition( const Vec2f &Pos )
 {
@@ -80,8 +68,13 @@ void SingleEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc )
 	const float ttl = m_ttlDist( m_rng );
 	const auto radius = m_radiusDist( m_rng );
 
-	m_particles.emplace_back( std::make_unique<Particle>(
-		position, impulse, radius, ttl, PartDesc.color ) );
+#if USE_SMART_POINTER
+	m_particles.emplace_back(
+		std::make_unique<Particle>( position, impulse, radius, ttl, PartDesc.color ) );
+#else
+	m_particles.emplace_back( position, impulse, radius, ttl, PartDesc.color );
+#endif
+	
 }
 
 RadialEmitter::RadialEmitter( EmitterData &&DataTemplate )
@@ -112,31 +105,45 @@ void RadialEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc )
 	const auto radius = m_radiusDist( m_rng );
 
 	const size_t count = std::min( maxParticles - m_particles.size(), launchCount );
-	m_particles.reserve( m_particles.size() + count );
+	const size_t growto = m_particles.size() + count;
+
+	if( m_particles.capacity() < growto )
+	{
+		m_particles.reserve( growto );
+	}	
 
 	for( int i = 0; i < launchCount; ++i )
 	{
+		// Choose how to determine speed
+		// Random speed for random positions
 		const float speed = speedDist( m_rng );
+
+		// Uncomment to make a ring of particles
 		//const float speed = PartDesc.speed;
+
 		const Vec2f impulse = m_bursts[i] * ( speed * 64.f );
+
+#if USE_SMART_POINTER
 		m_particles.emplace_back(
-			std::make_unique<Particle>(
-				position, impulse, radius, ttl, PartDesc.color )
-		);
+			std::make_unique<Particle>( position, impulse, radius, ttl, PartDesc.color ) );
+#else
+		m_particles.emplace_back( position, impulse, radius, ttl, PartDesc.color );
+#endif
 	}
 
 }
 
 void RadialEmitter::InitCommon()
 {
-	launchCount = std::min( launchCount, maxParticles );
-	const auto partCount = launchCount;
-	assert( partCount != 0 );
+	if( launchCount > maxParticles )
+	{
+		std::swap( launchCount, maxParticles );
+	}
+		
+	m_bursts.reserve( launchCount );
 
-	const float radianStep = ( 3.141592f / 180.f ) * ( 360.f / partCount );
-	m_bursts.reserve( partCount );
-
-	for( size_t i = 0u; i < partCount; ++i )
+	const float radianStep = ( 3.141592f / 180.f ) * ( 360.f / launchCount );
+	for( size_t i = 0u; i < launchCount; ++i )
 	{
 		const auto angle = radianStep * i;
 		m_bursts.emplace_back( std::cos( angle ), std::sin( angle ) );

@@ -39,6 +39,7 @@ public:
 	void Velocity( const Vec2 &Vel ) { m_velocity = Vel; }
 	Vec2f Velocity()const { return m_velocity; }
 
+	Rectf GetRect()const;
 	bool IsDead()const;
 private:
 	float m_timeToLive = 0.f, m_liveCounter = 0.f;

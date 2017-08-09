@@ -15,17 +15,18 @@ Fireworks::Fireworks()
 	m_delayDist( .8f, 1.8f ),	
 	m_particles( std::vector<ParticleVector *>{ &m_primary, &m_secondary } )
 {
+	const Vec2f emitPos = { Graphics::fScreenWidth * .5f, Graphics::fScreenHeight - 1.f };
 	m_baseEmitter =
-		SingleEmitter( { fScreenWidth * .5f, fScreenHeight - 1.f }, 1, 1, Vec2f{ 0.f, -1.f } );
+		SingleEmitter( emitPos, 1, 1, Vec2f{ 0.f, -1.f } );
 
 	const float divisions = scast<float>( TimeSpawned::m_count + 1 );
-	const float spacing = fScreenWidth / divisions;
+	const float spacing = Graphics::fScreenWidth / divisions;
 	const float baseXStart = spacing;
 	for( size_t i = 0; i < TimeSpawned::m_count; ++i )
 	{
 		m_baseEmitterData.m_currentDelay[ i ] = m_delayDist( m_rng );
 		const float offsetX = spacing * scast<float>( i );
-		m_baseEmitterData.m_positions[i] = { baseXStart + offsetX, fScreenHeight - 1.f };
+		m_baseEmitterData.m_positions[i] = { baseXStart + offsetX, emitPos.y };
 	}
 }
 
@@ -43,10 +44,18 @@ void Fireworks::Update( float DeltaTime )
 	};
 	auto RemoveDeadParticles = []( ParticleVector &Particles )
 	{
-		auto endIt = std::remove_if( Particles.begin(), Particles.end(), []( std::unique_ptr<Particle> &pParticle )
+#if USE_SMART_POINTER
+		auto endIt = std::remove_if( Particles.begin(), Particles.end(), []( const std::unique_ptr<Particle> &pParticle )
 		{
 			return pParticle->IsDead();
 		} );
+#else
+		auto endIt = std::remove_if( Particles.begin(), Particles.end(), []( const Particle &pParticle )
+		{
+			return pParticle.IsDead();
+		} );
+#endif		
+			
 
 		Particles.erase( endIt, Particles.end() );
 	};
@@ -100,7 +109,11 @@ void Fireworks::EmitSecondary()
 {
 	for( const auto &pParticle : m_primary )
 	{
+#if USE_SMART_POINTER
 		if( pParticle->IsDead() )
+#else
+		if( pParticle.IsDead() )
+#endif		
 		{
 			const auto colorIndex = m_colorDist( m_rng );
 
@@ -111,7 +124,11 @@ void Fireworks::EmitSecondary()
 			const float maxTTL = .016f * 80.f;
 			const Color color = m_colorPalette[ colorIndex ];
 
+#if USE_SMART_POINTER
 			m_burstEmitter.SetPosition( pParticle->Position() );
+#else
+			m_burstEmitter.SetPosition( pParticle.Position() );
+#endif
 			m_burstEmitter.SpawnParticles( {
 				speed, minRadius, maxRadius, minTTL, maxTTL, color }
 			);

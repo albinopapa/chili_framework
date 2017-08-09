@@ -6,7 +6,7 @@
 
 struct TimeSpawned
 {
-	static constexpr size_t m_count = 5;
+	static constexpr size_t m_count = 35;
 	float m_launchCounter[ m_count ], m_currentDelay[ m_count ];
 	Vec2f m_positions[ m_count ];
 };

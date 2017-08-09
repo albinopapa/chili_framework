@@ -43,6 +43,15 @@ using Microsoft::WRL::ComPtr;
 //Sizei Graphics::ScreenSize = { ScreenWidth, ScreenHeight };
 //Sizef Graphics::fScreenSize = static_cast< Sizef >( Graphics::ScreenSize );
 
+int   Graphics::ScreenWidth = 1920;
+int   Graphics::ScreenHeight = 1080;
+float Graphics::fScreenWidth = static_cast< float >( Graphics::ScreenWidth );
+float Graphics::fScreenHeight = static_cast< float >( Graphics::ScreenHeight );
+Sizei Graphics::ScreenSize = { ScreenWidth, ScreenHeight };
+Sizef Graphics::fScreenSize = static_cast< Sizef >( Graphics::ScreenSize );
+Recti Graphics::ScreenRect = { { 0, 0 }, ScreenSize };
+Rectf Graphics::fScreenRect = static_cast< Rectf >( ScreenRect );
+
 Graphics::Graphics( HWNDKey& key )
 	:
 	m_direct3d( key.hWnd, *this ),
@@ -58,7 +67,8 @@ void Graphics::EndFrame()
 void Graphics::BeginFrame( Color C )
 {
 	// clear the sysbuffer
-	pSysBuffer.Fill( C );
+	//pSysBuffer.Fill( C );
+	pSysBuffer.Clear();
 }
 
 void Graphics::PutPixel( int x, int y, int r, int g, int b )
@@ -157,6 +167,19 @@ Recti Graphics::Rectify( int Left, int Width, int Top, int Height ) const
 		std::max( -Top, 0 ),
 		std::min( Graphics::ScreenWidth - Left, Width ),
 		std::min( Graphics::ScreenHeight - Top, Height ) );
+}
+
+void Graphics::SetResolution( const RECT & WinRect )
+{
+	const Recti &rect = *( reinterpret_cast< const Recti* >( &WinRect ) );
+	ScreenWidth = rect.GetWidth();
+	ScreenHeight = rect.GetHeight();
+	fScreenWidth = static_cast< float >( ScreenWidth );
+	fScreenHeight = static_cast< float >( ScreenHeight );
+	ScreenSize = rect.GetSize();
+	fScreenSize = static_cast< Sizef >( Graphics::ScreenSize );
+	ScreenRect = rect;
+	fScreenRect = static_cast< Rectf >( ScreenRect );
 }
 
 

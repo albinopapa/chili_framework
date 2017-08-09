@@ -81,15 +81,18 @@ public:
 	Recti Rectify( const Recti &Rect )const;
 	Recti Rectify( int Left, int Width, int Top, int Height )const;
 
+	static void SetResolution( const RECT &WinRect );
 private:
 	Direct3D			m_direct3d;
 	aligned_ptr<Color>	pSysBuffer;
 
 public:
-	static constexpr int ScreenWidth = 800;
-	static constexpr int ScreenHeight = 600;
-	static constexpr Sizei ScreenSize = { ScreenWidth, ScreenHeight };
-	static constexpr Sizef fScreenSize = static_cast< Sizef >( Graphics::ScreenSize );
-	static constexpr Recti ScreenRect = { { 0, 0 }, ScreenSize };
-	static constexpr Rectf fScreenRect = static_cast< Rectf >( ScreenRect );
+	static int   ScreenWidth;
+	static int   ScreenHeight;
+	static float fScreenWidth;
+	static float fScreenHeight;
+	static Sizei ScreenSize;
+	static Sizef fScreenSize;
+	static Recti ScreenRect;
+	static Rectf fScreenRect;
 };

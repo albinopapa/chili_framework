@@ -47,6 +47,11 @@ void Particle::Draw( const Rectf &Viewport, Graphics & Gfx ) const
 	Gfx.DrawCircleAlpha( offset, iRad, m_color * charStep );
 }
 
+Rectf Particle::GetRect() const
+{
+	return MakeRectFromCenter( m_position, Sizef{ m_radius, m_radius } );
+}
+
 bool Particle::IsDead()const
 {
 	return m_liveCounter <= 0.f;

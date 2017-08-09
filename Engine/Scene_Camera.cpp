@@ -7,7 +7,7 @@ Scene_Camera::Scene_Camera( Keyboard & Kbd, Graphics & Gfx )
 	m_player( { 8000.f-80.f, 700.f }, Kbd, m_cache ),
 	m_camera( m_player.GetPosition() ),
 	m_levelrect( static_cast< Rectf >( m_cache.m_background.GetRect() ) ),
-	m_screenrect( 0.f, 0.f, fScreenWidth, fScreenHeight )
+	m_screenrect( 0.f, 0.f, Graphics::fScreenWidth, Graphics::fScreenHeight )
 {
 }
 

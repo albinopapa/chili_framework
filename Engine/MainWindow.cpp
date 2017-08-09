@@ -38,15 +38,24 @@ MainWindow::MainWindow( HINSTANCE hInst,wchar_t * pArgs )
 	RegisterClassEx( &wc );
 
 	// create window & get hWnd
-	RECT wr;
-	wr.left = 350;
+	// Get desktop window
+	HWND dtHandle = GetDesktopWindow();
+	RECT dtRect{};
+	GetClientRect( dtHandle, &dtRect );
+	RECT wr = dtRect;
+	Graphics::SetResolution( wr );
+	/*
+	wr.left = 0;
 	wr.right = Graphics::ScreenWidth + wr.left;
-	wr.top = 100;
-	wr.bottom = Graphics::ScreenHeight + wr.top;
-	AdjustWindowRect( &wr,WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,FALSE );
-	hWnd = CreateWindow( wndClassName,L"Chili DirectX Framework",
-		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
-		wr.left,wr.top,wr.right - wr.left,wr.bottom - wr.top,
+	wr.top = 0;
+	wr.bottom = Graphics::ScreenHeight + wr.top;*/
+
+	const auto style = WS_POPUP;
+	AdjustWindowRect( &wr, style, FALSE );
+
+	hWnd = CreateWindow( 
+		wndClassName, L"Chili DirectX Framework",
+		style, wr.left,wr.top,wr.right - wr.left,wr.bottom - wr.top,
 		nullptr,nullptr,hInst,this );
 
 	// throw exception if something went terribly wrong
@@ -142,6 +151,7 @@ LRESULT MainWindow::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam )
 		}
 		break;
 	case WM_KEYUP:
+		if( wParam == VK_ESCAPE ) Kill();
 		kbd.OnKeyReleased( static_cast<unsigned char>(wParam) );
 		break;
 	case WM_CHAR:
