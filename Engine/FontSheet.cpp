@@ -7,6 +7,13 @@
 #include <cassert>
 #include <d2d1.h>
 #include <wrl/client.h>
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+
 #pragma comment(lib, "d2d1.lib")
 
 #define FONT_EXCEPTION(hr, note)DXException(hr, note, _CRT_WIDE(__FILE__),__LINE__)

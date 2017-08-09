@@ -83,7 +83,7 @@ void Graphics::PutPixelAlpha( int X, int Y, Color C )
 	assert( Y < int( Graphics::ScreenHeight ) );
 
 	auto &pixel = pSysBuffer[ Graphics::ScreenWidth * Y + X ];
-	pixel = C.BlendWith( pixel );
+	pixel = C.AlphaBlend( pixel );
 }
 
 void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
@@ -109,9 +109,12 @@ void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
 void Graphics::DrawCircleAlpha( const Vec2i & Center, int Radius, Color C )
 {
 	const auto sqRadius = sq( Radius );
+	const auto sqInner = sq( std::max( Radius >> 1, 1 ) );
 
 	const Vec2i vRadius = { Radius, Radius };
 	const auto bounds = Rectify( Recti( Vec2i( Center - vRadius ), Vec2i( Center + vRadius ) ) );
+
+	const Color centerColor = Colors::White * ( C.Brightness() );
 
 	for( int y = bounds.top - vRadius.y; y < bounds.bottom - vRadius.y; ++y )
 	{
@@ -121,9 +124,22 @@ void Graphics::DrawCircleAlpha( const Vec2i & Center, int Radius, Color C )
 			if( sqDist < sqRadius )
 			{
 				const auto step = ( sqrtf( static_cast< float >( sqDist ) ) / static_cast< float >( Radius ) );
-				const auto alpha = static_cast< unsigned int >( step * 255.f );
-				C.SetA( 255u - alpha );
-				PutPixelAlpha( x + Center.x, y + Center.y, C );
+				const auto alpha = 
+					static_cast<unsigned char>( 
+						255u - static_cast< unsigned char>( step * 255.f ) );
+
+				Color color;
+				if( sqDist < sqInner )
+				{
+					color = Color( centerColor, alpha );
+				}
+				else
+				{
+					color = Color( C, alpha );
+				}
+					
+				
+				PutPixelAlpha( x + Center.x, y + Center.y, color );
 			}
 		}
 	}

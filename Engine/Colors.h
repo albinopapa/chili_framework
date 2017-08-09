@@ -19,6 +19,14 @@
 *	along with The Chili DirectX Framework.  If not, see <http://www.gnu.org/licenses/>.  *
 ******************************************************************************************/
 #pragma once
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+
+#include <algorithm>
 
 class Color
 {
@@ -44,7 +52,7 @@ public:
 	{}
 	constexpr Color( Color col,unsigned char x )
 		:
-		Color( (x << 24u) | col.dword )
+		Color( ( x << 24u ) | ( col.dword & 0x00FFFFFF ) )
 	{}
 	Color& operator =( Color color )
 	{
@@ -92,16 +100,41 @@ public:
 		dword = (dword & 0xFFFFFF00u) | b;
 	}
 	
-	Color BlendWith( Color Src )
+	Color operator+( const Color &C )const
+	{
+		return Color( *this ) += C;
+	}
+	Color &operator+=( const Color &C )
+	{
+		SetR( std::min<unsigned char>( GetR() + C.GetR(), 255u ) );
+		SetG( std::min<unsigned char>( GetG() + C.GetG(), 255u ) );
+		SetB( std::min<unsigned char>( GetB() + C.GetB(), 255u ) );
+
+		return *this;
+	}
+	Color operator*( unsigned char S )const
+	{
+		return Color( *this ) *= S;
+	}
+	Color &operator*=( unsigned char S )
+	{
+		SetR( static_cast<unsigned char>( ( GetR() * S ) >> 8u ) );
+		SetG( static_cast<unsigned char>( ( GetG() * S ) >> 8u ) );
+		SetB( static_cast<unsigned char>( ( GetB() * S ) >> 8u ) );
+		return *this;
+	}
+	Color AlphaBlend( Color Src )
 	{
 		const auto srcAlpha0 = GetA();
 		const auto srcAlpha1 = 255u - srcAlpha0;
 
-		const auto resultRed   = static_cast<unsigned char>( ( ( GetR() * srcAlpha0 ) + ( Src.GetR() * srcAlpha1 ) ) >> 8u );
-		const auto resultGreen = static_cast<unsigned char>( ( ( GetG() * srcAlpha0 ) + ( Src.GetG() * srcAlpha1 ) ) >> 8u );
-		const auto resultBlue  = static_cast<unsigned char>( ( ( GetB() * srcAlpha0 ) + ( Src.GetB() * srcAlpha1 ) ) >> 8u );
-
-		return{ 255u, resultRed, resultGreen, resultBlue };
+		return ( *this * srcAlpha0 ) + ( Src * srcAlpha1 );		
+	}
+	unsigned char Brightness()const
+	{
+		const auto m0 = std::max( GetR(), GetG() );
+		const auto m1 = std::max( m0, GetB() );
+		return static_cast< unsigned char >( m1 );
 	}
 	constexpr bool operator==( const Color C )const
 	{

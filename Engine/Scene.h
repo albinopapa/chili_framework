@@ -9,13 +9,11 @@ constexpr float fScreenHeight = static_cast< float >( Graphics::ScreenHeight );
 class Scene
 {
 public:
-
 	Scene( Keyboard &Kbd, Graphics &Gfx );
+	virtual ~Scene() = default;
 
 	virtual void Update( float DeltaTime ) = 0;
 	virtual void Draw()const = 0;
-
-	virtual ~Scene() = default;
 
 protected:
 	Graphics &m_graphics;

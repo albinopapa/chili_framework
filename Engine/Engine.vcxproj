@@ -146,18 +146,25 @@
     <ClInclude Include="ChiliWin.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="COMInitializer.h" />
+    <ClInclude Include="Drawable.h" />
     <ClInclude Include="DWriteInitalizer.h" />
     <ClInclude Include="DXErr.h" />
     <ClInclude Include="DXException.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="Fireworks.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FontSheet.h" />
+    <ClInclude Include="Frametimer.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="ImageLoader.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Launchable.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="MessageType.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="Observer.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="Rect.h" />
@@ -168,6 +175,7 @@
     <ClInclude Include="Scene_FontRendering.h" />
     <ClInclude Include="Scene_Particles.h" />
     <ClInclude Include="Scene_Sprite.h" />
+    <ClInclude Include="ScrapSpace.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="Sprite.h" />
@@ -176,6 +184,7 @@
     <ClInclude Include="Text.h" />
     <ClInclude Include="TextFormat.h" />
     <ClInclude Include="Vec2.h" />
+    <ClInclude Include="Visitor.h" />
     <ClInclude Include="WicInitializer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +196,8 @@
     <ClCompile Include="DWriteInitalizer.cpp" />
     <ClCompile Include="DXErr.cpp" />
     <ClCompile Include="DXException.cpp" />
+    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Fireworks.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FontSheet.cpp" />
     <ClCompile Include="Frametimer.cpp" />
@@ -197,7 +208,9 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="MessageType.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="Observer.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleEmitter.cpp" />
     <ClCompile Include="Scene.cpp" />

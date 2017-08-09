@@ -21,18 +21,12 @@ void Camera::ClampTo( const Sizef &ViewSize, const Rectf & Boundary )
 	);
 }
 
-void Camera::SetTarget( const Vec2f & TargetPosition )
-{
-	m_target = TargetPosition;
-}
-
-TrackingCamera::TrackingCamera( const Vec2f &TrackMe )
-	:
-	Camera( TrackMe )
-{
-}
-
 void TrackingCamera::Update( float DeltaTime )
 {
 	m_position = m_target;
+}
+
+void TrackingCamera::SetTarget( const Vec2f & TargetPosition )
+{
+	m_target = TargetPosition;
 }

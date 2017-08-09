@@ -2,84 +2,143 @@
 #include <algorithm>
 
 
-Emitter::Emitter( const Particle::Description &PartDesc, const Emitter::Description &EmDesc )
+
+Emitter::Emitter( EmitterData &&DataTemplate )
 	:
-	m_particleDesc( PartDesc ),
-	m_emitterDesc( EmDesc ),
-	m_rng( std::random_device()( ) ),
-	m_ttlDist( PartDesc.m_minParticleTimeToLive, PartDesc.m_maxParticleTimeToLive ),
-	m_radiusDist( PartDesc.m_minParticleRadius, PartDesc.m_maxParticleRadius ),
-	m_delayDist( EmDesc.m_minDelay, EmDesc.m_maxDelay )
+	EmitterData( std::move( DataTemplate ) )
 {
 }
 
-void Emitter::Update( float DeltaTime, const Rectf &Viewport )
+Emitter::Emitter( const Vec2f & Position, size_t LaunchCount, size_t MaxParticles )
+	:
+	EmitterData( Position, LaunchCount, MaxParticles )
 {
-	m_delayCounter -= DeltaTime;		
-	SpawnParticle();
-
-	for( auto &particle : m_particles )
-	{
-		particle.Update( DeltaTime );
-		particle.KillOffscreen( Viewport );
-	}
-	
-	auto remIter = GetFirstDead();
-	while( remIter != m_particles.end() )
-	{
-		SaveDeadPositions( remIter );
-		m_particles.erase( remIter );
-		remIter = GetFirstDead();
-	}
 }
 
-void Emitter::Draw( const Rectf &Viewport, Graphics & Gfx ) const
+//Emitter::Emitter(
+//	const Particles::Description & PartDesc, 
+//	const EmitterData & DataTemplate ) 
+//	:
+//	EmitterData( DataTemplate ),
+//	m_particleDesc( PartDesc ),
+//	m_rng( std::random_device()( ) ),
+//	m_ttlDist( PartDesc.minTimeToLive, PartDesc.maxTimeToLive ),
+//	m_radiusDist( PartDesc.minRadius, PartDesc.maxRadius ),
+//	m_delayDist( DataTemplate.minDelay, DataTemplate.maxDelay )
+//{
+//
+//}
+
+void Emitter::SetPosition( const Vec2f &Pos )
 {
-	for( const auto &particle : m_particles )
-	{
-		particle.Draw( Viewport, Gfx );
-	}
+	position = Pos;
 }
 
-const std::vector<Vec2f>& Emitter::GetPositionVector() const
+void Emitter::EnableSpawning()
 {
-	return m_deadParticlePositions;
+	m_canSpawn = true;
 }
 
-void Emitter::ClearPositionVector()
+void Emitter::DisableSpawning()
 {
-	if(!m_deadParticlePositions.empty())
-		m_deadParticlePositions.clear();
+	m_canSpawn = false;
 }
 
-bool Emitter::IsAllDead() const
+bool Emitter::CanSpawn() const
 {
-	return m_particles.empty();
+	return m_canSpawn;
 }
 
-void Emitter::SpawnParticle()
+ParticleVector Emitter::TakeParticles()
 {
-	if( m_particles.size() >= m_emitterDesc.m_maxParticles || m_delayCounter > 0.f || !m_canSpawn ) return;
-	if( !m_emitterDesc.m_infinite ) m_canSpawn = false;
+	return std::move( m_particles );
+}
 
-	m_delayCounter = m_delayDist( m_rng );
+SingleEmitter::SingleEmitter(
+	EmitterData &&DataTemplate, const Vec2f & FacingDirection )
+	:
+	Emitter( std::move( DataTemplate ) ),
+	m_direction( FacingDirection )
+{
+}
 
-	const Vec2f impulse = m_emitterDesc.m_direction * ( 16.f * 64.f );
+SingleEmitter::SingleEmitter( const Vec2f & Position, size_t LaunchCount, size_t MaxParticles, const Vec2f & FacingDirection )
+	:
+	Emitter( Position, LaunchCount, MaxParticles ),
+	m_direction( FacingDirection )
+{
+}
+
+void SingleEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc )
+{
+	if( !CanSpawn() ) return;
+
+	std::uniform_real_distribution<float> m_ttlDist( PartDesc.minTimeToLive, PartDesc.maxTimeToLive );
+	std::uniform_real_distribution<float> m_radiusDist( PartDesc.minRadius, PartDesc.maxRadius );
+
+	const Vec2f impulse = m_direction * ( PartDesc.speed * 64.f );
 	const float ttl = m_ttlDist( m_rng );
 	const auto radius = m_radiusDist( m_rng );
-	m_particles.push_back( 
-		Particle( m_emitterDesc.m_position, impulse, radius, .01f, ttl, true, m_particleDesc.m_particleColor ) );
+
+	m_particles.emplace_back( std::make_unique<Particle>(
+		position, impulse, radius, ttl, PartDesc.color ) );
 }
 
-std::vector<Particle>::iterator Emitter::GetFirstDead()
+RadialEmitter::RadialEmitter( EmitterData &&DataTemplate )
+	:
+	Emitter( std::move( DataTemplate ) )
 {
-	return std::find_if( m_particles.begin(), m_particles.end(), [ this ]( const Particle &P )
+	InitCommon();
+}
+
+RadialEmitter::RadialEmitter( const Vec2f & Position, size_t LaunchCount, size_t MaxParticles )
+	:
+	Emitter( Position, LaunchCount, MaxParticles )
+{
+	InitCommon();
+}
+
+void RadialEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc )
+{
+	if( !CanSpawn() ) return;
+
+	std::uniform_real_distribution<float> m_ttlDist( 
+		PartDesc.minTimeToLive, PartDesc.maxTimeToLive );
+	std::uniform_real_distribution<float> m_radiusDist( 
+		PartDesc.minRadius, PartDesc.maxRadius );
+	std::uniform_real_distribution<float> speedDist( 0.f, PartDesc.speed );
+
+	const float ttl = m_ttlDist( m_rng );
+	const auto radius = m_radiusDist( m_rng );
+
+	const size_t count = std::min( maxParticles - m_particles.size(), launchCount );
+	m_particles.reserve( m_particles.size() + count );
+
+	for( int i = 0; i < launchCount; ++i )
 	{
-		return P.IsDead();
-	} );
+		const float speed = speedDist( m_rng );
+		//const float speed = PartDesc.speed;
+		const Vec2f impulse = m_bursts[i] * ( speed * 64.f );
+		m_particles.emplace_back(
+			std::make_unique<Particle>(
+				position, impulse, radius, ttl, PartDesc.color )
+		);
+	}
+
 }
 
-void Emitter::SaveDeadPositions( std::vector<Particle>::iterator FirstDead )
+void RadialEmitter::InitCommon()
 {
-	m_deadParticlePositions.push_back( FirstDead->GetPosition() );
+	launchCount = std::min( launchCount, maxParticles );
+	const auto partCount = launchCount;
+	assert( partCount != 0 );
+
+	const float radianStep = ( 3.141592f / 180.f ) * ( 360.f / partCount );
+	m_bursts.reserve( partCount );
+
+	for( size_t i = 0u; i < partCount; ++i )
+	{
+		const auto angle = radianStep * i;
+		m_bursts.emplace_back( std::cos( angle ), std::sin( angle ) );
+	}
 }
