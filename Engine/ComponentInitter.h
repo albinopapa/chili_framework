@@ -14,16 +14,7 @@ template<class Ty>
 class ComponentInitter
 {
 public:
-	static const ComponentInitter &Instance()
-	{
-		AutoLogger logger( GetFunctionName() );
-		if( !s_pInstance )
-		{
-			s_pInstance = std::make_unique<ComponentInitter<Ty>>();
-		}
-
-		return *s_pInstance;
-	}
+	
 
 	Ty *GetFactory()const
 	{
@@ -37,21 +28,23 @@ public:
 	{
 		return GetFactory();
 	}
-	static void Release()
-	{
-		s_pInstance.reset();
-	}
+
 
 protected:
 	COMInitializer m_com;
 	Microsoft::WRL::ComPtr<Ty> m_pFactory;
-	static std::unique_ptr<ComponentInitter> s_pInstance;
 };
 
 class WicInitter :public ComponentInitter<IWICImagingFactory>
 {
 public:
 	WicInitter();
+	static const WicInitter &Instance();
+	static void Release();
+
+private:
+	static std::unique_ptr<WicInitter> s_pInstance;
+
 };
 
 
@@ -59,6 +52,12 @@ class DWriteInitter :public ComponentInitter<IDWriteFactory>
 {
 public:
 	DWriteInitter();
+	static const DWriteInitter &Instance();
+	static void Release();
+
+private:
+	static std::unique_ptr<DWriteInitter> s_pInstance;
+
 };
 
 template<class InitterType>
