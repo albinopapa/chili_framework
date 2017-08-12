@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <string>
 #include <array>
+#include "SSE.h"
 
 // Ignore the intellisense error "cannot open source file" for .shh files.
 // They will be created during the build sequence before the preprocessor runs.
@@ -116,13 +117,15 @@ void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
 	}
 }
 
-void Graphics::DrawCircleAlpha( const Vec2i & Center, int Radius, Color C )
+void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
 {
-	const auto sqRadius = sq( Radius );
-	const auto sqInner = sq( std::max( Radius >> 1, 1 ) );
+	const auto radius = Rect.GetWidth() / 2;
+	const auto sqRadius = sq( radius );
+	const auto sqInner = sq( std::max( radius >> 1, 1 ) );
 
-	const Vec2i vRadius = { Radius, Radius };
-	const auto bounds = Rectify( Recti( Vec2i( Center - vRadius ), Vec2i( Center + vRadius ) ) );
+	const auto center = Rect.GetCenter();
+	const Vec2i vRadius = { radius, radius };
+	const auto bounds = Rectify( Recti( Vec2i( center - vRadius ), Vec2i( center + vRadius ) ) );
 
 	const Color centerColor = Colors::White * ( C.Brightness() );
 
@@ -133,24 +136,31 @@ void Graphics::DrawCircleAlpha( const Vec2i & Center, int Radius, Color C )
 			const auto sqDist = sq( x ) + sq( y );
 			if( sqDist < sqRadius )
 			{
-				const auto step = ( sqrtf( static_cast< float >( sqDist ) ) / static_cast< float >( Radius ) );
-				const auto alpha = 
-					static_cast<unsigned char>( 
-						255u - static_cast< unsigned char>( step * 255.f ) );
+				const auto dist = sqrtf( static_cast< float >( sqDist ) );
+				const auto step = dist / static_cast< float >( radius );
 
-				Color color;
-				if( sqDist < sqInner )
-				{
-					color = Color( centerColor, alpha );
-				}
-				else
-				{
-					color = Color( C, alpha );
-				}
-					
+				const auto alpha =
+					static_cast< unsigned char >( ( 1.f - step ) * 255.f );
+
+				const Color color = ( sqDist < sqInner ) ?
+					Color( centerColor, alpha ) :
+					Color( C, alpha );
 				
-				PutPixelAlpha( x + Center.x, y + Center.y, color );
+				PutPixelAlpha( x + center.x, y + center.y, color );
 			}
+		}
+	}
+}
+
+void Graphics::DrawRectAlpha( const Recti & Rect, Color C )
+{
+	const auto bounds = Rectify( Rect ).Translate( Rect.LeftTop() );
+	
+	for( int y = bounds.top; y < bounds.bottom; ++y )
+	{
+		for( int x = bounds.left; x < bounds.right; ++x )
+		{
+			PutPixelAlpha( x, y, C );
 		}
 	}
 }

@@ -30,6 +30,8 @@ public:
 		file( file ),
 		line( line )
 	{}
+	virtual~ChiliException() = default;
+
 	const std::wstring& GetNote() const
 	{
 		return note;

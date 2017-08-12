@@ -1,25 +1,27 @@
 #pragma once
 
-#include "Observer.h"
-#include "ParticleEmitter.h"
-
+#include "ParticleEffect.h"
+#include "RadialEmitter.h"
+#include "SingleEmitter.h"
 
 struct TimeSpawned
 {
-	static constexpr size_t m_count = 35;
+	static constexpr size_t m_count = 10;
 	float m_launchCounter[ m_count ], m_currentDelay[ m_count ];
 	Vec2f m_positions[ m_count ];
 };
 
-class Fireworks
+class Fireworks :public ParticleEffect
 {
 public:
 	Fireworks();
-	void Update( float DeltaTime );
-		
-	const std::vector<ParticleVector *> &GetParticleVectors()const;
+	const std::vector<ParticleVector *> &GetParticleVectors()const override;
 
 private:
+	void Spawn( float DeltaTime, const Vec2f &BasePos )override;
+	void Remove()override;
+	void Collect()override;
+
 	void EmitPrimary( float DeltaTime );
 	void EmitSecondary();
 
@@ -38,6 +40,5 @@ private: // Members
 	std::uniform_real_distribution<float> m_delayDist;
 
 	ParticleVector m_primary, m_secondary;
-	std::vector<ParticleVector *> m_particles;
 };
 

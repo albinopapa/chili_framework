@@ -7,12 +7,8 @@ FrameTimer::FrameTimer()
 
 float FrameTimer::Mark()
 {
-#ifdef NDEBUG
 	const auto old = last;
 	last = steady_clock::now();
 	const duration<float> FrameTime = last - old;
 	return FrameTime.count();
-#else
-	return .016f;
-#endif
 }

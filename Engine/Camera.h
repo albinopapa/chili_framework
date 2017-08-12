@@ -8,6 +8,7 @@ class Camera
 public:
 	Camera() = default;
 	Camera( const Vec2f &StartPos );
+	virtual~Camera() = default;
 
 	const Vec2f &GetPosition()const;
 	void ClampTo( const Sizef &ViewSize, const Rectf &Boundary );

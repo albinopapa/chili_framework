@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WicInitializer.h"
+#include "ComponentInitter.h"
 #include <string>
 
 // ImageLoader loads .bmp, .jpg and .png files.

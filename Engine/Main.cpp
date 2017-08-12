@@ -21,14 +21,25 @@
 #include "MainWindow.h"
 #include "Game.h"
 #include "ChiliException.h"
+#include "ComponentInitter.h"
+
+#define _CRTDBG_MAP_ALLOC  
+#include <stdlib.h>  
+#include <crtdbg.h>  
+
 
 int WINAPI wWinMain( HINSTANCE hInst,HINSTANCE,LPWSTR pArgs,INT )
 {
+	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	_CrtSetReportMode( _CRT_WARN | _CRT_ERROR , _CRTDBG_MODE_DEBUG );
+
 	try
 	{
 		MainWindow wnd( hInst,pArgs );		
 		try
 		{
+			InitHandler<DWriteInitter> dwHandler;
+			InitHandler<WicInitter> wicInitHandler;
 			Game theGame( wnd );
 			while( wnd.ProcessMessage() )
 			{
@@ -74,6 +85,7 @@ int WINAPI wWinMain( HINSTANCE hInst,HINSTANCE,LPWSTR pArgs,INT )
 		MessageBox( nullptr,L"\n\nException caught at main window creation.",
 			L"Unhandled Non-STL Exception",MB_OK );
 	}
+	int hasLeaks = _CrtDumpMemoryLeaks();
 
 	return 0;
 }

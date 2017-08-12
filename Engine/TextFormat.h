@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DWriteInitalizer.h"
+#include "ComponentInitter.h"
 #include <string>
 
 class TextFormat

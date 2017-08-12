@@ -2,7 +2,7 @@
 
 TextFormat::TextFormat( const Properties & Props )
 {
-	DWriteInitalizer::Instance()->CreateTextFormat(
+	DWriteInitter::Instance()->CreateTextFormat(
 		Props.fontname.c_str(),
 		nullptr,
 		Props.weight,

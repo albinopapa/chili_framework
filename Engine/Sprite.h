@@ -31,6 +31,7 @@ public:
 	int GetHeight()const;
 	Recti GetRect()const;
 
+	bool ComparePixel( int X, int Y, Color C )const;
 protected:
 	Recti Rectify( const Rectf &Src )const;
 	SpriteData MakeResource( const Recti &Src )const;

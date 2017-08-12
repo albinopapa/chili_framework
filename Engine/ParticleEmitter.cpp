@@ -1,151 +1,62 @@
 #include "ParticleEmitter.h"
 #include <algorithm>
 
-
-
-Emitter::Emitter( EmitterData &&DataTemplate )
-	:
-	EmitterData( std::move( DataTemplate ) )
-{
-	m_particles.reserve( maxParticles );
-}
-
-Emitter::Emitter( const Vec2f & Position, size_t LaunchCount, size_t MaxParticles )
-	:
-	EmitterData( Position, LaunchCount, MaxParticles )
-{
-	m_particles.reserve( MaxParticles );
-}
-
-void Emitter::SetPosition( const Vec2f &Pos )
-{
-	position = Pos;
-}
-
-void Emitter::EnableSpawning()
-{
-	m_canSpawn = true;
-}
-
-void Emitter::DisableSpawning()
-{
-	m_canSpawn = false;
-}
-
-bool Emitter::CanSpawn() const
-{
-	return m_canSpawn;
-}
-
-ParticleVector Emitter::TakeParticles()
-{
-	return std::move( m_particles );
-}
-
-SingleEmitter::SingleEmitter(
-	EmitterData &&DataTemplate, const Vec2f & FacingDirection )
+ConicalEmitter::ConicalEmitter(
+	EmitterData &&DataTemplate,
+	const Vec2 &FacingDirection, float DistanceToBase, float BaseRadius )
 	:
 	Emitter( std::move( DataTemplate ) ),
-	m_direction( FacingDirection )
+	m_distanceToBase( DistanceToBase ),
+	m_baseRadius( BaseRadius )
 {
+	SetDirection( FacingDirection );
 }
 
-SingleEmitter::SingleEmitter( const Vec2f & Position, size_t LaunchCount, size_t MaxParticles, const Vec2f & FacingDirection )
+ConicalEmitter::ConicalEmitter(
+	const Vec2f &Position, size_t LaunchCount, size_t MaxParticles,
+	const Vec2 &FacingDirection, float DistanceToBase, float BaseRadius )
 	:
-	Emitter( Position, LaunchCount, MaxParticles ),
-	m_direction( FacingDirection )
-{
+	ConicalEmitter( { Position, LaunchCount, MaxParticles }, 
+					FacingDirection, DistanceToBase, BaseRadius )
+{	
+	SetDirection( FacingDirection );
 }
 
-void SingleEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc )
+ParticleVector ConicalEmitter::SpawnParticles( const ParticleSetupDesc & PartDesc )
 {
-	if( !CanSpawn() ) return;
+	ParticleVector particles;
 
-	std::uniform_real_distribution<float> m_ttlDist( PartDesc.minTimeToLive, PartDesc.maxTimeToLive );
-	std::uniform_real_distribution<float> m_radiusDist( PartDesc.minRadius, PartDesc.maxRadius );
+	if( !CanSpawn() )return particles;
+	particles.reserve( launchCount );
 
-	const Vec2f impulse = m_direction * ( PartDesc.speed * 64.f );
-	const float ttl = m_ttlDist( m_rng );
-	const auto radius = m_radiusDist( m_rng );
+	std::uniform_real_distribution<float> wDist( PartDesc.minWidth, PartDesc.maxWidth );
+	std::uniform_real_distribution<float> hDist( PartDesc.minHeight, PartDesc.maxHeight );
+	std::uniform_real_distribution<float> ttlDist( PartDesc.minTimeToLive, PartDesc.maxTimeToLive );
 
-#if USE_SMART_POINTER
-	m_particles.emplace_back(
-		std::make_unique<Particle>( position, impulse, radius, ttl, PartDesc.color ) );
-#else
-	m_particles.emplace_back( position, impulse, radius, ttl, PartDesc.color );
-#endif
-	
-}
-
-RadialEmitter::RadialEmitter( EmitterData &&DataTemplate )
-	:
-	Emitter( std::move( DataTemplate ) )
-{
-	InitCommon();
-}
-
-RadialEmitter::RadialEmitter( const Vec2f & Position, size_t LaunchCount, size_t MaxParticles )
-	:
-	Emitter( Position, LaunchCount, MaxParticles )
-{
-	InitCommon();
-}
-
-void RadialEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc )
-{
-	if( !CanSpawn() ) return;
-
-	std::uniform_real_distribution<float> m_ttlDist( 
-		PartDesc.minTimeToLive, PartDesc.maxTimeToLive );
-	std::uniform_real_distribution<float> m_radiusDist( 
-		PartDesc.minRadius, PartDesc.maxRadius );
-	std::uniform_real_distribution<float> speedDist( 0.f, PartDesc.speed );
-
-	const float ttl = m_ttlDist( m_rng );
-	const auto radius = m_radiusDist( m_rng );
-
-	const size_t count = std::min( maxParticles - m_particles.size(), launchCount );
-	const size_t growto = m_particles.size() + count;
-
-	if( m_particles.capacity() < growto )
-	{
-		m_particles.reserve( growto );
-	}	
+	const float partWidth = wDist( m_rng );
+	const float partHeight = hDist( m_rng );
+	const float ttl = ttlDist( m_rng );
+	const Vec2f range = m_end - m_start;
+	const Vec2f step = range * ( launchCount > 0 ? 1.f / launchCount : 0.f );
 
 	for( int i = 0; i < launchCount; ++i )
 	{
-		// Choose how to determine speed
-		// Random speed for random positions
-		const float speed = speedDist( m_rng );
+		const Vec2f spawnPos = m_start + ( step * static_cast< float >( i ) );
+		const Vec2f impulse = ( spawnPos - position ).Normalize() * PartDesc.speed;
 
-		// Uncomment to make a ring of particles
-		//const float speed = PartDesc.speed;
-
-		const Vec2f impulse = m_bursts[i] * ( speed * 64.f );
-
-#if USE_SMART_POINTER
-		m_particles.emplace_back(
-			std::make_unique<Particle>( position, impulse, radius, ttl, PartDesc.color ) );
-#else
-		m_particles.emplace_back( position, impulse, radius, ttl, PartDesc.color );
-#endif
+		particles.emplace_back( position, impulse, partWidth, partHeight, ttl, PartDesc.drawFunc, PartDesc.color );
 	}
+
+	return particles;
 
 }
 
-void RadialEmitter::InitCommon()
+void ConicalEmitter::SetDirection( const Vec2f & Direction )
 {
-	if( launchCount > maxParticles )
-	{
-		std::swap( launchCount, maxParticles );
-	}
-		
-	m_bursts.reserve( launchCount );
-
-	const float radianStep = ( 3.141592f / 180.f ) * ( 360.f / launchCount );
-	for( size_t i = 0u; i < launchCount; ++i )
-	{
-		const auto angle = radianStep * i;
-		m_bursts.emplace_back( std::cos( angle ), std::sin( angle ) );
-	}
+	m_direction = ( Direction.LenSq() != 1.f ) ? Direction.Normalize() : Direction;
+	
+	const Vec2f center = position + ( m_direction * m_distanceToBase );
+	const Vec2f leftRotatedDir = { -m_direction.y, m_direction.x };
+	m_start = center + ( leftRotatedDir * m_baseRadius );
+	m_end = center + ( ( -leftRotatedDir ) * m_baseRadius );
 }

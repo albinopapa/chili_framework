@@ -2,8 +2,6 @@
 #include "DXException.h"
 #include "Logger.h"
 
-#define WIC_EXCEPTION( hr,note ) DXException( hr,note,_CRT_WIDE(__FILE__),__LINE__ )
-
 using Microsoft::WRL::ComPtr;
 
 ComPtr<IWICBitmap> ImageLoader::Load( const std::string & Filename )
@@ -12,7 +10,7 @@ ComPtr<IWICBitmap> ImageLoader::Load( const std::string & Filename )
 
 	HRESULT hr = S_OK;
 	ComPtr<IWICBitmapDecoder> pDecoder;
-	if( FAILED( hr = WicInitializer::Instance().GetFactory()->CreateDecoderFromFilename(
+	if( FAILED( hr = WicInitter::Instance().GetFactory()->CreateDecoderFromFilename(
 		std::wstring( Filename.begin(), Filename.end() ).c_str(),
 		nullptr,
 		GENERIC_READ,
@@ -30,7 +28,7 @@ ComPtr<IWICBitmap> ImageLoader::Load( const std::string & Filename )
 	}
 
 	ComPtr<IWICFormatConverter> pConverter;
-	if( FAILED( hr = WicInitializer::Instance().GetFactory()->CreateFormatConverter( &pConverter ) ) )
+	if( FAILED( hr = WicInitter::Instance()->CreateFormatConverter( &pConverter ) ) )
 	{
 		throw WIC_EXCEPTION( hr, L"Failed to create format converter." );
 	}
@@ -46,7 +44,7 @@ ComPtr<IWICBitmap> ImageLoader::Load( const std::string & Filename )
 	}
 
 	ComPtr<IWICBitmap> pBitmap;
-	if( FAILED( hr = WicInitializer::Instance().GetFactory()->CreateBitmapFromSource(
+	if( FAILED( hr = WicInitter::Instance()->CreateBitmapFromSource(
 		pConverter.Get(),
 		WICBitmapCacheOnDemand,
 		&pBitmap ) ) )

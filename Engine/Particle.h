@@ -5,17 +5,26 @@
 
 struct ParticleSetupDesc
 {
+	enum DrawFunc
+	{
+		Circle, CircleAlpha,
+		RectAlpha
+	};
 public:
 	ParticleSetupDesc() = default;
 	ParticleSetupDesc(
-		float Speed, float MinRadius, float MaxRadius,
+		float Speed, 
+		float MinWidth, float MaxWidth,
+		float MinHeight, float MaxHeight,
 		float MinTimeToLive, float MaxTimeToLive,
 		Color Clr );
 
 public:
 	float speed = 16.f;
-	float minRadius = 5.f, maxRadius = 15.f;
+	float minWidth = 4.f, maxWidth = 16.f;
+	float minHeight = 1.f, maxHeight = 15.f;
 	float minTimeToLive = .1f, maxTimeToLive = 2.f;
+	DrawFunc drawFunc = CircleAlpha;
 	Color color = Colors::White;
 };
 
@@ -26,8 +35,9 @@ public:
 	Particle(
 		const Vec2f &StartPos,
 		const Vec2f &StartVelocity,
-		float Radius,
+		float Width, float Height,
 		float TimeToLive,
+		ParticleSetupDesc::DrawFunc Fn,
 		Color C );
 
 	void Update( float DeltaTime );
@@ -43,7 +53,8 @@ public:
 	bool IsDead()const;
 private:
 	float m_timeToLive = 0.f, m_liveCounter = 0.f;
-	float m_radius;
+	float m_width, m_height;
 	Color m_color;
 	Vec2f m_position, m_velocity;
+	void( Graphics::*DrawFn )( const Recti &Rect, Color C );
 };

@@ -34,6 +34,7 @@ class HWNDKey
 public:
 	HWNDKey( const HWNDKey& ) = delete;
 	HWNDKey& operator=( HWNDKey& ) = delete;
+	virtual ~HWNDKey() = default;
 protected:
 	HWNDKey() = default;
 protected:

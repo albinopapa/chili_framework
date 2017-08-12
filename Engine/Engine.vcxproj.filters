@@ -124,6 +124,21 @@
     <Filter Include="Source Files\Unused">
       <UniqueIdentifier>{4aa2caa0-f318-4d4b-8db5-00e89209e66b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Framework\Emitters">
+      <UniqueIdentifier>{cbe2e934-0ccd-4196-81d2-c45c2157fc67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Framework\Emitters">
+      <UniqueIdentifier>{8c621c5d-216a-46cf-adcf-4e10a5d17917}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Framework\Utilities\SIMD">
+      <UniqueIdentifier>{2d8e8a3a-32bd-414a-95a7-4777f8e1afa4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scenes\DemoCode\ParticleEffects">
+      <UniqueIdentifier>{89b12afe-1972-46d7-9b36-1256c1e1ce62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scenes\DemoCode\Particle Effects">
+      <UniqueIdentifier>{7f097191-356a-413d-b8b6-8494fb5c8cc8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -162,12 +177,6 @@
     <ClInclude Include="COMInitializer.h">
       <Filter>Header Files\Framework\Utilities\Initializers</Filter>
     </ClInclude>
-    <ClInclude Include="DWriteInitalizer.h">
-      <Filter>Header Files\Framework\Utilities\Initializers</Filter>
-    </ClInclude>
-    <ClInclude Include="WicInitializer.h">
-      <Filter>Header Files\Framework\Utilities\Initializers</Filter>
-    </ClInclude>
     <ClInclude Include="Font.h">
       <Filter>Header Files\Framework\Font Rendering</Filter>
     </ClInclude>
@@ -186,13 +195,7 @@
     <ClInclude Include="Mouse.h">
       <Filter>Header Files\Framework\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Drawable.h">
-      <Filter>Header Files\Framework\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="DXErr.h">
-      <Filter>Header Files\Framework\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Launchable.h">
       <Filter>Header Files\Framework\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="ImageLoader.h">
@@ -249,9 +252,6 @@
     <ClInclude Include="Character.h">
       <Filter>Header Files\Scenes\DemoCode</Filter>
     </ClInclude>
-    <ClInclude Include="Fireworks.h">
-      <Filter>Header Files\Scenes\DemoCode</Filter>
-    </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>Header Files\Scenes\DemoCode</Filter>
     </ClInclude>
@@ -275,6 +275,42 @@
     </ClInclude>
     <ClInclude Include="Visitor.h">
       <Filter>Header Files\Unused</Filter>
+    </ClInclude>
+    <ClInclude Include="Emitter.h">
+      <Filter>Header Files\Framework\Emitters</Filter>
+    </ClInclude>
+    <ClInclude Include="EmitterData.h">
+      <Filter>Header Files\Framework\Emitters</Filter>
+    </ClInclude>
+    <ClInclude Include="RadialEmitter.h">
+      <Filter>Header Files\Framework\Emitters</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleEmitter.h">
+      <Filter>Header Files\Framework\Emitters</Filter>
+    </ClInclude>
+    <ClInclude Include="SSE.h">
+      <Filter>Header Files\Framework\Utilities\SIMD</Filter>
+    </ClInclude>
+    <ClInclude Include="SSE_Utils.h">
+      <Filter>Header Files\Framework\Utilities\SIMD</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleEffect.h">
+      <Filter>Header Files\Scenes\DemoCode\Particle Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Fireworks.h">
+      <Filter>Header Files\Scenes\DemoCode\Particle Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Flames.h">
+      <Filter>Header Files\Scenes\DemoCode\Particle Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveBeam.h">
+      <Filter>Header Files\Scenes\DemoCode\Particle Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamEmitter.h">
+      <Filter>Header Files\Framework\Emitters</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentInitter.h">
+      <Filter>Header Files\Framework\Utilities\Initializers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -301,9 +337,6 @@
     </ClCompile>
     <ClCompile Include="Scene_Sprite.cpp">
       <Filter>Source Files\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="Fireworks.cpp">
-      <Filter>Source Files\Scenes\DemoCode</Filter>
     </ClCompile>
     <ClCompile Include="SpriteCache.cpp">
       <Filter>Source Files\Scenes\DemoCode</Filter>
@@ -362,12 +395,6 @@
     <ClCompile Include="COMInitializer.cpp">
       <Filter>Source Files\Framework\Utilities\Initializers</Filter>
     </ClCompile>
-    <ClCompile Include="DWriteInitalizer.cpp">
-      <Filter>Source Files\Framework\Utilities\Initializers</Filter>
-    </ClCompile>
-    <ClCompile Include="WicInitializer.cpp">
-      <Filter>Source Files\Framework\Utilities\Initializers</Filter>
-    </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>Source Files\Framework\Utilities\Loggers</Filter>
     </ClCompile>
@@ -391,6 +418,36 @@
     </ClCompile>
     <ClCompile Include="Observer.cpp">
       <Filter>Source Files\Unused</Filter>
+    </ClCompile>
+    <ClCompile Include="Emitter.cpp">
+      <Filter>Source Files\Framework\Emitters</Filter>
+    </ClCompile>
+    <ClCompile Include="EmitterData.cpp">
+      <Filter>Source Files\Framework\Emitters</Filter>
+    </ClCompile>
+    <ClCompile Include="RadialEmitter.cpp">
+      <Filter>Source Files\Framework\Emitters</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleEmitter.cpp">
+      <Filter>Source Files\Framework\Emitters</Filter>
+    </ClCompile>
+    <ClCompile Include="StreamEmitter.cpp">
+      <Filter>Source Files\Framework\Emitters</Filter>
+    </ClCompile>
+    <ClCompile Include="Fireworks.cpp">
+      <Filter>Source Files\Scenes\DemoCode\ParticleEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="Flames.cpp">
+      <Filter>Source Files\Scenes\DemoCode\ParticleEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleEffect.cpp">
+      <Filter>Source Files\Scenes\DemoCode\ParticleEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveBeam.cpp">
+      <Filter>Source Files\Framework\Emitters</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentInitter.cpp">
+      <Filter>Source Files\Framework\Utilities\Initializers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -78,6 +78,11 @@ Recti Sprite::GetRect() const
 	return Recti( 0, 0, m_size.width, m_size.height );
 }
 
+bool Sprite::ComparePixel( int X, int Y, Color C ) const
+{
+	return m_pPixels[ X + ( Y * m_size.width ) ] == C;
+}
+
 Recti Sprite::Rectify( const Rectf &Src ) const
 {
 	const auto left = static_cast< int >( Src.left );

@@ -26,7 +26,7 @@ FontSheet::FontSheet( const TextFormat & Format )
 	{
 		ComPtr<IDWriteTextLayout> pLayout_H;
 		HRESULT hr = S_OK;
-		if( FAILED( hr = DWriteInitalizer::Instance()->CreateTextLayout( 
+		if( FAILED( hr = DWriteInitter::Instance()->CreateTextLayout( 
 			L"H", 1, Format.GetFormat(), 32.f, Format->GetFontSize(), &pLayout_H ) ) )
 		{
 			throw FONT_EXCEPTION( hr, L"Failed to create a text layout to determine the size of the fonts" );
@@ -57,7 +57,7 @@ FontSheet::FontSheet( const TextFormat & Format )
 	{
 		ComPtr<IWICBitmap> pBitmap;
 		HRESULT hr = S_OK;
-		if( FAILED( hr = WicInitializer::Instance().GetFactory()->CreateBitmap(
+		if( FAILED( hr = WicInitter::Instance().GetFactory()->CreateBitmap(
 			m_nCharsPerRow * m_charWidth,
 			3 * m_charHeight,
 			GUID_WICPixelFormat32bppPBGRA,

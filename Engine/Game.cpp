@@ -40,7 +40,7 @@ Game::Game( MainWindow& wnd )
 {
 }
 
-void Game::Go()
+ void Game::Go()
 {
 	gfx.BeginFrame( Colors::Black );
 	UpdateModel();

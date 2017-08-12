@@ -76,7 +76,8 @@ public:
 	void PutPixel( int x,int y,Color c );
 	void PutPixelAlpha( int X, int Y, Color C );
 	void DrawCircle( const Vec2i &Center, int Radius, Color C );
-	void DrawCircleAlpha( const Vec2i &Center, int Radius, Color C );
+	void DrawCircleAlpha( const Recti &Rect, Color C );
+	void DrawRectAlpha( const Recti &Rect, Color C );
 
 	Recti Rectify( const Recti &Rect )const;
 	Recti Rectify( int Left, int Width, int Top, int Height )const;

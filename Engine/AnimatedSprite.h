@@ -33,6 +33,7 @@ class AnimationController
 public:
 	AnimationController() = default; 
 	AnimationController( float HoldFrameTime, const Frames &FrameSet);
+	virtual ~AnimationController() = default;
 
 	virtual void Advance( float DeltaTime );
 	void Draw( const Rectf &Dst, class Graphics &Gfx )const;

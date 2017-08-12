@@ -3,7 +3,6 @@
 #include "TextFormat.h"
 #include "Colors.h"
 #include "Rect.h"
-#include "WicInitializer.h"
 #include <memory>
 #undef GetCharWidth
 
