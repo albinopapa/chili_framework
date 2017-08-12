@@ -42,7 +42,6 @@ bool Emitter::CanSpawn() const
 
 ParticleVector Emitter::TakeParticles()
 {
-	//return std::move( m_particles );
-	return ParticleVector();
+	return std::move( m_particles );
 }
 

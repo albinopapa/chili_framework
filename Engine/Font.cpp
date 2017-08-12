@@ -66,7 +66,7 @@ void Font::DrawString( float X, float Y, const std::string & Str, Color Clr, Gra
 	const auto maxCharsPerRow = static_cast<int>( MaxCharsPerRow( Graphics::ScreenWidth ) );
 	const auto stringWidth = static_cast<int>( ( Str.size() - 1 ) * charWidth );
 	const auto stringRect = Gfx.Rectify( Recti( ix, iy, Sizei( stringWidth, charHeight ) ) );
-	
+
 	if( ix < Graphics::ScreenWidth && ix + stringWidth >= 0 &&
 		iy < Graphics::ScreenHeight && iy + charHeight >= 0 )
 	{

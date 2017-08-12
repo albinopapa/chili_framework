@@ -3,6 +3,12 @@
 #include "EmitterData.h"
 #include "Vec2.h"
 
+// HANDLED BY A CHILD OF ParticleEffect CREATED BY END USER
+// EMITTER ON/OFF CONDITIONS
+// User input:  Emitter enabled/disabled when user presses/releases a designated button
+// Time based:  Emitter enabled/disabled when a specified amount of time has elapsed
+// Event based: Emitter enabled/disabled when a game event is processed
+
 class ParticleEffect
 {
 public:
@@ -24,6 +30,5 @@ protected:
 
 protected:
 	std::vector<ParticleVector *> m_pParticles;
-
 };
 

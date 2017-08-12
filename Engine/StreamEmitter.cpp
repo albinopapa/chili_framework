@@ -20,12 +20,10 @@ StreamEmitter::StreamEmitter( const Vec2f & Position, size_t LaunchCount, size_t
 {
 }
 
-ParticleVector StreamEmitter::SpawnParticles( const ParticleSetupDesc & PartDesc )
+void StreamEmitter::SpawnParticles( const ParticleSetupDesc & PartDesc )
 {
-	ParticleVector particles;
 	if( CanSpawn() )
 	{
-		particles.reserve( launchCount );
 		std::uniform_real_distribution<float> m_ttlDist(
 			PartDesc.minTimeToLive, PartDesc.maxTimeToLive );
 		std::uniform_real_distribution<float> m_widthDist( 
@@ -50,9 +48,8 @@ ParticleVector StreamEmitter::SpawnParticles( const ParticleSetupDesc & PartDesc
 			const float step = static_cast< float >( i ) * widthStep;
 			const Vec2f pos = start + ( rightRotated * step );
 
-			particles.emplace_back( pos, impulse, width, height, ttl,
+			m_particles.emplace_back( pos, impulse, width, height, ttl,
 									PartDesc.drawFunc, PartDesc.color );
 		}
 	}
-	return particles;
 }

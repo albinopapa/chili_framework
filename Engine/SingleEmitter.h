@@ -14,7 +14,7 @@ public:
 		size_t MaxParticles,
 		const Vec2f &FacingDirection );
 
-	ParticleVector SpawnParticles( const ParticleSetupDesc &PartDesc )override;
+	void SpawnParticles( const ParticleSetupDesc &PartDesc )override;
 
 private:
 	Vec2f m_direction;

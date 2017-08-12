@@ -49,22 +49,23 @@ SingleEmitter::SingleEmitter( const Vec2f & Position, size_t LaunchCount,
 {
 }
 
-ParticleVector SingleEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc )
+void SingleEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc )
 {
-	ParticleVector particles;
-	if( !CanSpawn() ) return particles;
+	//ParticleVector particles;
+	//if( !CanSpawn() ) return particles;
+	if( !CanSpawn() ) return;
 
 	uniform_dist<float> m_ttlDist(
 		PartDesc.minTimeToLive, PartDesc.maxTimeToLive );
 	uniform_dist<float> m_radiusDist(
 		PartDesc.minWidth, PartDesc.maxWidth );
 
-	const Vec2f impulse = m_direction * ( PartDesc.speed * 64.f );
+	const Vec2f impulse = m_direction * ( PartDesc.speed );
 	const float ttl = m_ttlDist( m_rng );
 	const auto radius = m_radiusDist( m_rng );
 
-	particles.emplace_back( 
+	m_particles.emplace_back( 
 		position, impulse, radius, radius, ttl, PartDesc.drawFunc, PartDesc.color );
-	return particles;
+	//return particles;
 }
 

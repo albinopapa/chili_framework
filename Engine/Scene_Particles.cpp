@@ -22,8 +22,12 @@ Scene_Particles::Scene_Particles( Keyboard & Kbd, Graphics & Gfx )
 
 void Scene_Particles::Update( float DeltaTime )
 {
-	UpdateFramerateData( m_beam, DeltaTime );
-	UpdateEffect( m_beam, DeltaTime, Graphics::fScreenRect.GetCenter() );
+	//UpdateFramerateData( m_beam, DeltaTime );
+	//UpdateEffect( m_beam, DeltaTime, Graphics::fScreenRect.GetCenter() );
+	//UpdateFramerateData( m_fireworks, DeltaTime );
+	//UpdateEffect( m_fireworks, DeltaTime, { Graphics::fScreenWidth *.5f, Graphics::fScreenHeight } );
+	UpdateFramerateData( m_flames, DeltaTime );
+	UpdateEffect( m_flames, DeltaTime, m_chicaPos );
 }
 
 void Scene_Particles::Draw() const
@@ -43,7 +47,9 @@ void Scene_Particles::Draw() const
 		DrawEffect( m_beam );
 	};
 
-	DrawBeamDemo();
+	//DrawBeamDemo();
+	//DrawFireworksDemo();
+	DrawFlamesDemo();
 	DrawDebugInfo();
 }
 

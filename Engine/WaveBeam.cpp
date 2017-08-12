@@ -22,7 +22,6 @@ WaveBeam::WaveBeam( Keyboard &Kbd )
 		distanceToBase,
 		baseRadius );
 
-	sizeof( m_pParticles );
 	m_pParticles.push_back( &m_particles );
 }
 
@@ -33,33 +32,33 @@ const std::vector<ParticleVector*>& WaveBeam::GetParticleVectors() const
 
 void WaveBeam::Spawn( float DeltaTime, const Vec2f & BasePos )
 {
-	ParticleSetupDesc desc( 100.f, 20.f, 20.f, 20.f, 20.f, 1.f, 1.f, Colors::Magenta );
+	ParticleSetupDesc desc( 200.f, 20.f, 20.f, 20.f, 20.f, 1.f, 1.f, Colors::Magenta );
 
 	m_delayCounter -= DeltaTime;
 
-	float angle = m_angle;
-	const float rotSpeed = 5.f * DeltaTime;
+	const float angle = m_angle;
+	const float rotSpeed = 100.f * DeltaTime;
 	if( m_keyboard.KeyIsPressed( VK_LEFT ) )
 	{
 		m_angle += ToRadians( rotSpeed );
-
 	}
 	else if( m_keyboard.KeyIsPressed( VK_RIGHT ) )
 	{
 		m_angle -= ToRadians( rotSpeed );
 	}
-	m_angle = wrap_angle( m_angle );
+
+	if( angle != m_angle )
+	{
+		m_angle = wrap_angle( m_angle );
+		m_emitter.SetDirection( { std::cosf( m_angle ), -std::sinf( m_angle ) } );
+	}
+
 	if( m_keyboard.KeyIsPressed( VK_SPACE ) )
 	{
 		if( m_delayCounter <= 0.f )
 		{
 			m_delayCounter = m_delay;
-
-			if( angle != m_angle )
-			{
-				m_emitter.SetDirection( { std::cosf( m_angle ), -std::sinf( m_angle ) } );
-			}
-			CollectParticles( m_emitter.SpawnParticles( desc ) );
+			m_emitter.SpawnParticles( desc );
 		}
 	}
 }
@@ -76,14 +75,13 @@ void WaveBeam::Remove()
 
 void WaveBeam::Collect()
 {
+	for( auto &&particle : m_particles )
+	{
+		m_particles.emplace_back( std::move( particle ) );
+	}
 }
 
 void WaveBeam::CollectParticles( ParticleVector && Particles )
 {
-	auto particles = m_emitter.TakeParticles();
-	for( auto &&particle : particles )
-	{
-		m_particles.emplace_back( std::move( particle ) );
-	}
 }
 

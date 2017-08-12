@@ -18,7 +18,7 @@ public:
 		const Vec2f &FacingDirection,
 		float WidthOfStream );
 
-	ParticleVector SpawnParticles( const ParticleSetupDesc &PartDesc )override;
+	void SpawnParticles( const ParticleSetupDesc &PartDesc )override;
 
 private:
 	Vec2f m_direction;

@@ -82,7 +82,7 @@ void Fireworks::EmitPrimary( float DeltaTime )
 			currentDelay = m_delayDist( m_rng );
 			launchCounter = currentDelay;
 
-			const float speed = 5.f;
+			const float speed = 350.f;
 			const float minWidth = 5.f;
 			const float maxWidth= 5.f;
 			const float minTTL = .016f * 40.f;
@@ -100,20 +100,20 @@ void Fireworks::EmitPrimary( float DeltaTime )
 
 void Fireworks::EmitSecondary()
 {
-	for( const auto &pParticle : m_primary )
+	for( const auto &particle : m_primary )
 	{
-		if( pParticle.IsDead() )
+		if( particle.IsDead() )
 		{
 			const auto colorIndex = m_colorDist( m_rng );
 
-			const float speed = 5.f;
-			const float minRadius = 4.f;
-			const float maxRadius = 6.f;
+			const float speed = 150.f;
+			const float minRadius = 8.f;
+			const float maxRadius = 12.f;
 			const float minTTL = .016f * 80.f;
 			const float maxTTL = .016f * 80.f;
 			const Color color = m_colorPalette[ colorIndex ];
 
-			m_burstEmitter.SetPosition( pParticle.Position() );
+			m_burstEmitter.SetPosition( particle.Position() );
 			m_burstEmitter.SpawnParticles( {
 				speed, minRadius, maxRadius, minRadius, maxRadius, minTTL, maxTTL, color }
 			);

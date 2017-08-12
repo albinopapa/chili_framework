@@ -14,8 +14,6 @@ template<class Ty>
 class ComponentInitter
 {
 public:
-	
-
 	Ty *GetFactory()const
 	{
 		return m_pFactory.Get();
@@ -58,18 +56,4 @@ public:
 private:
 	static std::unique_ptr<DWriteInitter> s_pInstance;
 
-};
-
-template<class InitterType>
-class InitHandler
-{
-public:
-	InitHandler()
-	{
-		InitterType::Instance();
-	}
-	~InitHandler()
-	{
-		InitterType::Release();
-	}
 };

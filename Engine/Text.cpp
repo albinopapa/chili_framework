@@ -2,10 +2,6 @@
 
 
 
-Text::Text()
-{
-}
-
 Text::Text( const std::string & Str, const TextLayout & Layout, const Rectf &Boundary, const Font & Fnt )
 	:
 	m_pFont( &Fnt ),
@@ -171,6 +167,8 @@ void Text::FormatTrunc()
 		str.push_back( c );
 		++curCharPos;
 	}
+
+	m_strings.push_back( std::move( str ) );
 }
 
 void Text::FormatWrap()

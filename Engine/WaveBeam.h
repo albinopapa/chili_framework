@@ -2,7 +2,7 @@
 
 #include "Keyboard.h"
 #include "ParticleEffect.h"
-#include "ParticleEmitter.h"
+#include "ConicalEmitter.h"
 
 class WaveBeam :public ParticleEffect
 {

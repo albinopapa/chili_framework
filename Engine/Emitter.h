@@ -16,14 +16,12 @@ public:
 	void DisableSpawning();
 	bool CanSpawn()const;
 
-	//virtual void SpawnParticles( const ParticleSetupDesc &PartDesc ) = 0;
-
-	virtual ParticleVector SpawnParticles( const ParticleSetupDesc &PartDesc ) = 0;
+	virtual void SpawnParticles( const ParticleSetupDesc &PartDesc ) = 0;
 
 	ParticleVector TakeParticles();
 
 protected:
-	//ParticleVector m_particles;
+	ParticleVector m_particles;
 	bool m_canSpawn = true;
 
 	std::mt19937 m_rng;

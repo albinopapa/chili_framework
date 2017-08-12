@@ -15,10 +15,9 @@ RadialEmitter::RadialEmitter( const Vec2f & Position, size_t LaunchCount, size_t
 	InitCommon();
 }
 
-ParticleVector RadialEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc )
+void RadialEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc )
 {
-	ParticleVector particles;
-	if( !CanSpawn() ) return particles;
+	if( !CanSpawn() ) return;
 
 	std::uniform_real_distribution<float> m_ttlDist(
 		PartDesc.minTimeToLive, PartDesc.maxTimeToLive );
@@ -28,14 +27,6 @@ ParticleVector RadialEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc 
 
 	const float ttl = m_ttlDist( m_rng );
 	const auto radius = m_radiusDist( m_rng );
-
-	const size_t count = std::min( maxParticles - particles.size(), launchCount );
-	const size_t growto = particles.size() + count;
-
-	if( particles.capacity() < growto )
-	{
-		particles.reserve( growto );
-	}
 
 	for( int i = 0; i < launchCount; ++i )
 	{
@@ -47,10 +38,8 @@ ParticleVector RadialEmitter::SpawnParticles( const ParticleSetupDesc &PartDesc 
 		//const float speed = PartDesc.speed;
 
 		const Vec2f impulse = m_bursts[ i ] * ( speed );
-		particles.emplace_back( position, impulse, radius, radius, ttl, PartDesc.drawFunc, PartDesc.color );
+		m_particles.emplace_back( position, impulse, radius, radius, ttl, PartDesc.drawFunc, PartDesc.color );
 	}
-
-	return particles;
 }
 
 void RadialEmitter::InitCommon()

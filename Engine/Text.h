@@ -26,7 +26,7 @@ public:
 		size_t tabSpaceCount = 4;
 	};
 public:
-	Text();
+	Text() = default;
 	Text( const std::string &Str, const TextLayout &Layout, const Rectf &Boundary, const Font &Fnt);
 
 	void AlignTop();

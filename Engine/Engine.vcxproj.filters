@@ -34,9 +34,6 @@
     <Filter Include="Header Files\Framework\Utilities\Exceptions">
       <UniqueIdentifier>{0c656083-d199-469d-831e-405c5557bf00}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Framework\Utilities\Initializers">
-      <UniqueIdentifier>{a0c0b25b-bfc8-4dca-bd16-97a6f51937bd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Framework\Font Rendering">
       <UniqueIdentifier>{74e85654-8926-4ae2-b829-6b4d0e35c71f}</UniqueIdentifier>
     </Filter>
@@ -100,9 +97,6 @@
     <Filter Include="Source Files\Framework\Utilities\Exceptions">
       <UniqueIdentifier>{6cfd6238-92a2-4509-af8c-bfbca95e4c0a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Framework\Utilities\Initializers">
-      <UniqueIdentifier>{0c0c88f7-daea-4a89-860d-1954ea953163}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Framework\Utilities\Loggers">
       <UniqueIdentifier>{19d427e8-c40a-4b6e-9146-a9d24ddeaaec}</UniqueIdentifier>
     </Filter>
@@ -138,6 +132,12 @@
     </Filter>
     <Filter Include="Header Files\Scenes\DemoCode\Particle Effects">
       <UniqueIdentifier>{7f097191-356a-413d-b8b6-8494fb5c8cc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Framework\Utilities\Handlers">
+      <UniqueIdentifier>{a0c0b25b-bfc8-4dca-bd16-97a6f51937bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Framework\Utilities\Handlers">
+      <UniqueIdentifier>{0c0c88f7-daea-4a89-860d-1954ea953163}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -175,7 +175,7 @@
       <Filter>Header Files\Framework\Utilities\Exceptions</Filter>
     </ClInclude>
     <ClInclude Include="COMInitializer.h">
-      <Filter>Header Files\Framework\Utilities\Initializers</Filter>
+      <Filter>Header Files\Framework\Utilities\Handlers</Filter>
     </ClInclude>
     <ClInclude Include="Font.h">
       <Filter>Header Files\Framework\Font Rendering</Filter>
@@ -195,19 +195,10 @@
     <ClInclude Include="Mouse.h">
       <Filter>Header Files\Framework\Input</Filter>
     </ClInclude>
-    <ClInclude Include="DXErr.h">
-      <Filter>Header Files\Framework\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageLoader.h">
-      <Filter>Header Files\Framework\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="Logger.h">
       <Filter>Header Files\Framework\Utilities\Loggers</Filter>
     </ClInclude>
     <ClInclude Include="Particle.h">
-      <Filter>Header Files\Framework\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleEmitter.h">
       <Filter>Header Files\Framework\Particles</Filter>
     </ClInclude>
     <ClInclude Include="SpriteSheet.h">
@@ -310,7 +301,22 @@
       <Filter>Header Files\Framework\Emitters</Filter>
     </ClInclude>
     <ClInclude Include="ComponentInitter.h">
-      <Filter>Header Files\Framework\Utilities\Initializers</Filter>
+      <Filter>Header Files\Framework\Utilities\Handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageLoader.h">
+      <Filter>Header Files\Framework\Utilities\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="DXErr.h">
+      <Filter>Header Files\Framework\Utilities\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticHandler.h">
+      <Filter>Header Files\Framework\Utilities\Handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleEmitter.h">
+      <Filter>Header Files\Framework\Emitters</Filter>
+    </ClInclude>
+    <ClInclude Include="ConicalEmitter.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -365,9 +371,6 @@
     <ClCompile Include="Particle.cpp">
       <Filter>Source Files\Framework\Particles</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleEmitter.cpp">
-      <Filter>Source Files\Framework\Particles</Filter>
-    </ClCompile>
     <ClCompile Include="Sound.cpp">
       <Filter>Source Files\Framework\Sound System</Filter>
     </ClCompile>
@@ -383,17 +386,11 @@
     <ClCompile Include="SpriteSheet.cpp">
       <Filter>Source Files\Framework\Sprites</Filter>
     </ClCompile>
-    <ClCompile Include="DXErr.cpp">
-      <Filter>Source Files\Framework\Utilities</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageLoader.cpp">
-      <Filter>Source Files\Framework\Utilities</Filter>
-    </ClCompile>
     <ClCompile Include="DXException.cpp">
       <Filter>Source Files\Framework\Utilities\Exceptions</Filter>
     </ClCompile>
     <ClCompile Include="COMInitializer.cpp">
-      <Filter>Source Files\Framework\Utilities\Initializers</Filter>
+      <Filter>Source Files\Framework\Utilities\Handlers</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>Source Files\Framework\Utilities\Loggers</Filter>
@@ -443,11 +440,23 @@
     <ClCompile Include="ParticleEffect.cpp">
       <Filter>Source Files\Scenes\DemoCode\ParticleEffects</Filter>
     </ClCompile>
+    <ClCompile Include="ComponentInitter.cpp">
+      <Filter>Source Files\Framework\Utilities\Handlers</Filter>
+    </ClCompile>
     <ClCompile Include="WaveBeam.cpp">
+      <Filter>Source Files\Scenes\DemoCode\ParticleEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageLoader.cpp">
+      <Filter>Source Files\Framework\Utilities\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="DXErr.cpp">
+      <Filter>Source Files\Framework\Utilities\Exceptions</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleEmitter.cpp">
       <Filter>Source Files\Framework\Emitters</Filter>
     </ClCompile>
-    <ClCompile Include="ComponentInitter.cpp">
-      <Filter>Source Files\Framework\Utilities\Initializers</Filter>
+    <ClCompile Include="ConicalEmitter.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

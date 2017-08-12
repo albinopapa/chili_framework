@@ -48,10 +48,14 @@ public:
 
 		return *s_pLog;
 	}
-
+	static void Release()
+	{
+		s_pLog.reset();
+	}
 private:
 	static std::unique_ptr<VarLogger> s_pLog;
 };
+
 class TraceLog :public Logger
 {
 public:
@@ -87,6 +91,10 @@ public:
 			m_messages.pop_back();
 		}
 	}
+	static void Release()
+	{
+		s_pLog.reset();
+	}
 
 private:
 	static std::unique_ptr<TraceLog> s_pLog;
@@ -109,3 +117,4 @@ public:
 private:
 	std::string m_logMsg;
 };
+

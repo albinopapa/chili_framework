@@ -22,6 +22,8 @@
 #include "Game.h"
 #include "ChiliException.h"
 #include "ComponentInitter.h"
+#include "Logger.h"
+#include "StaticHandler.h"
 
 #define _CRTDBG_MAP_ALLOC  
 #include <stdlib.h>  
@@ -38,13 +40,16 @@ int WINAPI wWinMain( HINSTANCE hInst,HINSTANCE,LPWSTR pArgs,INT )
 		MainWindow wnd( hInst,pArgs );		
 		try
 		{
-			InitHandler<DWriteInitter> dwHandler;
-			InitHandler<WicInitter> wicInitHandler;
+			StaticHandler<DWriteInitter> dwHandler;
+			StaticHandler<WicInitter> wicInitHandler;
+			StaticHandler<TraceLog> traceLogInitHandler;
 			Game theGame( wnd );
 			while( wnd.ProcessMessage() )
 			{
 				theGame.Go();
 			}
+
+			VarLogger::Instance( std::string( "varlog.txt" ) ).Release();
 		}
 		catch( const ChiliException& e )
 		{
@@ -85,6 +90,7 @@ int WINAPI wWinMain( HINSTANCE hInst,HINSTANCE,LPWSTR pArgs,INT )
 		MessageBox( nullptr,L"\n\nException caught at main window creation.",
 			L"Unhandled Non-STL Exception",MB_OK );
 	}
+
 	int hasLeaks = _CrtDumpMemoryLeaks();
 
 	return 0;
