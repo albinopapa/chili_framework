@@ -15,7 +15,6 @@ private:
 	void Remove()override;
 	void Collect()override;
 
-	void CollectParticles( ParticleVector &&Particles );
 private:
 	Keyboard &m_keyboard;
 	ConicalEmitter m_emitter;

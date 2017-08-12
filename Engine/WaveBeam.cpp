@@ -75,13 +75,9 @@ void WaveBeam::Remove()
 
 void WaveBeam::Collect()
 {
-	for( auto &&particle : m_particles )
+	auto &&particles = m_emitter.TakeParticles();
+	for( auto &&particle : particles )
 	{
 		m_particles.emplace_back( std::move( particle ) );
 	}
 }
-
-void WaveBeam::CollectParticles( ParticleVector && Particles )
-{
-}
-
