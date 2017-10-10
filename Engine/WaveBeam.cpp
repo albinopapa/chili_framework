@@ -58,19 +58,14 @@ void WaveBeam::Spawn( float DeltaTime, const Vec2f & BasePos )
 		if( m_delayCounter <= 0.f )
 		{
 			m_delayCounter = m_delay;
-			m_emitter.SpawnParticles( desc );
+			m_emitter.SpawnParticles<Particle>( desc );
 		}
 	}
 }
 
 void WaveBeam::Remove()
 {
-	auto endIt = std::remove_if( m_particles.begin(), m_particles.end(), []( const Particle &P )
-	{
-		return P.IsDead();
-	} );
-
-	m_particles.erase( endIt, m_particles.end() );
+	RemoveFrom( m_particles );
 }
 
 void WaveBeam::Collect()

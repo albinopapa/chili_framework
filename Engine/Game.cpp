@@ -26,17 +26,19 @@
 #include "Scene_AnimatedSprite.h"
 #include "Scene_Camera.h"
 #include "Scene_FontRendering.h"
+#include "Scene_Shooter.h"
 
 
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	m_scene( std::make_unique<Scene_Particles>( wnd.kbd, gfx ) )
-	//m_scene( std::make_unique<Scene_Camera>( wnd.kbd, gfx ) )
-	//m_scene( std::make_unique<Scene_AnimatedSprite>( wnd.kbd, gfx ) )
-	//m_scene( std::make_unique<Scene_FontRendering>( wnd.kbd, gfx ) )
-	//m_scene( std::make_unique<Scene_Sprite>( wnd.kbd, gfx ) )
+	m_scene( InitScene<Scene_Shooter>() )
+	//m_scene( InitScene<Scene_Particles>() )
+	//m_scene( InitScene<Scene_Camera>() )
+	//m_scene( InitScene<Scene_AnimatedSprite>() )
+	//m_scene( InitScene<Scene_FontRendering>() )
+	//m_scene( InitScene<Scene_Sprite>() )
 {
 }
 

@@ -59,9 +59,9 @@ void Scene_Particles::UpdateEffect( ParticleEffect & Effect, float DeltaTime, co
 
 	for( auto *v : Effect.GetParticleVectors() )
 	{
-		for( auto &particle : *v )
+		for( auto &pParticle : *v )
 		{
-			particle.Update( DeltaTime );
+			pParticle->Update( DeltaTime );
 		}
 	}
 }
@@ -72,9 +72,9 @@ void Scene_Particles::DrawEffect( const ParticleEffect &Effect ) const
 	{
 		for( auto &particle : *vec )
 		{
-			if( !Graphics::fScreenRect.Overlaps( particle.GetRect() ) )continue;
+			if( !Graphics::fScreenRect.Overlaps( particle->GetRect() ) )continue;
 
-			particle.Draw( m_viewport, m_graphics );
+			particle->Draw( m_viewport, m_graphics );
 		}
 	}
 }
@@ -95,7 +95,7 @@ void Scene_Particles::UpdateFramerateData(const ParticleEffect &Effect, float De
 	{
 		for( auto &pParticles : *vec )
 		{
-			if( !Graphics::fScreenRect.Overlaps( pParticles.GetRect() ) )continue;
+			if( !Graphics::fScreenRect.Overlaps( pParticles->GetRect() ) )continue;
 			++partCount;
 		}
 	}

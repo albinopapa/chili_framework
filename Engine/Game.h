@@ -44,6 +44,11 @@ private:
 	void UpdateModel();
 	/********************************/
 	/*  User Functions              */
+	template<class SceneType>
+	std::unique_ptr<Scene> InitScene()
+	{
+		return std::make_unique<SceneType>( wnd.kbd, gfx );
+	}
 	/********************************/
 private:
 	MainWindow& wnd;

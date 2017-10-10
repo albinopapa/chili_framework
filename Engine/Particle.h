@@ -8,7 +8,7 @@ struct ParticleSetupDesc
 	enum DrawFunc
 	{
 		Circle, CircleAlpha,
-		RectAlpha
+		Rect, RectAlpha
 	};
 public:
 	ParticleSetupDesc() = default;
@@ -40,8 +40,8 @@ public:
 		ParticleSetupDesc::DrawFunc Fn,
 		Color C );
 
-	void Update( float DeltaTime );
-	void Draw( const Rectf &Viewport, Graphics &Gfx )const;
+	virtual void Update( float DeltaTime );
+	virtual void Draw( const Rectf &Viewport, Graphics &Gfx )const;
 
 	void Position( const Vec2f &Pos ) { m_position = Pos; }
 	Vec2f Position()const { return m_position; }
@@ -51,7 +51,8 @@ public:
 
 	Rectf GetRect()const;
 	bool IsDead()const;
-private:
+
+protected:
 	float m_timeToLive = 0.f, m_liveCounter = 0.f;
 	float m_width, m_height;
 	Color m_color;

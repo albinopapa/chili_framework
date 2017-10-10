@@ -40,6 +40,8 @@ private:
 		void Present( const aligned_ptr<Color>& pSysBuffer );
 
 	private:
+		void Init( HWND WinHandle );
+	private:
 		Graphics &m_parent;
 		Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;
 		Microsoft::WRL::ComPtr<ID3D11Device>				pDevice;
@@ -75,8 +77,9 @@ public:
 	void PutPixel( int x, int y, int r, int g, int b );
 	void PutPixel( int x,int y,Color c );
 	void PutPixelAlpha( int X, int Y, Color C );
-	void DrawCircle( const Vec2i &Center, int Radius, Color C );
+	void DrawCircle( const Recti &Rect, Color C );
 	void DrawCircleAlpha( const Recti &Rect, Color C );
+	void DrawRect( const Recti &Rect, Color C );
 	void DrawRectAlpha( const Recti &Rect, Color C );
 
 	Recti Rectify( const Recti &Rect )const;

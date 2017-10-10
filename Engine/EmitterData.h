@@ -2,10 +2,11 @@
 
 #include "Particle.h"
 #include <cassert>
+#include <memory>
 #include <random>
 #include <vector>
 
-using ParticleVector = std::vector<Particle>;
+using ParticleVector = std::vector<std::unique_ptr<Particle>>;
 
 struct EmitterData
 {

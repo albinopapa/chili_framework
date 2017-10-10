@@ -139,6 +139,12 @@
     <Filter Include="Source Files\Framework\Utilities\Handlers">
       <UniqueIdentifier>{0c0c88f7-daea-4a89-860d-1954ea953163}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scenes\DemoCode\Particles">
+      <UniqueIdentifier>{b38cb9a0-f49e-4e96-996a-b04588d8a6a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scenes\DemoCode\Particles">
+      <UniqueIdentifier>{bcf75954-7fe9-4516-88e0-ad8d3bd9762c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -312,11 +318,20 @@
     <ClInclude Include="StaticHandler.h">
       <Filter>Header Files\Framework\Utilities\Handlers</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleEmitter.h">
-      <Filter>Header Files\Framework\Emitters</Filter>
+    <ClInclude Include="Projectile.h">
+      <Filter>Header Files\Scenes\DemoCode\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene_Pathfinding.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene_Shooter.h">
+      <Filter>Header Files\Scenes</Filter>
     </ClInclude>
     <ClInclude Include="ConicalEmitter.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Framework\Emitters</Filter>
+    </ClInclude>
+    <ClInclude Include="Hero.h">
+      <Filter>Header Files\Scenes\DemoCode</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -456,7 +471,19 @@
       <Filter>Source Files\Framework\Emitters</Filter>
     </ClCompile>
     <ClCompile Include="ConicalEmitter.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Framework\Emitters</Filter>
+    </ClCompile>
+    <ClCompile Include="Projectile.cpp">
+      <Filter>Source Files\Scenes\DemoCode\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene_Pathfinding.cpp">
+      <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene_Shooter.cpp">
+      <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Hero.cpp">
+      <Filter>Source Files\Scenes\DemoCode</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

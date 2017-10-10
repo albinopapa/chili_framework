@@ -38,30 +38,20 @@ void Fireworks::Spawn( float DeltaTime, const Vec2f & BasePos )
 
 void Fireworks::Remove()
 {
-	auto RemoveDeadParticles = []( ParticleVector &Particles )
-	{
-		auto endIt = std::remove_if( Particles.begin(), Particles.end(), []( const Particle &pParticle )
-		{
-			return pParticle.IsDead();
-		} );
-
-		Particles.erase( endIt, Particles.end() );
-	};
-
-	RemoveDeadParticles( m_primary );
-	RemoveDeadParticles( m_secondary );
+	RemoveFrom( m_primary );
+	RemoveFrom( m_secondary );
 }
 
 void Fireworks::Collect()
 {
 	auto CollectParticles = [ this ]( Emitter &_Emitter, ParticleVector &Particles )
 	{
-		auto particles = _Emitter.TakeParticles();
-		Particles.reserve( Particles.size() + particles.size() );
+		auto pParticles = _Emitter.TakeParticles();
+		Particles.reserve( Particles.size() + pParticles.size() );
 
-		for( auto &&particle : particles )
+		for( auto &&pParticle : pParticles )
 		{
-			Particles.emplace_back( std::move( particle ) );
+			Particles.emplace_back( std::move( pParticle ) );
 		}
 	};
 	CollectParticles( m_baseEmitter, m_primary );
@@ -91,7 +81,7 @@ void Fireworks::EmitPrimary( float DeltaTime )
 
 			m_baseEmitter.SetPosition( position );
 
-			m_baseEmitter.SpawnParticles( {
+			m_baseEmitter.SpawnParticles<Particle>( {
 				speed, minWidth, maxWidth, minWidth, maxWidth, minTTL, maxTTL, color
 			} );
 		}
@@ -102,7 +92,7 @@ void Fireworks::EmitSecondary()
 {
 	for( const auto &particle : m_primary )
 	{
-		if( particle.IsDead() )
+		if( particle->IsDead() )
 		{
 			const auto colorIndex = m_colorDist( m_rng );
 
@@ -113,8 +103,8 @@ void Fireworks::EmitSecondary()
 			const float maxTTL = .016f * 80.f;
 			const Color color = m_colorPalette[ colorIndex ];
 
-			m_burstEmitter.SetPosition( particle.Position() );
-			m_burstEmitter.SpawnParticles( {
+			m_burstEmitter.SetPosition( particle->Position() );
+			m_burstEmitter.SpawnParticles<Particle>( {
 				speed, minRadius, maxRadius, minRadius, maxRadius, minTTL, maxTTL, color }
 			);
 		}

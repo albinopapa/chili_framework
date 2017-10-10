@@ -10,18 +10,18 @@ public:
 	Emitter( const Vec2f &Position, size_t LaunchCount, size_t MaxParticles );
 
 	void SetPosition( const Vec2f &Pos );
+	virtual void SetDirection( const Vec2f &Direction ) {}
 	void SetLaunchCount( size_t Count );
 
 	void EnableSpawning();
 	void DisableSpawning();
 	bool CanSpawn()const;
 
-	virtual void SpawnParticles( const ParticleSetupDesc &PartDesc ) = 0;
 
 	ParticleVector TakeParticles();
 
 protected:
-	ParticleVector m_particles;
+	ParticleVector m_pParticles;
 	bool m_canSpawn = true;
 
 	std::mt19937 m_rng;

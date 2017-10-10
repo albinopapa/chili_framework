@@ -160,6 +160,7 @@
     <ClInclude Include="Frametimer.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Hero.h" />
     <ClInclude Include="ImageLoader.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Logger.h" />
@@ -169,7 +170,7 @@
     <ClInclude Include="Observer.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleEffect.h" />
-    <ClInclude Include="ParticleEmitter.h" />
+    <ClInclude Include="Projectile.h" />
     <ClInclude Include="RadialEmitter.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Resource.h" />
@@ -178,6 +179,8 @@
     <ClInclude Include="Scene_Camera.h" />
     <ClInclude Include="Scene_FontRendering.h" />
     <ClInclude Include="Scene_Particles.h" />
+    <ClInclude Include="Scene_Pathfinding.h" />
+    <ClInclude Include="Scene_Shooter.h" />
     <ClInclude Include="Scene_Sprite.h" />
     <ClInclude Include="ScrapSpace.h" />
     <ClInclude Include="SingleEmitter.h" />
@@ -216,6 +219,7 @@
     <ClCompile Include="Frametimer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="Hero.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Logger.cpp" />
@@ -227,12 +231,15 @@
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleEffect.cpp" />
     <ClCompile Include="ParticleEmitter.cpp" />
+    <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="RadialEmitter.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene_AnimatedSprite.cpp" />
     <ClCompile Include="Scene_Camera.cpp" />
     <ClCompile Include="Scene_FontRendering.cpp" />
     <ClCompile Include="Scene_Particles.cpp" />
+    <ClCompile Include="Scene_Pathfinding.cpp" />
+    <ClCompile Include="Scene_Shooter.cpp" />
     <ClCompile Include="Scene_Sprite.cpp" />
     <ClCompile Include="SingleEmitter.cpp" />
     <ClCompile Include="Sound.cpp" />

@@ -52,7 +52,7 @@ void Flames::Spawn( float DeltaTime, const Vec2& BasePos )
 		desc.speed = Spd;
 		desc.drawFunc = ParticleSetupDesc::RectAlpha;
 
-		Stream.SpawnParticles( desc );
+		Stream.SpawnParticles<Particle>( desc );
 	};
 
 	const float width = 4.f;
@@ -102,9 +102,10 @@ void Flames::Collect()
 
 void Flames::Remove()
 {
-	auto remIt = std::remove_if( m_particles.begin(), m_particles.end(), []( const Particle &P )
+	auto remIt = std::remove_if( m_particles.begin(), m_particles.end(), 
+								 []( const std::unique_ptr<Particle> &pParticle )
 	{
-		return P.IsDead();
+		return pParticle->IsDead();
 	} );
 
 	m_particles.erase( remIt, m_particles.end() );

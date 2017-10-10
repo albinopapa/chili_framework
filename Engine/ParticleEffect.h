@@ -22,12 +22,12 @@ public:
 		Collect();
 	}
 	virtual const std::vector<ParticleVector *> &GetParticleVectors()const = 0;
-
+	
 protected:
 	virtual void Spawn( float DeltaTime, const Vec2f &BasePos ) = 0;
 	virtual void Remove() = 0;
 	virtual void Collect() = 0;
-
+	void RemoveFrom( ParticleVector &pParticles );
 protected:
 	std::vector<ParticleVector *> m_pParticles;
 };

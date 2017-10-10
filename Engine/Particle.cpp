@@ -43,6 +43,14 @@ Particle::Particle(
 	{
 		DrawFn = &Graphics::DrawRectAlpha;
 	}
+	else if( Fn == ParticleSetupDesc::DrawFunc::Circle )
+	{
+		DrawFn = &Graphics::DrawCircle;
+	}
+	else
+	{
+		DrawFn = &Graphics::DrawRect;
+	}
 }
 
 void Particle::Update( float DeltaTime )

@@ -57,8 +57,7 @@ Graphics::Graphics( HWNDKey& key )
 	:
 	m_direct3d( key.hWnd, *this ),
 	pSysBuffer( ScreenSize.Area(), 16u )
-{
-}
+{}
 
 void Graphics::EndFrame()
 {
@@ -97,21 +96,26 @@ void Graphics::PutPixelAlpha( int X, int Y, Color C )
 	pixel = C.AlphaBlend( pixel );
 }
 
-void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
+void Graphics::DrawCircle( const Recti &Rect, Color C )
 {
-	const auto sqRadius = sq( Radius );
+	const auto radius = Rect.GetWidth() / 2;
+	const auto sqRadius = sq( radius );
+	const auto sqInner = sq( std::max( radius >> 1, 1 ) );
 
-	const Vec2i vRadius = { Radius, Radius };
-	const auto bounds = Rectify( Recti( Vec2i( Center - vRadius ), Vec2i( Center + vRadius ) ) );
+	const auto center = Rect.GetCenter();
+	const Vec2i vRadius = { radius, radius };
+	const auto bounds = Rectify( Recti( Vec2i( center - vRadius ), Vec2i( center + vRadius ) ) );
 
 	for( int y = bounds.top - vRadius.y; y < bounds.bottom - vRadius.y; ++y )
 	{
 		for( int x = bounds.left - vRadius.x; x < bounds.right - vRadius.x; ++x )
 		{
-			const auto sqDist = sq( x ) + sq( y );
-			if( sqDist < sqRadius )
+			const auto idx = Vec2i( x, y );
+			if( idx.LenSq() < sqRadius )
 			{
-				PutPixel( x + Center.x, y + Center.y, C );
+				const Vec2i pixel = center + idx;
+
+				PutPixel( pixel.x, pixel.y, C );
 			}
 		}
 	}
@@ -145,9 +149,22 @@ void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
 				const Color color = ( sqDist < sqInner ) ?
 					Color( centerColor, alpha ) :
 					Color( C, alpha );
-				
+
 				PutPixelAlpha( x + center.x, y + center.y, color );
 			}
+		}
+	}
+}
+
+void Graphics::DrawRect( const Recti & Rect, Color C )
+{
+	const auto bounds = Rectify( Rect ).Translate( Rect.LeftTop() );
+
+	for( int y = bounds.top; y < bounds.bottom; ++y )
+	{
+		for( int x = bounds.left; x < bounds.right; ++x )
+		{
+			PutPixel( x, y, C );
 		}
 	}
 }
@@ -155,7 +172,7 @@ void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
 void Graphics::DrawRectAlpha( const Recti & Rect, Color C )
 {
 	const auto bounds = Rectify( Rect ).Translate( Rect.LeftTop() );
-	
+
 	for( int y = bounds.top; y < bounds.bottom; ++y )
 	{
 		for( int x = bounds.left; x < bounds.right; ++x )
@@ -198,62 +215,11 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 	m_parent( Parent )
 {
 	assert( WinHandle != nullptr );
+	HRESULT hr = S_OK;
 
 	//////////////////////////////////////////////////////
 	// create device and swap chain/get render target view
-	DXGI_SWAP_CHAIN_DESC sd = {};
-	sd.BufferCount = 1;
-	sd.BufferDesc.Width = Graphics::ScreenWidth;
-	sd.BufferDesc.Height = Graphics::ScreenHeight;
-	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	sd.BufferDesc.RefreshRate.Numerator = 60;
-	sd.BufferDesc.RefreshRate.Denominator = 1;
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.OutputWindow = WinHandle;
-	sd.SampleDesc.Count = 1;
-	sd.SampleDesc.Quality = 0;
-	sd.Windowed = TRUE;
-
-	HRESULT				hr;
-	UINT				createFlags = 0u;
-#ifdef CHILI_USE_D3D_DEBUG_LAYER
-#ifdef _DEBUG
-	createFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-#endif
-
-	// create device and front/back buffers
-	if( FAILED( hr = D3D11CreateDeviceAndSwapChain(
-		nullptr,
-		D3D_DRIVER_TYPE_HARDWARE,
-		nullptr,
-		createFlags,
-		nullptr,
-		0,
-		D3D11_SDK_VERSION,
-		&sd,
-		&pSwapChain,
-		&pDevice,
-		nullptr,
-		&pImmediateContext ) ) )
-	{
-		if( FAILED( hr = D3D11CreateDeviceAndSwapChain(
-			nullptr,
-			D3D_DRIVER_TYPE_WARP,
-			nullptr,
-			createFlags,
-			nullptr,
-			0,
-			D3D11_SDK_VERSION,
-			&sd,
-			&pSwapChain,
-			&pDevice,
-			nullptr,
-			&pImmediateContext ) ) )
-		{
-			throw CHILI_GFX_EXCEPTION( hr, L"Creating device and swap chain" );
-		}
-	}
+	Init( WinHandle );
 
 	// get handle to backbuffer
 	ComPtr<ID3D11Resource> pBackBuffer;
@@ -316,7 +282,7 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 	srvDesc.Texture2D.MipLevels = 1;
 	// create the resource view on the texture
 	if( FAILED( hr = pDevice->CreateShaderResourceView( pSysBufferTexture.Get(),
-														&srvDesc, &pSysBufferTextureView ) ) )
+		&srvDesc, &pSysBufferTextureView ) ) )
 	{
 		throw CHILI_GFX_EXCEPTION( hr, L"Creating view on sysBuffer texture" );
 	}
@@ -383,9 +349,9 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 
 	// Ignore the intellisense error "namespace has no member"
 	if( FAILED( hr = pDevice->CreateInputLayout( ied, 2,
-												 FramebufferShaders::FramebufferVSBytecode,
-												 sizeof( FramebufferShaders::FramebufferVSBytecode ),
-												 &pInputLayout ) ) )
+		FramebufferShaders::FramebufferVSBytecode,
+		sizeof( FramebufferShaders::FramebufferVSBytecode ),
+		&pInputLayout ) ) )
 	{
 		throw CHILI_GFX_EXCEPTION( hr, L"Creating input layout" );
 	}
@@ -420,7 +386,7 @@ void Graphics::Direct3D::Present( const aligned_ptr<Color>& pSysBuffer )
 
 	// lock and map the adapter memory for copying over the sysbuffer
 	if( FAILED( hr = pImmediateContext->Map( pSysBufferTexture.Get(), 0u,
-											 D3D11_MAP_WRITE_DISCARD, 0u, &mappedSysBufferTexture ) ) )
+		D3D11_MAP_WRITE_DISCARD, 0u, &mappedSysBufferTexture ) ) )
 	{
 		throw CHILI_GFX_EXCEPTION( hr, L"Mapping sysbuffer" );
 	}
@@ -459,6 +425,63 @@ void Graphics::Direct3D::Present( const aligned_ptr<Color>& pSysBuffer )
 		else
 		{
 			throw CHILI_GFX_EXCEPTION( hr, L"Presenting back buffer" );
+		}
+	}
+}
+
+void Graphics::Direct3D::Init( HWND WinHandle )
+{
+	DXGI_SWAP_CHAIN_DESC sd = {};
+	sd.BufferCount = 1;
+	sd.BufferDesc.Width = Graphics::ScreenWidth;
+	sd.BufferDesc.Height = Graphics::ScreenHeight;
+	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	sd.BufferDesc.RefreshRate.Numerator = 60;
+	sd.BufferDesc.RefreshRate.Denominator = 1;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.OutputWindow = WinHandle;
+	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
+	sd.Windowed = TRUE;
+
+	HRESULT				hr;
+	UINT				createFlags = 0u;
+#ifdef CHILI_USE_D3D_DEBUG_LAYER
+#ifdef _DEBUG
+	createFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+#endif
+
+	// create device and front/back buffers
+	if( FAILED( hr = D3D11CreateDeviceAndSwapChain(
+		nullptr,
+		D3D_DRIVER_TYPE_HARDWARE,
+		nullptr,
+		createFlags,
+		nullptr,
+		0,
+		D3D11_SDK_VERSION,
+		&sd,
+		&pSwapChain,
+		&pDevice,
+		nullptr,
+		&pImmediateContext ) ) )
+	{
+		if( FAILED( hr = D3D11CreateDeviceAndSwapChain(
+			nullptr,
+			D3D_DRIVER_TYPE_WARP,
+			nullptr,
+			createFlags,
+			nullptr,
+			0,
+			D3D11_SDK_VERSION,
+			&sd,
+			&pSwapChain,
+			&pDevice,
+			nullptr,
+			&pImmediateContext ) ) )
+		{
+			throw CHILI_GFX_EXCEPTION( hr, L"Creating device and swap chain" );
 		}
 	}
 }
