@@ -1,12 +1,10 @@
 #include "ParticleEffect.h"
 
-void ParticleEffect::RemoveFrom( ParticleVector & pParticles )
+void ParticleEffect::Update( float DeltaTime, const Vec2f & BasePos )
 {
-	auto endIt = std::remove_if( pParticles.begin(), pParticles.end(),
-								 []( const std::unique_ptr<Particle> &pParticle )
-	{
-		return pParticle->IsDead();
-	} );
-
-	pParticles.erase( endIt, pParticles.end() );
+	Spawn( DeltaTime, BasePos );
+	Remove();
+	Collect();
 }
+
+

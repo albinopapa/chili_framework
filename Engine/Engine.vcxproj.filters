@@ -333,6 +333,9 @@
     <ClInclude Include="Hero.h">
       <Filter>Header Files\Scenes\DemoCode</Filter>
     </ClInclude>
+    <ClInclude Include="MachineGun.h">
+      <Filter>Header Files\Scenes\DemoCode</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Character.cpp">
@@ -484,6 +487,9 @@
     </ClCompile>
     <ClCompile Include="Hero.cpp">
       <Filter>Source Files\Scenes\DemoCode</Filter>
+    </ClCompile>
+    <ClCompile Include="MachineGun.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

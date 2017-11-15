@@ -15,19 +15,25 @@ public:
 	ParticleEffect() = default;
 	virtual ~ParticleEffect() = default;
 
-	void Update( float DeltaTime, const Vec2f & BasePos )
-	{
-		Spawn( DeltaTime, BasePos );
-		Remove();
-		Collect();
-	}
+	void Update( float DeltaTime, const Vec2f & BasePos );
 	virtual const std::vector<ParticleVector *> &GetParticleVectors()const = 0;
 	
 protected:
 	virtual void Spawn( float DeltaTime, const Vec2f &BasePos ) = 0;
 	virtual void Remove() = 0;
 	virtual void Collect() = 0;
-	void RemoveFrom( ParticleVector &pParticles );
+
+	template<class ParticleType>
+	void RemoveFrom( std::vector<std::unique_ptr<ParticleType>>& pParticles )
+	{
+		auto endIt = std::remove_if( pParticles.begin(), pParticles.end(),
+			[]( const std::unique_ptr<Particle> &pParticle )
+		{
+			return pParticle->IsDead();
+		} );
+
+		pParticles.erase( endIt, pParticles.end() );
+	}
 protected:
 	std::vector<ParticleVector *> m_pParticles;
 };

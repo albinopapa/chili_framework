@@ -13,7 +13,6 @@ public:
 				float TimeToLive,
 				ParticleSetupDesc::DrawFunc Fn,
 				Color C );
-	virtual ~Projectile();
 
 	void Update( float DeltaTime ) { m_position += ( m_velocity * DeltaTime ); }
 	void Draw( const Rectf &Viewport, Graphics &Gfx )const override;
@@ -21,7 +20,7 @@ public:
 	void Kill() { m_timeToLive = 0.f; }
 
 public:
-	static constexpr float m_speed = 100.f;
+	static constexpr float m_speed = 500.f;
 private:
 };
 

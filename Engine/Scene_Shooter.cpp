@@ -26,11 +26,14 @@ void Scene_Shooter::Draw() const
 	{
 		pParticle->Draw( viewport, m_graphics );
 	}
+	m_hero.Draw( viewport, m_graphics );
 }
 
 void Scene_Shooter::DoHeroInput()
 {
 	Vec2f direction = { 0.f, 0.f };
+	int key = 0;
+	constexpr int mask = ( 1 << 1 ) | ( 1 );
 	if( m_keyboard.KeyIsPressed( VK_UP ) )
 	{
 		direction.y = -1.f;
@@ -38,20 +41,32 @@ void Scene_Shooter::DoHeroInput()
 	else if( m_keyboard.KeyIsPressed( VK_DOWN ) )
 	{
 		direction.y = 1.f;
+		key <<= 1;
 	}
 
 	if( m_keyboard.KeyIsPressed( VK_LEFT ) )
 	{
 		direction.x = -1.f;
+		key |= 1;
 	}
 	else if( m_keyboard.KeyIsPressed( VK_RIGHT ) )
 	{
 		direction.x = 1.f;
 	}
-	m_hero.ChangeDirection( direction );
+
+	if( direction.LenSq() != 0.f )
+	{
+		direction.Normalize();
+		m_hero.ChangeOrientation( direction );
+	}
+	m_hero.ChangeVelocity( direction );
 
 	if( m_keyboard.KeyIsPressed( VK_SPACE ) )
 	{
+		if( m_keyboard.KeyIsPressed( VK_LEFT ) && m_keyboard.KeyIsPressed( VK_DOWN ) )
+		{
+			int a = 0;
+		}
 		if( m_hero.Fire() )
 		{
 			const auto herovelocity = m_hero.Velocity();
@@ -59,9 +74,11 @@ void Scene_Shooter::DoHeroInput()
 			const auto herospeed = direction * herovelocity;
 
 			ParticleSetupDesc desc{};
+			desc.maxWidth = desc.maxHeight = 5;
 			desc.speed = herospeed + Projectile::m_speed;
 			
 			m_ammoEmitter.SetPosition( m_hero.Position() );
+			m_ammoEmitter.SetDirection( m_hero.Orientation() );
 			m_ammoEmitter.SpawnParticles<Projectile>( desc );
 		}
 	}

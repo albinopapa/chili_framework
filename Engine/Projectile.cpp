@@ -3,7 +3,6 @@
 
 
 Projectile::Projectile() = default;
-Projectile::~Projectile() = default;
 
 Projectile::Projectile( const Vec2f &StartPos,
 						const Vec2f &StartVelocity,
