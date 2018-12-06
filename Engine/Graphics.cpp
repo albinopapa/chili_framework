@@ -23,6 +23,7 @@
 #include "Graphics.h"
 #include "DXErr.h"
 #include "ChiliException.h"
+#include "algorithms.h"
 #include <assert.h>
 #include <string>
 #include <array>
@@ -102,6 +103,7 @@ void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
 	const auto sqRadius = sq( Radius );
 
 	const Vec2i vRadius = { Radius, Radius };
+	
 	const auto bounds = Rectify( Recti( Vec2i( Center - vRadius ), Vec2i( Center + vRadius ) ) );
 
 	for( int y = bounds.top - vRadius.y; y < bounds.bottom - vRadius.y; ++y )
@@ -163,6 +165,13 @@ void Graphics::DrawRectAlpha( const Recti & Rect, Color C )
 			PutPixelAlpha( x, y, C );
 		}
 	}
+}
+
+bool Graphics::IsInView( const Recti & _rect )
+{
+	return
+		_rect.left < ScreenWidth && _rect.right >= 0 &&
+		_rect.top < ScreenHeight && _rect.bottom >= 0;
 }
 
 Recti Graphics::Rectify( const Recti & Rect ) const

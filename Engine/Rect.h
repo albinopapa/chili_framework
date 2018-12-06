@@ -218,3 +218,14 @@ inline Rectf RectF_FromInt( int Left, int Top, int Right, int Bottom )
 	return
 		static_cast< Rectf >( Recti( Left, Top, Right, Bottom ) );
 }
+
+template<class T>
+_Rect<T> Rectify( const _Rect<T>& _source, const _Rect<T>& _bounds )
+{
+	return{
+		std::max( -_source.left, _bounds.left ),
+		std::max( -_source.top, _bounds.top ),
+		std::min( _bounds.right - _source.left, _source.GetWidth() ),
+		std::min( _bounds.bottom - _source.top, _source.GetHeight() )
+	};
+}

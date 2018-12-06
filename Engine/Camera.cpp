@@ -13,6 +13,16 @@ const Vec2f & Camera::GetPosition() const
 	return m_position;
 }
 
+void Camera::SetPosition(const Vec2f & _position)
+{
+	m_position = _position;
+}
+
+Vec2f Camera::Transform(const Vec2f & _point)
+{
+	return _point - m_position;
+}
+
 void Camera::ClampTo( const Sizef &ViewSize, const Rectf & Boundary )
 {
 	m_position = Vec2f(
@@ -21,12 +31,7 @@ void Camera::ClampTo( const Sizef &ViewSize, const Rectf & Boundary )
 	);
 }
 
-void TrackingCamera::Update( float DeltaTime )
+void Camera::Update(float DeltaTime)
 {
-	m_position = m_target;
-}
 
-void TrackingCamera::SetTarget( const Vec2f & TargetPosition )
-{
-	m_target = TargetPosition;
 }

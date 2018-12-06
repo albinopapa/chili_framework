@@ -139,6 +139,9 @@
     <Filter Include="Source Files\Framework\Utilities\Handlers">
       <UniqueIdentifier>{0c0c88f7-daea-4a89-860d-1954ea953163}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Framework\Utilities\Algorithm">
+      <UniqueIdentifier>{87141237-bf70-441f-bbec-ce23c689748f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -312,11 +315,11 @@
     <ClInclude Include="StaticHandler.h">
       <Filter>Header Files\Framework\Utilities\Handlers</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleEmitter.h">
-      <Filter>Header Files\Framework\Emitters</Filter>
-    </ClInclude>
     <ClInclude Include="ConicalEmitter.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithms.h">
+      <Filter>Header Files\Framework\Utilities\Algorithm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

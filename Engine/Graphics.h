@@ -79,8 +79,7 @@ public:
 	void DrawCircleAlpha( const Recti &Rect, Color C );
 	void DrawRectAlpha( const Recti &Rect, Color C );
 
-	Recti Rectify( const Recti &Rect )const;
-	Recti Rectify( int Left, int Width, int Top, int Height )const;
+	static bool IsInView( const Recti& _rect );
 
 	static void SetResolution( const RECT &WinRect );
 private:

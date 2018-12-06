@@ -136,6 +136,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="algorithms.h" />
     <ClInclude Include="aligned_ptr.h" />
     <ClInclude Include="AlphaSprite.h" />
     <ClInclude Include="AnimatedSprite.h" />
@@ -169,7 +170,6 @@
     <ClInclude Include="Observer.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleEffect.h" />
-    <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="RadialEmitter.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Resource.h" />

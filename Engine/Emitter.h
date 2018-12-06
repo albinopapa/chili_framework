@@ -6,7 +6,7 @@ class Emitter :public EmitterData
 {
 public:
 	Emitter() = default;
-	Emitter( EmitterData &&DataTemplate );
+	Emitter( EmitterData DataTemplate );
 	Emitter( const Vec2f &Position, size_t LaunchCount, size_t MaxParticles );
 
 	void SetPosition( const Vec2f &Pos );

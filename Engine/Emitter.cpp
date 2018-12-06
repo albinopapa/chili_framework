@@ -1,18 +1,16 @@
 #include "Emitter.h"
 
 
-Emitter::Emitter( EmitterData &&DataTemplate )
+Emitter::Emitter( EmitterData DataTemplate )
 	:
-	EmitterData( std::move( DataTemplate ) )
+	EmitterData( DataTemplate )
 {
-	//m_particles.reserve( maxParticles );
 }
 
 Emitter::Emitter( const Vec2f & Position, size_t LaunchCount, size_t MaxParticles )
 	:
 	EmitterData( Position, LaunchCount, MaxParticles )
 {
-	//m_particles.reserve( MaxParticles );
 }
 
 void Emitter::SetPosition( const Vec2f &Pos )
