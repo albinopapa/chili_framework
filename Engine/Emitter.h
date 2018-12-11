@@ -1,28 +1,29 @@
 #pragma once
 
-#include "EmitterData.h"
+#include "Particle.h"
+#include <vector>
+#include <random>
 
-class Emitter :public EmitterData
+using ParticleVector = std::vector<Particle>;
+class Emitter
 {
 public:
 	Emitter() = default;
-	Emitter( EmitterData DataTemplate );
-	Emitter( const Vec2f &Position, size_t LaunchCount, size_t MaxParticles );
+	Emitter( 
+		const Vec2f &_position,
+		const Vec2f& _direction, 
+		int _launchCount, 
+		int _maxParticles );
 
-	void SetPosition( const Vec2f &Pos );
-	void SetLaunchCount( size_t Count );
+	void SetPosition( const Vec2f& _position );
+	void SetDirection( const Vec2f& _direction );
 
-	void EnableSpawning();
-	void DisableSpawning();
-	bool CanSpawn()const;
+	Particle SpawnParticles( const ParticleSetupDesc& _desc );
 
-	virtual void SpawnParticles( const ParticleSetupDesc &PartDesc ) = 0;
-
-	ParticleVector TakeParticles();
-
-protected:
-	ParticleVector m_particles;
+private:
+	Vec2f m_position, m_direction;
+	int m_launchCount = 0u;
+	int m_maxParticles = 1u;
 	bool m_canSpawn = true;
 
-	std::mt19937 m_rng;
 };

@@ -273,15 +273,6 @@
     <ClInclude Include="Emitter.h">
       <Filter>Header Files\Framework\Emitters</Filter>
     </ClInclude>
-    <ClInclude Include="EmitterData.h">
-      <Filter>Header Files\Framework\Emitters</Filter>
-    </ClInclude>
-    <ClInclude Include="RadialEmitter.h">
-      <Filter>Header Files\Framework\Emitters</Filter>
-    </ClInclude>
-    <ClInclude Include="SingleEmitter.h">
-      <Filter>Header Files\Framework\Emitters</Filter>
-    </ClInclude>
     <ClInclude Include="SSE.h">
       <Filter>Header Files\Framework\Utilities\SIMD</Filter>
     </ClInclude>
@@ -299,9 +290,6 @@
     </ClInclude>
     <ClInclude Include="WaveBeam.h">
       <Filter>Header Files\Scenes\DemoCode\Particle Effects</Filter>
-    </ClInclude>
-    <ClInclude Include="StreamEmitter.h">
-      <Filter>Header Files\Framework\Emitters</Filter>
     </ClInclude>
     <ClInclude Include="ComponentInitter.h">
       <Filter>Header Files\Framework\Utilities\Handlers</Filter>
@@ -422,18 +410,6 @@
     <ClCompile Include="Emitter.cpp">
       <Filter>Source Files\Framework\Emitters</Filter>
     </ClCompile>
-    <ClCompile Include="EmitterData.cpp">
-      <Filter>Source Files\Framework\Emitters</Filter>
-    </ClCompile>
-    <ClCompile Include="RadialEmitter.cpp">
-      <Filter>Source Files\Framework\Emitters</Filter>
-    </ClCompile>
-    <ClCompile Include="SingleEmitter.cpp">
-      <Filter>Source Files\Framework\Emitters</Filter>
-    </ClCompile>
-    <ClCompile Include="StreamEmitter.cpp">
-      <Filter>Source Files\Framework\Emitters</Filter>
-    </ClCompile>
     <ClCompile Include="Fireworks.cpp">
       <Filter>Source Files\Scenes\DemoCode\ParticleEffects</Filter>
     </ClCompile>
@@ -454,9 +430,6 @@
     </ClCompile>
     <ClCompile Include="DXErr.cpp">
       <Filter>Source Files\Framework\Utilities\Exceptions</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEmitter.cpp">
-      <Filter>Source Files\Framework\Emitters</Filter>
     </ClCompile>
     <ClCompile Include="ConicalEmitter.cpp">
       <Filter>Source Files</Filter>

@@ -5,17 +5,17 @@
 #include "Fireworks.h"
 
 ParticleSetupDesc::ParticleSetupDesc(
-	float Speed,
-	float MinWidth, float MaxWidth,
-	float MinHeight, float MaxHeight,
-	float MinTimeToLive,
-	float MaxTimeToLive, Color Clr )
+	float _minSpeed, float _maxSpeed,
+	float _minWidth, float _maxWidth,
+	float _minHeight, float _maxHeight,
+	float _minTimeToLive, float _maxTimeToLive,
+	Color _color )
 	:
-	speed( Speed ),
-	minWidth( MinWidth ), maxWidth( MaxWidth ),
-	minHeight( MinHeight ), maxHeight( MaxHeight ),
-	minTimeToLive( MinTimeToLive ), maxTimeToLive( MaxTimeToLive ),
-	color( Clr )
+	minSpeed( _minSpeed ), maxSpeed( _maxSpeed ),
+	minWidth( _minWidth ), maxWidth( _maxWidth ),
+	minHeight( _minHeight ), maxHeight( _maxHeight ),
+	minTimeToLive( _minTimeToLive ), maxTimeToLive( _maxTimeToLive ),
+	color( _color )
 {
 }
 
@@ -24,7 +24,6 @@ Particle::Particle(
 	const Vec2f & StartVelocity,
 	float Width, float Height,
 	float TimeToLive,
-	ParticleSetupDesc::DrawFunc Fn,
 	Color C )
 	:
 	m_position( StartPos ),
@@ -35,14 +34,6 @@ Particle::Particle(
 	m_liveCounter( TimeToLive ),
 	m_color( C )
 {
-	if( Fn == ParticleSetupDesc::DrawFunc::CircleAlpha )
-	{
-		DrawFn = &Graphics::DrawCircleAlpha;
-	}
-	else if( Fn == ParticleSetupDesc::DrawFunc::RectAlpha )
-	{
-		DrawFn = &Graphics::DrawRectAlpha;
-	}
 }
 
 void Particle::Update( float DeltaTime )
@@ -53,23 +44,27 @@ void Particle::Update( float DeltaTime )
 	m_liveCounter -= DeltaTime;
 }
 
-void Particle::Draw( const Rectf &Viewport, Graphics & Gfx ) const
-{
-	const auto offset = static_cast<Vec2i>( m_position - Viewport.LeftTop() );
-
-	const float currentStep = Clamp( ( m_liveCounter / m_timeToLive ) * 2.f, 0.f, 1.f );
-	const auto charStep = static_cast< unsigned char >( currentStep * 255.f );
-
-	const Recti rect = static_cast< Recti >( GetRect() );
-	(Gfx.*DrawFn)( rect, m_color * charStep );
-}
-
 Rectf Particle::GetRect() const
 {
 	return MakeRectFromCenter( m_position, Sizef{ m_width, m_height } );
 }
 
+Color Particle::GetColor() const
+{
+	return m_color;
+}
+
 bool Particle::IsDead()const
 {
 	return m_liveCounter <= 0.f;
+}
+
+void DrawTransparentCircleEffect::operator()( const Recti & _rect, const Particle & _particle, Graphics & _graphics )
+{
+	_graphics.DrawCircleAlpha( _rect, _particle.GetColor() );
+}
+
+void DrawTransparentRectEffect::operator()( const Recti & _rect, const Particle & _particle, Graphics & _graphics )
+{
+	_graphics.DrawRectAlpha( _rect, _particle.GetColor() );
 }

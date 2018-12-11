@@ -24,7 +24,7 @@ private:
 	void DrawDebugInfo()const;
 	
 private:
-	StaticCamera m_camera;
+	Camera m_camera;
 	Rectf m_levelrect, m_screenrect, m_viewport;
 
 	Fireworks m_fireworks;

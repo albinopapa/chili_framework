@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EmitterData.h"
+#include "Emitter.h"
 #include "Vec2.h"
 
 // HANDLED BY A CHILD OF ParticleEffect CREATED BY END USER
@@ -15,12 +15,7 @@ public:
 	ParticleEffect() = default;
 	virtual ~ParticleEffect() = default;
 
-	void Update( float DeltaTime, const Vec2f & BasePos )
-	{
-		Spawn( DeltaTime, BasePos );
-		Remove();
-		Collect();
-	}
+	void Update( float DeltaTime, const Vec2f & BasePos );
 	virtual const std::vector<ParticleVector *> &GetParticleVectors()const = 0;
 
 protected:

@@ -73,8 +73,7 @@ void Scene_Particles::DrawEffect( const ParticleEffect &Effect ) const
 		for( auto &particle : *vec )
 		{
 			if( !Graphics::fScreenRect.Overlaps( particle.GetRect() ) )continue;
-
-			particle.Draw( m_viewport, m_graphics );
+			particle.Draw( m_viewport, m_graphics, DrawTransparentCircleEffect{} );
 		}
 	}
 }
