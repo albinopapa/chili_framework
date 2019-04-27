@@ -1,32 +1,15 @@
-/******************************************************************************************
-*	Chili DirectX Framework Version 16.07.20											  *
-*	Graphics.h																			  *
-*	Copyright 2016 PlanetChili <http://www.planetchili.net>								  *
-*																						  *
-*	This file is part of The Chili DirectX Framework.									  *
-*																						  *
-*	The Chili DirectX Framework is free software: you can redistribute it and/or modify	  *
-*	it under the terms of the GNU General Public License as published by				  *
-*	the Free Software Foundation, either version 3 of the License, or					  *
-*	(at your option) any later version.													  *
-*																						  *
-*	The Chili DirectX Framework is distributed in the hope that it will be useful,		  *
-*	but WITHOUT ANY WARRANTY; without even the implied warranty of						  *
-*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the						  *
-*	GNU General Public License for more details.										  *
-*																						  *
-*	You should have received a copy of the GNU General Public License					  *
-*	along with The Chili DirectX Framework.  If not, see <http://www.gnu.org/licenses/>.  *
-******************************************************************************************/
 #pragma once
 
-#include "aligned_ptr.h"
+#include "../../Includes/surface.h"
 #include "ChiliWin.h"
+#include "Colors.h"
+#include "DXException.h"
+#include "Font.h"
+#include "Rect.h"
+#include "Text.h"
+#include "Sprite.h"
 #include <d3d11.h>
 #include <wrl.h>
-#include "DXException.h"
-#include "Colors.h"
-#include "Rect.h"
 
 class Graphics
 {
@@ -37,7 +20,7 @@ private:
 		Direct3D( HWND WinHandle, Graphics &Parent );
 		~Direct3D();
 
-		void Present( const aligned_ptr<Color>& pSysBuffer );
+		void Present( Graphics& gfx );
 
 	private:
 		Graphics &m_parent;
@@ -80,19 +63,46 @@ public:
 	void DrawRectAlpha( const Recti &Rect, Color C );
 
 	static bool IsInView( const Recti& _rect );
+	void DrawChar( float X, float Y, char C, Font const& font, Color Clr );
+	void DrawChar( const Vec2f &Pos, char C, Font const& font, Color Clr );
+	void DrawString( float X, float Y, Font const& font, const std::string &Str, Color Clr );
+	void DrawString( const Vec2f &Pos, Font const& font, const std::string &Str, Color Clr );
+	void DrawText( const Vec2f &Position, Text const& text, Color C );
+	void DrawSprite( const Rectf &Dst, const Sprite& sprite );
+	void DrawSprite( const Rectf &Src, const Rectf &Dst, const Sprite& sprite );
+
 
 	static void SetResolution( const RECT &WinRect );
+	template<typename T>
+	static T GetWidth()noexcept
+	{
+		return  static_cast< T >( screenRect.GetWidth() );
+	}
+	template<typename T> 
+	static T GetHeight()noexcept
+	{
+		return static_cast< T >( screenRect.GetHeight() );
+	}
+	template<typename T>
+	static Size_t<T> GetSize()noexcept
+	{
+		return { GetWidth<T>(), GetHeight<T>() };
+	}
+	template<typename T>
+	static _Rect<T> GetRect()noexcept
+	{
+		if constexpr( std::is_same_v<T, int> )
+		{
+			return screenRect;
+		}
+		else
+		{
+			return static_cast< _Rect<T> >( screenRect );
+		}
+	}
 private:
-	Direct3D			m_direct3d;
-	aligned_ptr<Color>	pSysBuffer;
-
-public:
-	static int   ScreenWidth;
-	static int   ScreenHeight;
-	static float fScreenWidth;
-	static float fScreenHeight;
-	static Sizei ScreenSize;
-	static Sizef fScreenSize;
-	static Recti ScreenRect;
-	static Rectf fScreenRect;
+	Direct3D				m_direct3d;
+	friend class Direct3D;
+	dim2d::surface<Color>	pSysBuffer;
+	static Recti			screenRect;
 };

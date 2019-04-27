@@ -10,85 +10,37 @@ Font::Font( const TextFormat::Properties &Props )
 {
 }
 
-Sizei Font::GetCharSize() const
+Sizei Font::GetCharSize()const noexcept
 {
 	return m_fontsheet.GetCharRect(0).GetSize();
 }
 
-int Font::MaxCharsPerRow( int LineWidth ) const
+int Font::MaxCharsPerRow( int LineWidth )const noexcept
 {
 	return LineWidth / GetCharSize().width;
 }
 
-int Font::MaxCharsPerColumn( int ColumnHeight ) const
+int Font::MaxCharsPerColumn( int ColumnHeight )const noexcept
 {
 	return ColumnHeight / GetCharSize().height;
 }
 
-void Font::DrawChar( float X, float Y, char C, Color Clr, Graphics & Gfx ) const
+std::pair<Font::iterator, Font::iterator> Font::make_char_iterator( char c )const noexcept
 {
-	const auto ix = static_cast< int >( X );
-	const auto iy = static_cast< int >( Y );
+	const auto rect = RectI( m_fontsheet.GetCharRect( c ) );
 
-	const auto fontRect = static_cast<Recti>( m_fontsheet.GetCharRect( C ) );
-	const auto screenRect = Rectify( 
-		fontRect
-		.Translate( -fontRect.LeftTop() )		// Translate to { 0, 0 }
-		.Translate( { ix,iy } ),				// Translate to destination 
-		Graphics::ScreenRect );					// Bound to screen rect
-
-	nested_for_each( screenRect, [ & ]( int _x, int _y )
-	{
-		const int fx = ( _x - ix ) + fontRect.left;
-		const int fy = ( _y - iy ) + fontRect.top;
-		const auto color = m_fontsheet.GetPixel( fx, fy );
-		if( color == Colors::Black )
-		{
-			const auto x = _x + ix;
-			const auto y = _y + iy;
-
-			Gfx.PutPixel( x, y, Clr );
-		}
-	} );
+	return {
+		iterator(  rect.left,    rect.top, rect.right, rect.bottom, m_fontsheet.m_pPixels ),
+		iterator( rect.right, rect.bottom, rect.right, rect.bottom, m_fontsheet.m_pPixels )
+	};
 }
 
-void Font::DrawChar( const Vec2f & Pos, char C, Color Clr, Graphics & Gfx ) const
+dim2d::surface<Color> const & Font::GetSurface() const noexcept
 {
-	DrawChar( Pos.x, Pos.y, C, Clr, Gfx );
+	return m_fontsheet.GetSurface();
 }
 
-void Font::DrawString( float X, float Y, const std::string & Str, Color Clr, Graphics & Gfx ) const
+RectF Font::GetRect( char c )const noexcept
 {
-	const auto ix = static_cast< int >( X );
-	const auto iy = static_cast< int >( Y );
-	const auto charWidth = m_fontsheet.GetCharWidth();
-	const auto charHeight = m_fontsheet.GetCharHeight();
-	const auto maxCharsPerRow = MaxCharsPerRow( Graphics::ScreenWidth );
-	const auto stringWidth = static_cast<int>( ( Str.size() - 1 ) * charWidth );
-	const auto stringRect = Rectify( 
-		Recti( ix, iy, Sizei( stringWidth, charHeight ) ), Graphics::ScreenRect );
-
-	if( Graphics::IsInView( { ix,iy,Sizei{stringWidth,charHeight} } ) )
-	{
-		const int startIndex = std::max( stringRect.left / charWidth, 0 );
-		const auto charCount = ( stringRect.right + charWidth ) / charWidth;
-		const int endIndex = std::min( charCount, maxCharsPerRow );
-
-		for( int i = 0, j = startIndex; j < endIndex; ++i, ++j )
-		{
-			const auto xPixelOffset = startIndex * charWidth;
-			const auto xCharOffset = i * charWidth;
-
-			const float x = static_cast< float >( ix + xPixelOffset + xCharOffset );
-			const float y = static_cast< float >( iy + stringRect.top );
-
-			DrawChar( x, y, Str[ j ], Clr, Gfx );
-		}
-	}
+	return m_fontsheet.GetCharRect( c );
 }
-
-void Font::DrawString( const Vec2f & Pos, const std::string & Str, Color Clr, Graphics & Gfx ) const
-{
-	DrawString( Pos.x, Pos.y, Str, Clr, Gfx );
-}
-

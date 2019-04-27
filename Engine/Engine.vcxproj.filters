@@ -156,14 +156,8 @@
     <ClInclude Include="Scene_FontRendering.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="Scene_Particles.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="Scene_Sprite.h">
       <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="AlphaSprite.h">
-      <Filter>Header Files\Framework\Sprites</Filter>
     </ClInclude>
     <ClInclude Include="AnimatedSprite.h">
       <Filter>Header Files\Framework\Sprites</Filter>
@@ -279,18 +273,6 @@
     <ClInclude Include="SSE_Utils.h">
       <Filter>Header Files\Framework\Utilities\SIMD</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleEffect.h">
-      <Filter>Header Files\Scenes\DemoCode\Particle Effects</Filter>
-    </ClInclude>
-    <ClInclude Include="Fireworks.h">
-      <Filter>Header Files\Scenes\DemoCode\Particle Effects</Filter>
-    </ClInclude>
-    <ClInclude Include="Flames.h">
-      <Filter>Header Files\Scenes\DemoCode\Particle Effects</Filter>
-    </ClInclude>
-    <ClInclude Include="WaveBeam.h">
-      <Filter>Header Files\Scenes\DemoCode\Particle Effects</Filter>
-    </ClInclude>
     <ClInclude Include="ComponentInitter.h">
       <Filter>Header Files\Framework\Utilities\Handlers</Filter>
     </ClInclude>
@@ -306,7 +288,16 @@
     <ClInclude Include="ConicalEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="algorithms.h">
+    <ClInclude Include="..\..\Includes\algorithm2d.h">
+      <Filter>Header Files\Framework\Utilities\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Includes\iterator2d.h">
+      <Filter>Header Files\Framework\Utilities\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Includes\grid.h">
+      <Filter>Header Files\Framework\Utilities\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Includes\surface.h">
       <Filter>Header Files\Framework\Utilities\Algorithm</Filter>
     </ClInclude>
   </ItemGroup>
@@ -327,9 +318,6 @@
       <Filter>Source Files\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="Scene_FontRendering.cpp">
-      <Filter>Source Files\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene_Particles.cpp">
       <Filter>Source Files\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="Scene_Sprite.cpp">
@@ -364,9 +352,6 @@
     </ClCompile>
     <ClCompile Include="Sound.cpp">
       <Filter>Source Files\Framework\Sound System</Filter>
-    </ClCompile>
-    <ClCompile Include="AlphaSprite.cpp">
-      <Filter>Source Files\Framework\Sprites</Filter>
     </ClCompile>
     <ClCompile Include="AnimatedSprite.cpp">
       <Filter>Source Files\Framework\Sprites</Filter>
@@ -410,29 +395,14 @@
     <ClCompile Include="Emitter.cpp">
       <Filter>Source Files\Framework\Emitters</Filter>
     </ClCompile>
-    <ClCompile Include="Fireworks.cpp">
-      <Filter>Source Files\Scenes\DemoCode\ParticleEffects</Filter>
-    </ClCompile>
-    <ClCompile Include="Flames.cpp">
-      <Filter>Source Files\Scenes\DemoCode\ParticleEffects</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEffect.cpp">
-      <Filter>Source Files\Scenes\DemoCode\ParticleEffects</Filter>
-    </ClCompile>
     <ClCompile Include="ComponentInitter.cpp">
       <Filter>Source Files\Framework\Utilities\Handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="WaveBeam.cpp">
-      <Filter>Source Files\Scenes\DemoCode\ParticleEffects</Filter>
     </ClCompile>
     <ClCompile Include="ImageLoader.cpp">
       <Filter>Source Files\Framework\Utilities\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="DXErr.cpp">
       <Filter>Source Files\Framework\Utilities\Exceptions</Filter>
-    </ClCompile>
-    <ClCompile Include="ConicalEmitter.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

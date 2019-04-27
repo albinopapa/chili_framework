@@ -23,7 +23,7 @@ public:
 		EndOfLine endofline = EndOfLine::WordWrap;
 		Alignment_H align_h = Alignment_H::Left;
 		Alignment_V align_v = Alignment_V::Top;
-		size_t tabSpaceCount = 4;
+		int tabSpaceCount = 4;
 	};
 public:
 	Text() = default;
@@ -37,14 +37,18 @@ public:
 	void AlignRight();
 
 	Rectf GetActualBoundary()const;
-	static Rectf EstimateMinRect( const std::string &Str, const Font &Fnt );
-	void Draw( const Vec2f &Position, Color C, Graphics &Gfx )const;
+	static Rectf EstimateMinRect( const std::string &Str, const Font &Fnt, RectF const& Bounds );
+
+	Font const& GetFont()const noexcept;
+	std::vector<Vec2i> const& GetStringPositions()const noexcept;
+	std::vector<std::string> const& GetStrings()const noexcept;
 
 private:
 	void FormatTrunc();
 	void FormatWrap();
 	void FormatNone();
-	void UpdatePositionsY( size_t yStart, size_t NumLines, size_t CharHeight );
+	void UpdatePositionsY( int yStart, int NumLines, int CharHeight );
+
 private:
 	const Font* m_pFont;
 	TextLayout m_layout;

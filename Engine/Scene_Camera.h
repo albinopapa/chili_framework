@@ -16,7 +16,7 @@ public:
 private:
 	SpriteCache m_cache;
 	Character m_player;
-	TrackingCamera m_camera;
-	Rectf m_screenrect, m_levelrect;
+	Camera m_camera;
+	Rectf m_levelrect;
 };
 

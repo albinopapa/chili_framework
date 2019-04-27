@@ -3,6 +3,7 @@
 #endif
 
 #include "FontSheet.h"
+#include "../../Includes/algorithm2d.h"
 #include "DXException.h"
 #include <cassert>
 #include <d2d1.h>
@@ -139,54 +140,51 @@ FontSheet::FontSheet( const TextFormat & Format )
 		UINT width, height;
 		pBitmap->GetSize( &width, &height );
 
-		auto pPixels = std::make_unique<Color[]>( width * height );
-		if( !pPixels )
-		{
-			throw FONT_EXCEPTION( E_OUTOFMEMORY, L"You are out of..., what am I doing again?" );
-		}
-
 		WICRect wr{ 0, 0, static_cast<int>( width ), static_cast<int>( height ) };
 		pBitmap->Lock( &wr, WICBitmapLockRead, &pLock );
 		UINT bufferSize = 0;
+
 		Color *pBuffer;
 		pLock->GetDataPointer( &bufferSize, reinterpret_cast< WICInProcPointer * >( &pBuffer ) );
 
-		for( int y = 0; y < wr.Height; ++y )
-		{
-			for( int x = 0; x < wr.Width; ++x )
-			{
-				const int index = x + ( y * width );
+		auto dst = dim2d::surface<Color>( int( width ), int( height ) );
+		dim2d::fill( dst.begin(), dst.end(), Colors::White );
 
-				pPixels[ index ] = ( pBuffer[ index ] == Colors::White ? Colors::White : Colors::Black );
-			}
-		}
+		auto const src = 
+			dim2d::raw_pointer_wrapper( dim2d::offset{ 0, 0 }, int( width ), int( height ), int( width ), pBuffer );
 
-		return pPixels;
+		auto is_not_white = 
+			[ & ]( dim2d::index _idx, const Color& _color )
+		{ 
+			return _color != Colors::White; 
+		};
+
+		dim2d::replace_if( src.begin(), src.end(), dst.begin(), Colors::Black, is_not_white );
+
+		return dst;
 	};
 
 	const auto fontsize = CalculateFontSize();
 	m_charWidth = fontsize.width;
 	m_charHeight = fontsize.height;
 	m_nCharsPerRow = 32;
+	
 	const auto charList = GenerateCharList();
+
 	auto pBitmap = CreateWICBitmap();
+	
 	auto pFactory2d = CreateD2DFactory();
 	auto pRenderTarget = CreateWICRenderTarget( pFactory2d, pBitmap );
 	auto pBrush = CreateD2DSolidBrush( pRenderTarget );
+	
 	RenderFontSheet( pRenderTarget, pBrush, charList, Format );
+	
 	m_pPixels = GetPixels( pBitmap );
-}
-
-Color FontSheet::GetPixel( int Idx ) const
-{
-	assert( Idx < ( m_nCharsPerRow * m_charWidth ) * ( 3 * m_charHeight ) );
-
-	return m_pPixels[ Idx ];
 }
 
 Color FontSheet::GetPixel( int X, int Y ) const
 {
-	return GetPixel( X + ( Y * m_nCharsPerRow * m_charWidth ) );
+	return m_pPixels[ { X, Y } ];
 }
 
 Rectf FontSheet::GetCharRect( const char C ) const
@@ -196,14 +194,16 @@ Rectf FontSheet::GetCharRect( const char C ) const
 	const int fontCol = fontIndex % m_nCharsPerRow;
 	const int fontRow = fontIndex / m_nCharsPerRow;
 
-	const float left = static_cast< float >( fontCol * m_charWidth );
-	const float top = static_cast< float >( fontRow * m_charHeight );
-
+	const auto leftTop = Vec2f{
+		static_cast< float >( fontCol * m_charWidth ),
+		static_cast< float >( fontRow * m_charHeight )
+	};
 	const auto fontSize = Sizef{
 		static_cast< float >( m_charWidth ),
 		static_cast< float >( m_charHeight )
 	};
-	return Rectf( { left, top }, fontSize );
+
+	return Rectf( leftTop, fontSize );
 }
 
 int FontSheet::GetCharWidth() const
@@ -214,5 +214,10 @@ int FontSheet::GetCharWidth() const
 int FontSheet::GetCharHeight() const
 {
 	return m_charHeight;
+}
+
+const dim2d::surface<Color> & FontSheet::GetSurface() const noexcept
+{
+	return m_pPixels;
 }
 

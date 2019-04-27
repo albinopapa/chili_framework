@@ -1,43 +1,44 @@
 #include "Emitter.h"
 #include <random>
 
-Emitter::Emitter(
-	const Vec2f &_position,
-	const Vec2f& _direction,
-	int _launchCount,
-	int _maxParticles )
+Emitter::Emitter( const Vec2f &_position, const Vec2f& _direction )
 	:
 	m_position( _position ),
-	m_direction( _direction ),
-	m_launchCount( _launchCount ),
-	m_maxParticles( _maxParticles )
+	m_direction( _direction )
 {
 }
 
-void Emitter::SetPosition( const Vec2f &Pos )
+bool Emitter::IsEnabled() const noexcept
+{
+	return m_canSpawn;
+}
+
+void Emitter::SetPosition( const Vec2f &Pos )noexcept
 {
 	m_position = Pos;
 }
 
-void Emitter::SetDirection( const Vec2f & _direction )
+void Emitter::SetDirection( const Vec2f & _direction )noexcept
 {
-	m_direction = _direction;
+	if( _direction.LenSq() == 1.f )
+		m_direction = _direction;
+	else
+		m_direction = _direction.Normalize();
 }
 
-Particle Emitter::SpawnParticles( const ParticleSetupDesc & _desc )
+void Emitter::Enable() noexcept
 {
-	std::mt19937 rng( std::random_device{}( ) );
-	std::uniform_int_distribution<int> widthDist( _desc.minWidth, _desc.maxWidth );
-	std::uniform_int_distribution<int> heightDist( _desc.minHeight, _desc.maxHeight );
-	std::uniform_int_distribution<int> ttlDist( _desc.minTimeToLive, _desc.maxTimeToLive );
-	std::uniform_real_distribution<float> speedDist( _desc.minSpeed, _desc.maxSpeed );
+	m_canSpawn = true;
+}
 
-	return {
-		m_position,
-			m_direction * speedDist( rng ),
-			widthDist( rng ),
-			heightDist( rng ),
-			ttlDist( rng ),
-			_desc.color
-	};
+void Emitter::Disable() noexcept
+{
+	m_canSpawn = false;
+}
+
+std::optional<Particle> Emitter::SpawnParticles( ParticleSetupDesc const& _desc )
+{
+	return ( m_canSpawn ) ?
+		std::optional<Particle>{ std::in_place_t{}, m_position, m_direction, _desc } :
+		std::optional<Particle>{};
 }

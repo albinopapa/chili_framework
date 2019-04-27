@@ -2,41 +2,46 @@
 #include "ChiliMath.h"
 #include "Scene.h"
 #include "Visitor.h"
-#include "Fireworks.h"
 
-ParticleSetupDesc::ParticleSetupDesc(
-	float _minSpeed, float _maxSpeed,
-	float _minWidth, float _maxWidth,
-	float _minHeight, float _maxHeight,
-	float _minTimeToLive, float _maxTimeToLive,
-	Color _color )
+ParticleSetupDesc::ParticleSetupDesc( 
+	float _speed, float _width, float _height, float _timeToLive, Color _color )
 	:
-	minSpeed( _minSpeed ), maxSpeed( _maxSpeed ),
-	minWidth( _minWidth ), maxWidth( _maxWidth ),
-	minHeight( _minHeight ), maxHeight( _maxHeight ),
-	minTimeToLive( _minTimeToLive ), maxTimeToLive( _maxTimeToLive ),
+	speed( _speed ),
+	width( _width ),
+	height( _height ),
+	timeToLive( _timeToLive),
 	color( _color )
 {
 }
 
-Particle::Particle(
-	const Vec2f & StartPos,
-	const Vec2f & StartVelocity,
-	float Width, float Height,
-	float TimeToLive,
-	Color C )
+Particle::Particle( Vec2 const& _origin, Vec2 const& _direction, ParticleSetupDesc const& _desc )noexcept
 	:
-	m_position( StartPos ),
-	m_velocity( StartVelocity ),
-	m_timeToLive( TimeToLive ),
-	m_width( Width ), 
-	m_height( Height ),
-	m_liveCounter( TimeToLive ),
-	m_color( C )
+	m_position( _origin ),
+	m_velocity( _direction * _desc.speed ),
+	m_timeToLive( _desc.timeToLive ),
+	m_width( _desc.width ), 
+	m_height( _desc.height ),
+	m_liveCounter( _desc.timeToLive ),
+	m_color( _desc.color )
 {
 }
 
-void Particle::Update( float DeltaTime )
+auto Particle::GetRect()const noexcept
+{
+	return MakeRectFromCenter( m_position, Sizef{ m_width, m_height } );
+}
+
+auto Particle::GetColor()const noexcept
+{
+	return m_color;
+}
+
+auto Particle::IsDead()const noexcept
+{
+	return m_liveCounter <= 0.f;
+}
+
+void Particle::Update( float DeltaTime )noexcept
 {
 	if( IsDead() )return;
 
@@ -44,27 +49,12 @@ void Particle::Update( float DeltaTime )
 	m_liveCounter -= DeltaTime;
 }
 
-Rectf Particle::GetRect() const
-{
-	return MakeRectFromCenter( m_position, Sizef{ m_width, m_height } );
-}
-
-Color Particle::GetColor() const
-{
-	return m_color;
-}
-
-bool Particle::IsDead()const
-{
-	return m_liveCounter <= 0.f;
-}
-
-void DrawTransparentCircleEffect::operator()( const Recti & _rect, const Particle & _particle, Graphics & _graphics )
+void DrawTransparentCircleEffect::operator()( const Recti & _rect, const Particle & _particle, Graphics & _graphics )const noexcept
 {
 	_graphics.DrawCircleAlpha( _rect, _particle.GetColor() );
 }
 
-void DrawTransparentRectEffect::operator()( const Recti & _rect, const Particle & _particle, Graphics & _graphics )
+void DrawTransparentRectEffect::operator()( const Recti & _rect, const Particle & _particle, Graphics & _graphics )const noexcept
 {
 	_graphics.DrawRectAlpha( _rect, _particle.GetColor() );
 }

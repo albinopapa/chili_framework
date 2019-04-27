@@ -42,16 +42,11 @@ MainWindow::MainWindow( HINSTANCE hInst,wchar_t * pArgs )
 	HWND dtHandle = GetDesktopWindow();
 	RECT dtRect{};
 	GetClientRect( dtHandle, &dtRect );
-	RECT wr = dtRect;
-	Graphics::SetResolution( wr );
-	/*
-	wr.left = 0;
-	wr.right = Graphics::ScreenWidth + wr.left;
-	wr.top = 0;
-	wr.bottom = Graphics::ScreenHeight + wr.top;*/
 
 	const auto style = WS_POPUP;
+	RECT wr = dtRect;
 	AdjustWindowRect( &wr, style, FALSE );
+	Graphics::SetResolution( wr );
 
 	hWnd = CreateWindow( 
 		wndClassName, L"Chili DirectX Framework",
@@ -163,7 +158,7 @@ LRESULT MainWindow::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam )
 	case WM_MOUSEMOVE:
 	{
 		POINTS pt = MAKEPOINTS( lParam );
-		if( pt.x > 0 && pt.x < Graphics::ScreenWidth && pt.y > 0 && pt.y < Graphics::ScreenHeight )
+		if( pt.x > 0 && pt.x < Graphics::GetWidth<int>() && pt.y > 0 && pt.y < Graphics::GetHeight<int>() )
 		{
 			mouse.OnMouseMove( pt.x,pt.y );
 			if( !mouse.IsInWindow() )
@@ -177,9 +172,9 @@ LRESULT MainWindow::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam )
 			if( wParam & (MK_LBUTTON | MK_RBUTTON) )
 			{
 				pt.x = std::max( short( 0 ),pt.x );
-				pt.x = std::min( short( Graphics::ScreenWidth - 1 ),pt.x );
+				pt.x = std::min( short( Graphics::GetWidth<int>() - 1 ),pt.x );
 				pt.y = std::max( short( 0 ),pt.y );
-				pt.y = std::min( short( Graphics::ScreenHeight - 1 ),pt.y );
+				pt.y = std::min( short( Graphics::GetHeight<int>() - 1 ),pt.y );
 				mouse.OnMouseMove( pt.x,pt.y );
 			}
 			else

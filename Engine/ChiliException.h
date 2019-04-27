@@ -24,23 +24,29 @@
 class ChiliException
 {
 public:
-	ChiliException( const wchar_t* file,unsigned int line,const std::wstring& note = L"" )
+	ChiliException() = delete;
+	ChiliException( const ChiliException& ) = default;
+	ChiliException( ChiliException&& ) = default;
+	ChiliException( const wchar_t* file, unsigned int line, const std::wstring& note = L"" )
 		:
 		note( note ),
 		file( file ),
 		line( line )
 	{}
 	virtual~ChiliException() = default;
+	
+	ChiliException& operator=( const ChiliException& ) = default;
+	ChiliException& operator=( ChiliException&& ) = default;
 
-	const std::wstring& GetNote() const
+	const std::wstring& GetNote() const noexcept
 	{
 		return note;
 	}
-	const std::wstring& GetFile() const
+	const std::wstring& GetFile() const noexcept
 	{
 		return file;
 	}
-	unsigned int GetLine() const
+	unsigned int GetLine() const noexcept
 	{
 		return line;
 	}

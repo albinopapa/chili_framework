@@ -15,6 +15,6 @@ void Scene_Sprite::Update( float DeltaTime )
 
 void Scene_Sprite::Draw() const
 {
-	const Vec2i offset = { -m_sprite.GetWidth() / 2, 0 };
-	m_sprite.Draw( Graphics::ScreenRect.Translate( offset ), m_graphics );
+	const Vec2f offset = { float( -m_sprite.GetWidth() / 2 ), 0.f };
+	m_graphics.DrawSprite( Graphics::GetRect<float>().Translate( offset ), m_sprite );
 }

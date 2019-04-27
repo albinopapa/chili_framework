@@ -1,78 +1,64 @@
 #pragma once
 
-#include "AlphaSprite.h"
-#include "Entity.h"
+#include "Colors.h"
+#include "Graphics.h"
+#include "Rect.h"
+#include "Vec2.h"
 
 struct ParticleSetupDesc
 {
-	enum DrawFunc
-	{
-		Circle, CircleAlpha,
-		RectAlpha
-	};
 public:
 	ParticleSetupDesc() = default;
 	ParticleSetupDesc(
-		float _minSpeed,  float _maxSpeed, 
-		float _minWidth,  float _maxWidth,
-		float _minHeight, float _maxHeight,
-		float _minTimeToLive, float _maxTimeToLive,
+		float _speed,  
+		float _width,  
+		float _height, 
+		float _timeToLive, 
 		Color _color );
 
 public:
-	float minSpeed = 16.f, maxSpeed = 32.f;
-	float minWidth = 4.f, maxWidth = 16.f;
-	float minHeight = 1.f, maxHeight = 15.f;
-	float minTimeToLive = .1f, maxTimeToLive = 2.f;
-	DrawFunc drawFunc = CircleAlpha;
+	float speed = 16.f;
+	float width = 4.f;
+	float height = 1.f;
+	float timeToLive = .1f;
 	Color color = Colors::White;
 };
 
+class Particle;
 struct DrawTransparentCircleEffect
 {
-	void operator()( const Recti& _rect, const Particle& _particle, Graphics& _graphics );
+	void operator()( const Recti& _rect, const Particle& _particle, Graphics& _graphics )const noexcept;
 };
 struct DrawTransparentRectEffect
 {
-	void operator()( const Recti& _rect, const Particle& _particle, Graphics& _graphics );
+	void operator()( const Recti& _rect, const Particle& _particle, Graphics& _graphics )const noexcept;
 };
 class Particle
 {
 public:
 	Particle() = default;
-	Particle(
-		const Vec2f &StartPos,
-		const Vec2f &StartVelocity,
-		float Width, float Height,
-		float TimeToLive,
-		Color C );
+	Particle( Vec2 const& _origin, Vec2 const& _direction, ParticleSetupDesc const& _desc )noexcept;
 
-	void Update( float DeltaTime );
+	void Update( float DeltaTime )noexcept;
 	
 	template<typename Effect>
-	void Draw( const RectF& _viewport, Graphics& _graphics, Effect&& _effect )const
+	void Draw( const RectF& _viewport, Graphics& _graphics, Effect&& _effect )const noexcept
 	{
-		const auto offset = static_cast< Vec2i >( m_position - Viewport.LeftTop() );
-
-		const float currentStep = Clamp( ( m_liveCounter / m_timeToLive ) * 2.f, 0.f, 1.f );
-		const auto charStep = static_cast< unsigned char >( currentStep * 255.f );
-
 		const Recti rect = static_cast< Recti >( GetRect() );
 		_effect( rect, *this, _graphics );
 	}
 
-	void Position( const Vec2f &Pos ) { m_position = Pos; }
-	Vec2f Position()const { return m_position; }
+	void Position( const Vec2f &Pos )noexcept { m_position = Pos; }
+	void Velocity( const Vec2 &Vel )noexcept { m_velocity = Vel; }
 
-	void Velocity( const Vec2 &Vel ) { m_velocity = Vel; }
-	Vec2f Velocity()const { return m_velocity; }
-
-	Rectf GetRect()const;
-	Color GetColor()const;
-	bool IsDead()const;
+	auto Position()const noexcept { return m_position; }
+	auto Velocity()const noexcept { return m_velocity; }
+	auto GetRect()const noexcept;
+	auto GetColor()const noexcept;
+	auto IsDead()const noexcept;
 private:
 	Vec2f m_position, m_velocity;
 	float m_timeToLive = 0.f, m_liveCounter = 0.f;
-	float m_width, m_height;
-	Color m_color;
+	float m_width = 0.f, m_height = 0.f;
+	Color m_color = Colors::White;
 };

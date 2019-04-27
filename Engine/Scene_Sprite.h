@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Scene.h"
-#include "AlphaSprite.h"
 #include "Logger.h"
 
 class Scene_Sprite :public Scene
@@ -13,7 +12,6 @@ public:
 	void Draw()const override;
 
 private:
-	AlphaSprite m_sprite;
-
+	Sprite m_sprite;
 };
 

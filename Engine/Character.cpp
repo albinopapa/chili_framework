@@ -18,7 +18,7 @@ void Character::Update( float DeltaTime )
 void Character::Draw( const Rectf &Viewport, Graphics & Gfx )const
 {
 	const auto playerrect = GetRect().Translate( -Viewport.LeftTop() );
-	m_animController.Draw( playerrect, Gfx );
+	Gfx.DrawSprite( playerrect, m_animController.CurrentFrame() );
 }
 
 const Vec2f & Character::GetPosition() const
@@ -77,7 +77,7 @@ void Character::DoState( bool DidTransition, float DeltaTime )
 		case State::StandingLeft:
 			if( DidTransition )
 			{
-				m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_standL );
+				//m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_standL );
 			}
 			break;
 		case State::StandingRight:
@@ -89,7 +89,7 @@ void Character::DoState( bool DidTransition, float DeltaTime )
 		case State::WalkingLeft:
 			if( DidTransition )
 			{
-				m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_walkL );
+				//m_animController = AnimationController( 30.f / 900.f, m_cache.m_character_walkL );
 			}
 			m_position.x -= speed;
 			break;

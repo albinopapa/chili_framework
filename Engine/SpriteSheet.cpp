@@ -1,15 +1,15 @@
 #include "SpriteSheet.h"
-
+#include "../../Includes/algorithm2d.h"
 
 SpriteSheet::SpriteSheet( int TileWidth, int TileHeight, const std::string & Filename )
 	:
 	m_tileWidth( TileWidth ),
 	m_tileHeight( TileHeight ),
-	m_pSpritesheet( std::make_unique<AlphaSprite>( Filename ) )
+	m_pSpritesheet( Filename )
 {
 }
 
-std::unique_ptr<Sprite> SpriteSheet::CreateSolidSprite( int Column, int Row ) const
+Sprite SpriteSheet::CreateSolidSprite( int Column, int Row ) const
 {
 	const Recti src( 
 		Vec2i{Column * m_tileWidth,Row * m_tileHeight}, 
@@ -18,26 +18,35 @@ std::unique_ptr<Sprite> SpriteSheet::CreateSolidSprite( int Column, int Row ) co
 	return CreateSolidSprite( src );
 }
 
-std::unique_ptr<Sprite> SpriteSheet::CreateSolidSprite( const Recti & Src ) const
+Sprite SpriteSheet::CreateSolidSprite( const Recti & Src ) const
 {
-	return m_pSpritesheet->CopyFromRegion( Src );
+	Sprite result;
+	{
+		auto& surf = reinterpret_cast< dim2d::surface<Color>& >( result );
+		surf = dim2d::surface<Color>( Src.GetWidth(), Src.GetHeight() );
+	}
+	const auto src =
+		dim2d::surface_wrapper<const Sprite>( 
+			dim2d::offset{ Src.left,Src.top }, 
+			Src.GetWidth(), 
+			Src.GetHeight(), 
+			m_pSpritesheet.columns(), 
+			m_pSpritesheet );
+
+	auto dst =
+		dim2d::surface_wrapper<Sprite>(
+			dim2d::offset{ 0, 0 }, 
+			Src.GetWidth(), 
+			Src.GetHeight(), 
+			result.columns(),
+			result );
+
+	dim2d::copy( src.begin(), src.end(), dst.begin() );
+
+	return result;
 }
 
-std::unique_ptr<Sprite> SpriteSheet::CreateAlphaSprite( int Column, int Row ) const
-{
-	const Recti src(
-		Vec2i{ Column * m_tileWidth, Row * m_tileHeight },
-		Sizei{ m_tileWidth, m_tileHeight } );
-
-	return CreateAlphaSprite( src );
-}
-
-std::unique_ptr<Sprite> SpriteSheet::CreateAlphaSprite( const Recti & Src ) const
-{
-	return m_pSpritesheet->CopyFromRegion( Src );
-}
-
-Frames SpriteSheet::CreateFrames( int StartCol, int NumColTiles, int StartRow, int NumRowTiles, Frames::SpriteType Type )
+Frames SpriteSheet::CreateFrames( int StartCol, int NumColTiles, int StartRow, int NumRowTiles )
 {
 	std::vector<Recti> rects;
 	for( int y = StartRow; y < StartRow + NumRowTiles; ++y )
@@ -52,26 +61,16 @@ Frames SpriteSheet::CreateFrames( int StartCol, int NumColTiles, int StartRow, i
 		}
 	}
 	
-	return CreateFrames( rects, Type );
+	return CreateFrames( rects );
 }
 
-Frames SpriteSheet::CreateFrames( const std::vector<Recti>& Src, Frames::SpriteType Type ) const
+Frames SpriteSheet::CreateFrames( const std::vector<Recti>& Src ) const
 {
-	std::vector<std::unique_ptr<Sprite>> pSprites( Src.size() );
-	if( Type == Frames::SpriteType::Alpha )
+	std::vector<Sprite> sprites( Src.size() );
+	for( size_t i = 0; i < Src.size(); ++i )
 	{
-		for( size_t i = 0; i < Src.size(); ++i )
-		{
-			pSprites[ i ] = CreateAlphaSprite( Src[ i ] );
-		}
-	}
-	else
-	{
-		for( size_t i = 0; i < Src.size(); ++i )
-		{
-			pSprites[ i ] = CreateSolidSprite( Src[ i ] );
-		}
+		sprites[ i ] = CreateSolidSprite( Src[ i ] );
 	}
 
-	return Frames( std::move( pSprites ) );
+	return Frames( std::move( sprites ) );
 }

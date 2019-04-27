@@ -1,23 +1,23 @@
 #pragma once
 
-#include "Graphics.h"
 #include "FontSheet.h"
-#include <string>
 
 class Font
 {
 public:
+	using iterator = dim2d::const_index_iterator<dim2d::surface<Color>>;
+
+public:
 	Font() = default;
 	Font( const TextFormat::Properties &Props );
 
-	Sizei GetCharSize()const;
-	int MaxCharsPerRow( int LineWidth )const;
-	int MaxCharsPerColumn( int ColumnHeight )const;
-
-	void DrawChar( float X, float Y, char C, Color Clr, Graphics &Gfx )const;
-	void DrawChar( const Vec2f &Pos, char C, Color Clr, Graphics &Gfx )const;
-	void DrawString( float X, float Y, const std::string &Str, Color Clr, Graphics &Gfx )const;
-	void DrawString( const Vec2f &Pos, const std::string &Str, Color Clr, Graphics &Gfx )const;
+	Sizei GetCharSize()const noexcept;
+	int MaxCharsPerRow( int LineWidth )const noexcept;
+	int MaxCharsPerColumn( int ColumnHeight )const noexcept;
+	std::pair<iterator, iterator> make_char_iterator( char c )const noexcept;
+	dim2d::surface<Color> const& GetSurface()const noexcept;
+	RectF GetRect( char c )const noexcept;
 private:
 	FontSheet m_fontsheet;
 };
+

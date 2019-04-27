@@ -7,13 +7,18 @@ class Camera
 {
 public:
 	Camera() = default;
-	Camera( const Vec2f &StartPos );
+	Camera( Vec2f const& _origin, RectF const& _viewrect )noexcept;
 
-	const Vec2f &GetPosition()const;
-	void SetPosition(const Vec2f& _position);
-	Vec2f Transform(const Vec2f& _point);
-	void ClampTo( const Sizef &ViewSize, const Rectf &Boundary );
+	Vec2f const& GetPosition()const noexcept;
+	RectF const& GetRect()const noexcept;
+	Vec2f WorldToScreen( Vec2f const& _point )const noexcept;
+	Vec2f ScreenToWorld( Vec2f const& _point )const noexcept;
+
+	void SetPosition(const Vec2f& _position)noexcept;
+	void ClampTo( const Rectf &Boundary )noexcept;
+
 
 protected:
 	Vec2f m_position;
+	RectF m_viewrect;
 };

@@ -1,5 +1,5 @@
 #include "Text.h"
-
+#include "Graphics.h"
 
 
 Text::Text( const std::string & Str, const TextLayout & Layout, const Rectf &Boundary, const Font & Fnt )
@@ -33,7 +33,7 @@ Text::Text( const std::string & Str, const TextLayout & Layout, const Rectf &Bou
 void Text::AlignTop()
 {
 	const auto maxLines = m_pFont->MaxCharsPerColumn( m_boundary.GetHeight() );
-	const auto numLines = std::min( m_strings.size(), maxLines );
+	const auto numLines = std::min( int( m_strings.size() ), maxLines );
 	const auto charHeight = m_pFont->GetCharSize().height;
 	const auto yStart = m_boundary.top;
 
@@ -43,7 +43,7 @@ void Text::AlignTop()
 void Text::AlignMiddle()
 {
 	const auto maxLines = m_pFont->MaxCharsPerColumn( m_boundary.GetHeight() );
-	const auto numLines = std::min( m_strings.size(), maxLines );
+	const auto numLines = std::min( int( m_strings.size() ), maxLines );
 	const auto charHeight = m_pFont->GetCharSize().height;
 	const auto textHeight = numLines * charHeight;
 	const auto yStart = ( m_boundary.bottom - textHeight ) / 2;
@@ -54,7 +54,7 @@ void Text::AlignMiddle()
 void Text::AlignBottom()
 {
 	const auto maxLines = m_pFont->MaxCharsPerColumn( m_boundary.GetHeight() );
-	const auto numLines = std::min( m_strings.size(), maxLines );
+	const auto numLines = std::min( int( m_strings.size() ), maxLines );
 	const auto charHeight = m_pFont->GetCharSize().height;
 	const auto textHeight = numLines * charHeight;
 	const auto yStart = ( m_boundary.bottom - textHeight );
@@ -95,7 +95,7 @@ Rectf Text::GetActualBoundary() const
 	const auto charSize = m_pFont->GetCharSize();
 	
 	const size_t textHeight = m_strings.size() * static_cast< size_t >( charSize.height );
-	size_t maxWidth = UINT_MAX;
+	size_t maxWidth = std::numeric_limits<std::uint32_t>::max();
 
 	for( const auto &str : m_strings )
 	{
@@ -110,10 +110,11 @@ Rectf Text::GetActualBoundary() const
 	);
 }
 
-Rectf Text::EstimateMinRect( const std::string & Str, const Font & Fnt )
+Rectf Text::EstimateMinRect( const std::string & Str, const Font & Fnt, RectF const& Bounds )
 {
 	const float strLen = static_cast< float >( Str.length() );
-	const float maxCharsPerRow = static_cast< float >( Fnt.MaxCharsPerRow( Graphics::ScreenWidth ) );
+	const float maxCharsPerRow = 
+		static_cast< float >( Fnt.MaxCharsPerRow( int( Bounds.GetWidth() ) ) );
 	
 	const float maxLen = std::min( strLen, maxCharsPerRow );
 	const float maxHeight = ceilf( strLen / maxLen );
@@ -126,13 +127,19 @@ Rectf Text::EstimateMinRect( const std::string & Str, const Font & Fnt )
 	return Rectf( 0.f, 0.f, strPixelLen, strPixelHeight );
 }
 
-void Text::Draw( const Vec2f &Position, Color C, Graphics & Gfx ) const
-{	
-	for( size_t i = 0; i < m_strings.size(); ++i )
-	{
-		const auto position = static_cast< Vec2f >( m_positions[ i ] ) + Position;
-		m_pFont->DrawString( position.x, position.y, m_strings[ i ], C, Gfx );
-	}
+Font const & Text::GetFont() const noexcept
+{
+	return *( m_pFont );
+}
+
+std::vector<Vec2i> const & Text::GetStringPositions() const noexcept
+{
+	return m_positions;
+}
+
+std::vector<std::string> const & Text::GetStrings() const noexcept
+{
+	return m_strings;
 }
 
 void Text::FormatTrunc()
@@ -154,7 +161,7 @@ void Text::FormatTrunc()
 		}
 		else if( c == tab )
 		{
-			str.insert( curCharPos, 4, ' ' );
+			str.append( 4, ' ' );
 			curCharPos += 4;
 		}
 
@@ -193,8 +200,9 @@ void Text::FormatWrap()
 		}
 		else if( c == tab )
 		{
-			size_t spaceCount = std::min( maxCharsPerRow - curCharPos, m_layout.tabSpaceCount );
-			str.insert( curCharPos, spaceCount, ' ' );
+			const auto spaceCount = 
+				std::min( maxCharsPerRow - curCharPos, m_layout.tabSpaceCount );
+			str.append( size_t( spaceCount ), ' ' );
 			curCharPos += spaceCount;
 			continue;
 		}
@@ -212,7 +220,7 @@ void Text::FormatWrap()
 			{
 				m_strings.push_back( str.substr( 0, lastSpace ) );
 				str = str.substr( lastSpace + 1, std::string::npos );
-				curCharPos = str.size();
+				curCharPos = int( str.size() );
 			}
 			else
 			{
@@ -243,12 +251,12 @@ void Text::FormatNone()
 		}
 		else if( c == '\n' )
 		{
-			m_strings.push_back( str );
+			m_strings.push_back( std::move( str ) );
 			curCharPos = 0;
 		}
 		else if( c == '\t' )
 		{
-			str.insert( curCharPos, m_layout.tabSpaceCount, ' ' );
+			str.append( m_layout.tabSpaceCount, ' ' );
 			curCharPos += m_layout.tabSpaceCount;
 		}
 	}
@@ -256,9 +264,9 @@ void Text::FormatNone()
 	m_strings.push_back( str );
 }
 
-void Text::UpdatePositionsY( size_t yStart, size_t NumLines, size_t CharHeight )
+void Text::UpdatePositionsY( int yStart, int NumLines, int CharHeight )
 {
-	for( size_t i = 0; i < NumLines; ++i )
+	for( int i = 0; i < NumLines; ++i )
 	{
 		m_positions[ i ].y = yStart + ( i * CharHeight );
 	}

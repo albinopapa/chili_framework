@@ -1,37 +1,43 @@
 #include "Camera.h"
 #include "Graphics.h"
 
-Camera::Camera( const Vec2f &StartPos )
+Camera::Camera( Vec2f const& _origin, RectF const& _viewrect )noexcept
 	:
-	m_position( StartPos )
-{
+	m_position( _origin ),
+	m_viewrect( _viewrect )
+{}
 
-}
-
-const Vec2f & Camera::GetPosition() const
+Vec2f const& Camera::GetPosition()const noexcept
 {
 	return m_position;
 }
 
-void Camera::SetPosition(const Vec2f & _position)
+RectF const& Camera::GetRect() const noexcept
 {
-	m_position = _position;
+	return m_viewrect;
 }
 
-Vec2f Camera::Transform(const Vec2f & _point)
+Vec2f Camera::WorldToScreen( Vec2f const & _point ) const noexcept
 {
 	return _point - m_position;
 }
 
-void Camera::ClampTo( const Sizef &ViewSize, const Rectf & Boundary )
+Vec2f Camera::ScreenToWorld( Vec2f const & _point ) const noexcept
 {
-	m_position = Vec2f(
-		Clamp( m_position.x, Boundary.left + ViewSize.width * .5f, Boundary.right -   ViewSize.width * .5f ),
-		Clamp( m_position.y, Boundary.top +  ViewSize.height * .5f, Boundary.bottom - ViewSize.height * .5f )
-	);
+	return m_position + _point;
 }
 
-void Camera::Update(float DeltaTime)
+void Camera::SetPosition(const Vec2f & _position)noexcept
 {
+	m_position = _position;
+}
 
+void Camera::ClampTo( const Rectf & Boundary )noexcept
+{
+	const auto hWidth  = m_viewrect.GetWidth() * .5f;
+	const auto hHeight = m_viewrect.GetHeight() * .5f;
+	m_position = Vec2f(
+		std::clamp( m_position.x, Boundary.left + hWidth, Boundary.right  - hWidth ),
+		std::clamp( m_position.y, Boundary.top  + hHeight, Boundary.bottom - hHeight )
+	);
 }

@@ -23,7 +23,7 @@
 #include "Graphics.h"
 #include "DXErr.h"
 #include "ChiliException.h"
-#include "algorithms.h"
+#include "../../Includes/algorithm2d.h"
 #include <assert.h>
 #include <string>
 #include <array>
@@ -42,60 +42,41 @@ namespace FramebufferShaders
 #define CHILI_GFX_EXCEPTION( hr,note ) DXException( hr,note,_CRT_WIDE(__FILE__),__LINE__ )
 
 using Microsoft::WRL::ComPtr;
-//Sizei Graphics::ScreenSize = { ScreenWidth, ScreenHeight };
-//Sizef Graphics::fScreenSize = static_cast< Sizef >( Graphics::ScreenSize );
 
-int   Graphics::ScreenWidth = 1920;
-int   Graphics::ScreenHeight = 1080;
-float Graphics::fScreenWidth = static_cast< float >( Graphics::ScreenWidth );
-float Graphics::fScreenHeight = static_cast< float >( Graphics::ScreenHeight );
-Sizei Graphics::ScreenSize = { ScreenWidth, ScreenHeight };
-Sizef Graphics::fScreenSize = static_cast< Sizef >( Graphics::ScreenSize );
-Recti Graphics::ScreenRect = { { 0, 0 }, ScreenSize };
-Rectf Graphics::fScreenRect = static_cast< Rectf >( ScreenRect );
+RectI Graphics::screenRect = { 100,100,800,600 };
 
 Graphics::Graphics( HWNDKey& key )
 	:
 	m_direct3d( key.hWnd, *this ),
-	pSysBuffer( ScreenSize.Area(), 16u )
+	pSysBuffer( screenRect.GetWidth(), screenRect.GetHeight() )
 {
 }
 
 void Graphics::EndFrame()
 {
-	m_direct3d.Present( pSysBuffer );
+	m_direct3d.Present( *this );
 }
 
 void Graphics::BeginFrame( Color C )
 {
 	// clear the sysbuffer
 	//pSysBuffer.Fill( C );
-	pSysBuffer.Clear();
+	dim2d::fill( pSysBuffer.begin(), pSysBuffer.end(), Colors::Black );
 }
 
 void Graphics::PutPixel( int x, int y, int r, int g, int b )
 {
-	PutPixel( x, y, { unsigned char( r ), unsigned char( g ), unsigned char( b ) } );
+	pSysBuffer[ {x, y} ] = Color( r, g, b );
 }
 
 void Graphics::PutPixel( int x, int y, Color c )
 {
-	assert( x >= 0 );
-	assert( x < int( Graphics::ScreenWidth ) );
-	assert( y >= 0 );
-	assert( y < int( Graphics::ScreenHeight ) );
-	pSysBuffer[ Graphics::ScreenWidth * y + x ] = c;
+	pSysBuffer[ {x, y} ] = c;
 }
 
-void Graphics::PutPixelAlpha( int X, int Y, Color C )
+void Graphics::PutPixelAlpha( int x, int y, Color c )
 {
-	assert( X >= 0 );
-	assert( X < int( Graphics::ScreenWidth ) );
-	assert( Y >= 0 );
-	assert( Y < int( Graphics::ScreenHeight ) );
-
-	auto &pixel = pSysBuffer[ Graphics::ScreenWidth * Y + X ];
-	pixel = C.AlphaBlend( pixel );
+	pSysBuffer[ {x, y} ] = c.AlphaBlend( pSysBuffer[ {x, y} ] );
 }
 
 void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
@@ -104,19 +85,20 @@ void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
 
 	const Vec2i vRadius = { Radius, Radius };
 	
-	const auto bounds = Rectify( Recti( Vec2i( Center - vRadius ), Vec2i( Center + vRadius ) ) );
+	auto const circleRect = Recti( Center - vRadius, Center + vRadius );
+	const auto bounds = Rectify( circleRect, GetRect<int>() ).Translate( Center );
 
-	for( int y = bounds.top - vRadius.y; y < bounds.bottom - vRadius.y; ++y )
+	auto const beg = dim2d::index_iterator( bounds.left, bounds.top, bounds.right,bounds.bottom, pSysBuffer );
+	auto const end = beg + dim2d::offset{ bounds.GetWidth(),bounds.GetHeight() };
+
+	dim2d::for_each( beg, end, [ & ]( dim2d::index idx, Color& color )
 	{
-		for( int x = bounds.left - vRadius.x; x < bounds.right - vRadius.x; ++x )
+		const auto sqDist = sq( idx.x - Center.x ) + sq( idx.y - Center.y );
+		if( sqDist < sqRadius )
 		{
-			const auto sqDist = sq( x ) + sq( y );
-			if( sqDist < sqRadius )
-			{
-				PutPixel( x + Center.x, y + Center.y, C );
-			}
+			color = C;
 		}
-	}
+	} );
 }
 
 void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
@@ -125,80 +107,186 @@ void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
 	const auto sqRadius = sq( radius );
 	const auto sqInner = sq( std::max( radius >> 1, 1 ) );
 
+	const auto vRadius = Vec2i{ radius, radius };
 	const auto center = Rect.GetCenter();
-	const Vec2i vRadius = { radius, radius };
-	const auto bounds = Rectify( Recti( Vec2i( center - vRadius ), Vec2i( center + vRadius ) ) );
+	const auto circleRect = Recti( center - vRadius, center + vRadius );
+	const auto bounds = Rectify( circleRect, GetRect<int>() ).Translate( center );
 
 	const Color centerColor = Colors::White * ( C.Brightness() );
+	auto beg = dim2d::index_iterator( bounds.left, bounds.top, bounds.right, bounds.bottom, pSysBuffer );
+	auto end = beg + dim2d::offset{ bounds.GetWidth(),bounds.GetHeight() };
 
-	for( int y = bounds.top - vRadius.y; y < bounds.bottom - vRadius.y; ++y )
+	auto generator = [ & ]( dim2d::index _idx, Color const& _color )
 	{
-		for( int x = bounds.left - vRadius.x; x < bounds.right - vRadius.x; ++x )
+		const auto sqDist = sq( _idx.x ) + sq( _idx.y );
+
+		if( sqDist < sqRadius )
 		{
-			const auto sqDist = sq( x ) + sq( y );
-			if( sqDist < sqRadius )
-			{
-				const auto dist = sqrtf( static_cast< float >( sqDist ) );
-				const auto step = dist / static_cast< float >( radius );
+			const auto dist = sqrtf( static_cast< float >( sqDist ) );
+			const auto step = dist / static_cast< float >( radius );
 
-				const auto alpha =
-					static_cast< unsigned char >( ( 1.f - step ) * 255.f );
+			const auto alpha =
+				static_cast< unsigned char >( ( 1.f - step ) * 255.f );
 
-				const Color color = ( sqDist < sqInner ) ?
-					Color( centerColor, alpha ) :
-					Color( C, alpha );
-				
-				PutPixelAlpha( x + center.x, y + center.y, color );
-			}
+			return ( sqDist < sqInner ) ?
+				Color( centerColor, alpha ) : Color( C, alpha );
 		}
-	}
+
+		return _color;
+	};
+
+	dim2d::generate( beg, end, beg, generator );
 }
 
 void Graphics::DrawRectAlpha( const Recti & Rect, Color C )
 {
-	const auto bounds = Rectify( Rect ).Translate( Rect.LeftTop() );
+	const auto bounds = Rectify( Rect, GetRect<int>() ).Translate( Rect.LeftTop() );
 	
-	for( int y = bounds.top; y < bounds.bottom; ++y )
-	{
-		for( int x = bounds.left; x < bounds.right; ++x )
-		{
-			PutPixelAlpha( x, y, C );
-		}
-	}
+	auto beg = dim2d::index_iterator( bounds.left, bounds.top, bounds.right, bounds.bottom, pSysBuffer );
+	auto end = beg + dim2d::offset{ bounds.GetWidth(),bounds.GetHeight() };
+	
+	dim2d::fill( beg, end, C );
 }
 
 bool Graphics::IsInView( const Recti & _rect )
 {
 	return
-		_rect.left < ScreenWidth && _rect.right >= 0 &&
-		_rect.top < ScreenHeight && _rect.bottom >= 0;
+		_rect.left < screenRect.GetWidth()  && _rect.right >= 0 &&
+		_rect.top <  screenRect.GetHeight() && _rect.bottom >= 0;
 }
 
-Recti Graphics::Rectify( const Recti & Rect ) const
+void Graphics::DrawChar( float X, float Y, char C, Font const& font, Color color ) 
 {
-	return Rectify( Rect.left, Rect.GetWidth(), Rect.top, Rect.GetHeight() );
+	const auto position = Vec2i( static_cast< int >( X ), static_cast< int >( Y ) );
+
+	const auto sourceRect = static_cast< Recti >( font.GetRect( C ) );
+	const auto destinationRect = Rectify(
+		RectI( position, Sizei( sourceRect.GetSize() ) ),
+		GetRect<int>()
+	).Translate( position );
+	
+	const auto vBegOffset = sourceRect.LeftTop() + ( destinationRect.LeftTop() - position );
+	const auto vEndOffset = vBegOffset + destinationRect.GetSize();
+
+	const auto src =
+		dim2d::surface_wrapper<const dim2d::surface<Color>>(
+			dim2d::offset{ vBegOffset.x,vBegOffset.y },
+			destinationRect.GetWidth(),
+			destinationRect.GetHeight(),
+			font.GetSurface().columns(),
+			font.GetSurface()
+		);
+	auto dst =
+		dim2d::surface_wrapper<dim2d::surface<Color>>(
+			dim2d::offset{ destinationRect.left, destinationRect.top },
+			destinationRect.GetWidth(),
+			destinationRect.GetHeight(),
+			screenRect.GetWidth(),
+			pSysBuffer
+			);
+
+	auto is_black = 
+		[]( dim2d::index _idx, const Color& _font_color )
+	{
+		return _font_color == Colors::Black; 
+	};
+
+	dim2d::replace_if( src.begin(), src.end(), dst.begin(), color, is_black );
 }
 
-Recti Graphics::Rectify( int Left, int Width, int Top, int Height ) const
+void Graphics::DrawChar( const Vec2f & Pos, char C, Font const& font, Color Clr ) 
 {
-	return Recti(
-		std::max( -Left, 0 ),
-		std::max( -Top, 0 ),
-		std::min( Graphics::ScreenWidth - Left, Width ),
-		std::min( Graphics::ScreenHeight - Top, Height ) );
+	DrawChar( Pos.x, Pos.y, C, font, Clr );
+}
+
+void Graphics::DrawString( float X, float Y, Font const& font, const std::string & Str, Color Clr ) 
+{
+	if( Str.empty() ) return;
+
+	const auto ix = static_cast< int >( X );
+	const auto iy = static_cast< int >( Y );
+
+	const auto chSize = font.GetCharSize();
+
+	const auto maxCharsPerRow = font.MaxCharsPerRow( Graphics::GetWidth<int>() );
+	const auto pixelWidth = static_cast< int >( ( Str.size() - 1 ) * chSize.width );
+
+	const auto stringSize = Sizei( pixelWidth, chSize.height );
+
+	auto stringRect = Recti( ix, iy, stringSize );
+
+	if( !Graphics::IsInView( stringRect ) ) return;
+
+	stringRect = Rectify( stringRect, Graphics::GetRect<int>() );
+
+	const int startIndex = std::max( stringRect.left / chSize.width, 0 );
+	const auto charCount = ( stringRect.right + chSize.width ) / chSize.width;
+	const int endIndex = std::min( charCount, maxCharsPerRow );
+
+	for( int i = 0, j = startIndex; j < endIndex; ++i, ++j )
+	{
+		const auto xPixelOffset = startIndex * chSize.width;
+		const auto xCharOffset = i * chSize.width;
+
+		const float x = static_cast< float >( ix + xPixelOffset + xCharOffset );
+		const float y = static_cast< float >( iy + stringRect.top );
+
+		DrawChar( x, y, Str[ j ], font, Clr );
+	}
+}
+
+void Graphics::DrawString( const Vec2f & Pos, Font const& font, const std::string & Str, Color Clr ) 
+{
+	DrawString( Pos.x, Pos.y, font, Str, Clr);
+}
+
+void Graphics::DrawText( const Vec2f &Position, Text const& text, Color C ) 
+{
+	for( size_t i = 0; i < text.GetStrings().size(); ++i )
+	{
+		const auto position = static_cast< Vec2f >( text.GetStringPositions()[ i ] ) + Position;
+		DrawString( position.x, position.y, text.GetFont(), text.GetStrings()[ i ], C );
+	}
+}
+
+void Graphics::DrawSprite( const Rectf &Dst, const Sprite& sprite )
+{
+	DrawSprite( sprite.GetRect(), Dst, sprite );
+}
+
+void Graphics::DrawSprite( const Rectf &Src, const Rectf &Dst, const Sprite& sprite )
+{
+	const auto rectified = Rectify( Dst, GetRect<float>() );
+	const auto src = rectified.Translate( Src.LeftTop() );
+	const auto dst = rectified.Translate( Dst.LeftTop() );
+
+	// No point in even going through the loop if completely off screen
+	if( !IsInView( dst ) ) return;
+
+	const auto srcWrapper = dim2d::surface_wrapper<const Sprite>(
+		dim2d::offset{ int( src.left ),int( src.top ) },
+		int( src.GetWidth() ),
+		int( src.GetHeight() ),
+		int( src.GetWidth() ),
+		sprite
+		);
+	auto dstWrapper = dim2d::surface_wrapper<dim2d::surface<Color>>(
+		dim2d::offset{ int( dst.left ), int( dst.top ) },
+		int( dst.GetWidth() ),
+		int( dst.GetHeight() ),
+		int( dst.GetWidth() ),
+		pSysBuffer
+	);
+
+	dim2d::copy( srcWrapper.begin(), srcWrapper.end(), dstWrapper.begin() );
 }
 
 void Graphics::SetResolution( const RECT & WinRect )
 {
-	const Recti &rect = *( reinterpret_cast< const Recti* >( &WinRect ) );
-	ScreenWidth = rect.GetWidth();
-	ScreenHeight = rect.GetHeight();
-	fScreenWidth = static_cast< float >( ScreenWidth );
-	fScreenHeight = static_cast< float >( ScreenHeight );
-	ScreenSize = rect.GetSize();
-	fScreenSize = static_cast< Sizef >( Graphics::ScreenSize );
-	ScreenRect = rect;
-	fScreenRect = static_cast< Rectf >( ScreenRect );
+	screenRect.left = WinRect.left;
+	screenRect.top = WinRect.top;
+	screenRect.right = WinRect.right;
+	screenRect.bottom = WinRect.bottom;
 }
 
 
@@ -212,8 +300,8 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 	// create device and swap chain/get render target view
 	DXGI_SWAP_CHAIN_DESC sd = {};
 	sd.BufferCount = 1;
-	sd.BufferDesc.Width = Graphics::ScreenWidth;
-	sd.BufferDesc.Height = Graphics::ScreenHeight;
+	sd.BufferDesc.Width  = screenRect.GetWidth();
+	sd.BufferDesc.Height = screenRect.GetHeight();
 	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
@@ -290,8 +378,8 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 
 	// set viewport dimensions
 	D3D11_VIEWPORT vp;
-	vp.Width = float( Graphics::ScreenWidth );
-	vp.Height = float( Graphics::ScreenHeight );
+	vp.Width = float( screenRect.GetWidth() );
+	vp.Height = float( screenRect.GetHeight() );
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 	vp.TopLeftX = 0.0f;
@@ -302,8 +390,8 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 	///////////////////////////////////////
 	// create texture for cpu render target
 	D3D11_TEXTURE2D_DESC sysTexDesc;
-	sysTexDesc.Width = Graphics::ScreenWidth;
-	sysTexDesc.Height = Graphics::ScreenHeight;
+	sysTexDesc.Width  = screenRect.GetWidth();
+	sysTexDesc.Height = screenRect.GetHeight();
 	sysTexDesc.MipLevels = 1;
 	sysTexDesc.ArraySize = 1;
 	sysTexDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -423,7 +511,7 @@ Graphics::Direct3D::~Direct3D()
 	if( pImmediateContext ) pImmediateContext->ClearState();
 }
 
-void Graphics::Direct3D::Present( const aligned_ptr<Color>& pSysBuffer )
+void Graphics::Direct3D::Present( Graphics& gfx )
 {
 	HRESULT hr;
 
@@ -433,16 +521,20 @@ void Graphics::Direct3D::Present( const aligned_ptr<Color>& pSysBuffer )
 	{
 		throw CHILI_GFX_EXCEPTION( hr, L"Mapping sysbuffer" );
 	}
+
 	// setup parameters for copy operation
-	Color* pDst = reinterpret_cast<Color*>( mappedSysBufferTexture.pData );
-	const size_t dstPitch = mappedSysBufferTexture.RowPitch / sizeof( Color );
-	const size_t srcPitch = Graphics::ScreenWidth;
-	const size_t rowBytes = srcPitch * sizeof( Color );
-	// perform the copy line-by-line
-	for( size_t y = 0u; y < Graphics::ScreenHeight; y++ )
+
 	{
-		memcpy( &pDst[ y * dstPitch ], &pSysBuffer[ y * srcPitch ], rowBytes );
+		auto dest = dim2d::raw_pointer_wrapper(
+			dim2d::offset{ 0, 0 },
+			gfx.pSysBuffer.columns(),
+			screenRect.GetHeight(), 
+			mappedSysBufferTexture.RowPitch / sizeof( Color ),
+			reinterpret_cast< Color* >( mappedSysBufferTexture.pData ) );
+
+		dim2d::copy( gfx.pSysBuffer.begin(), gfx.pSysBuffer.end(), dest.begin() );
 	}
+
 	// release the adapter memory
 	pImmediateContext->Unmap( pSysBufferTexture.Get(), 0u );
 

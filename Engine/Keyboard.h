@@ -19,6 +19,7 @@
  *	along with The Chili DirectX Framework.  If not, see <http://www.gnu.org/licenses/>.  *
  ******************************************************************************************/
 #pragma once
+#include <optional>
 #include <queue>
 #include <bitset>
 
@@ -39,54 +40,32 @@ public:
 		Type type;
 		unsigned char code;
 	public:
-		Event()
-			:
-			type( Type::Invalid ),
-			code( 0u )
-		{}
-		Event( Type type,unsigned char code )
-			:
-			type( type ),
-			code( code )
-		{}
-		bool IsPress() const
-		{
-			return type == Type::Press;
-		}
-		bool IsRelease() const
-		{
-			return type == Type::Release;
-		}
-		bool IsValid() const
-		{
-			return type != Type::Invalid;
-		}
-		unsigned char GetCode() const
-		{
-			return code;
-		}
+		Event()noexcept;
+		Event( Type type, unsigned char code )noexcept;
+		bool IsPress() const noexcept;
+		bool IsRelease() const noexcept;
+		bool IsValid() const noexcept;
+		unsigned char GetCode() const noexcept;
 	};
 public:
 	Keyboard() = default;
 	Keyboard( const Keyboard& ) = delete;
 	Keyboard& operator=( const Keyboard& ) = delete;
-	bool KeyIsPressed( unsigned char keycode ) const;
-	Event ReadKey();
-	bool KeyIsEmpty() const;
-	char ReadChar();
-	bool CharIsEmpty() const;
-	void FlushKey();
-	void FlushChar();
-	void Flush();
-	void EnableAutorepeat();
-	void DisableAutorepeat();
-	bool AutorepeatIsEnabled() const;
+	bool KeyIsPressed( unsigned char keycode ) const noexcept;
+	std::optional<Event> ReadKey()noexcept;
+	std::optional<char> ReadChar()noexcept;
+	void FlushKey()noexcept;
+	void FlushChar()noexcept;
+	void Flush()noexcept;
+	void EnableAutorepeat()noexcept;
+	void DisableAutorepeat()noexcept;
+	bool AutorepeatIsEnabled() const noexcept;
 private:
 	void OnKeyPressed( unsigned char keycode );
 	void OnKeyReleased( unsigned char keycode );
-	void OnChar( char character );
+	void OnChar( char character )noexcept;
 	template<typename T>
-	void TrimBuffer( std::queue<T>& buffer );
+	void TrimBuffer( std::queue<T>& buffer )noexcept;
 private:
 	static constexpr unsigned int nKeys = 256u;
 	static constexpr unsigned int bufferSize = 4u;

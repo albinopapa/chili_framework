@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FFCA512B-49FC-4FC8-8A73-C4F87D322FF2}</ProjectGuid>
     <RootNamespace>Engine</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -40,13 +40,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -94,6 +94,7 @@
       <CallingConvention>VectorCall</CallingConvention>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -129,6 +130,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <PreprocessorDefinitions>NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -136,9 +138,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="algorithms.h" />
+    <ClInclude Include="..\..\Includes\algorithm2d.h" />
+    <ClInclude Include="..\..\Includes\grid.h" />
+    <ClInclude Include="..\..\Includes\iterator2d.h" />
+    <ClInclude Include="..\..\Includes\surface.h" />
     <ClInclude Include="aligned_ptr.h" />
-    <ClInclude Include="AlphaSprite.h" />
     <ClInclude Include="AnimatedSprite.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Character.h" />
@@ -153,8 +157,6 @@
     <ClInclude Include="DXException.h" />
     <ClInclude Include="Emitter.h" />
     <ClInclude Include="Entity.h" />
-    <ClInclude Include="Fireworks.h" />
-    <ClInclude Include="Flames.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FontSheet.h" />
     <ClInclude Include="Frametimer.h" />
@@ -168,14 +170,12 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Observer.h" />
     <ClInclude Include="Particle.h" />
-    <ClInclude Include="ParticleEffect.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Scene_AnimatedSprite.h" />
     <ClInclude Include="Scene_Camera.h" />
     <ClInclude Include="Scene_FontRendering.h" />
-    <ClInclude Include="Scene_Particles.h" />
     <ClInclude Include="Scene_Sprite.h" />
     <ClInclude Include="ScrapSpace.h" />
     <ClInclude Include="Sound.h" />
@@ -190,22 +190,17 @@
     <ClInclude Include="TextFormat.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Visitor.h" />
-    <ClInclude Include="WaveBeam.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AlphaSprite.cpp" />
     <ClCompile Include="AnimatedSprite.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="COMInitializer.cpp" />
     <ClCompile Include="ComponentInitter.cpp" />
-    <ClCompile Include="ConicalEmitter.cpp" />
     <ClCompile Include="DXErr.cpp" />
     <ClCompile Include="DXException.cpp" />
     <ClCompile Include="Emitter.cpp" />
     <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="Fireworks.cpp" />
-    <ClCompile Include="Flames.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FontSheet.cpp" />
     <ClCompile Include="Frametimer.cpp" />
@@ -220,12 +215,10 @@
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Observer.cpp" />
     <ClCompile Include="Particle.cpp" />
-    <ClCompile Include="ParticleEffect.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene_AnimatedSprite.cpp" />
     <ClCompile Include="Scene_Camera.cpp" />
     <ClCompile Include="Scene_FontRendering.cpp" />
-    <ClCompile Include="Scene_Particles.cpp" />
     <ClCompile Include="Scene_Sprite.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Sprite.cpp" />
@@ -233,7 +226,6 @@
     <ClCompile Include="SpriteSheet.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="TextFormat.cpp" />
-    <ClCompile Include="WaveBeam.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FramebufferPS.hlsl">

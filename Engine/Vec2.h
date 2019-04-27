@@ -26,20 +26,12 @@ template <typename T>
 class _Vec2
 {
 public:
-	constexpr _Vec2()
-		:
-		x( 0 ), y( 0 )
-	{}
+	_Vec2() = default;
 	constexpr _Vec2( T x,T y )
 		:
 		x( x ),
 		y( y )
 	{}
-	constexpr _Vec2( const _Vec2& vect )
-		:
-		_Vec2( vect.x,vect.y )
-	{}
-
 	template <typename T2>
 	constexpr explicit operator _Vec2<T2>() const
 	{
@@ -53,12 +45,6 @@ public:
 	}
 
 	// Assignment operators
-	_Vec2&	operator=( const _Vec2 &rhs )
-	{
-		x = rhs.x;
-		y = rhs.y;
-		return *this;
-	}
 	_Vec2&	operator+=( const _Vec2 &rhs )
 	{
 		x += rhs.x;
@@ -146,8 +132,8 @@ public:
 	}
 
 public:
-	T x;
-	T y;
+	T x = T( 0 );
+	T y = T( 0 );
 };
 
 template<class T>
