@@ -1,6 +1,5 @@
 #include "Font.h"
 #include "Logger.h"
-#include "algorithms.h"
 
 #include <sstream>
 

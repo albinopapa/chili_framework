@@ -42,7 +42,7 @@ void Scene_FontRendering::Update( float DeltaTime )
 
 	if( strEnd <= 0.f )
 	{
-		m_marqueePos.x = 800.f;
+		m_marqueePos.x = Graphics::GetSize<float>().width;
 	}
 }
 

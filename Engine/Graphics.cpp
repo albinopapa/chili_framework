@@ -61,7 +61,9 @@ void Graphics::BeginFrame( Color C )
 {
 	// clear the sysbuffer
 	//pSysBuffer.Fill( C );
-	dim2d::fill( pSysBuffer.begin(), pSysBuffer.end(), Colors::Black );
+	//dim2d::fill( pSysBuffer.begin(), pSysBuffer.end(), Colors::Black );
+	auto* pPixels = std::addressof( pSysBuffer[ dim2d::offset{ 0,0 } ] );
+	memset( pPixels, 0, sizeof( decltype( *pPixels ) )*pSysBuffer.columns()*pSysBuffer.rows() );
 }
 
 void Graphics::PutPixel( int x, int y, int r, int g, int b )
@@ -165,33 +167,36 @@ void Graphics::DrawChar( float X, float Y, char C, Font const& font, Color color
 		GetRect<int>()
 	).Translate( position );
 	
-	const auto vBegOffset = sourceRect.LeftTop() + ( destinationRect.LeftTop() - position );
-	const auto vEndOffset = vBegOffset + destinationRect.GetSize();
-
-	const auto src =
-		dim2d::surface_wrapper<const dim2d::surface<Color>>(
-			dim2d::offset{ vBegOffset.x,vBegOffset.y },
-			destinationRect.GetWidth(),
-			destinationRect.GetHeight(),
-			font.GetSurface().columns(),
-			font.GetSurface()
-		);
-	auto dst =
-		dim2d::surface_wrapper<dim2d::surface<Color>>(
-			dim2d::offset{ destinationRect.left, destinationRect.top },
-			destinationRect.GetWidth(),
-			destinationRect.GetHeight(),
-			screenRect.GetWidth(),
-			pSysBuffer
-			);
-
-	auto is_black = 
-		[]( dim2d::index _idx, const Color& _font_color )
+	if( IsInView( destinationRect ) )
 	{
-		return _font_color == Colors::Black; 
-	};
+		const auto vBegOffset = sourceRect.LeftTop() + ( destinationRect.LeftTop() - position );
+		const auto vEndOffset = vBegOffset + destinationRect.GetSize();
 
-	dim2d::replace_if( src.begin(), src.end(), dst.begin(), color, is_black );
+		auto src =
+			dim2d::surface_wrapper(
+				dim2d::offset{ vBegOffset.x,vBegOffset.y },
+				destinationRect.GetWidth(),
+				destinationRect.GetHeight(),
+				font.GetSurface().columns(),
+				font.GetSurface()
+				);
+		auto dst =
+			dim2d::surface_wrapper<dim2d::surface<Color>>(
+				dim2d::offset{ destinationRect.left, destinationRect.top },
+				destinationRect.GetWidth(),
+				destinationRect.GetHeight(),
+				screenRect.GetWidth(),
+				pSysBuffer
+				);
+
+		auto is_black = 
+			[]( dim2d::index _idx, const Color& _font_color )
+		{
+			return _font_color == Colors::Black; 
+		};
+
+		dim2d::replace_if( src.begin(), src.end(), dst.begin(), color, is_black );
+	}
 }
 
 void Graphics::DrawChar( const Vec2f & Pos, char C, Font const& font, Color Clr ) 
@@ -213,25 +218,24 @@ void Graphics::DrawString( float X, float Y, Font const& font, const std::string
 
 	const auto stringSize = Sizei( pixelWidth, chSize.height );
 
-	auto stringRect = Recti( ix, iy, stringSize );
-
-	if( !Graphics::IsInView( stringRect ) ) return;
-
-	stringRect = Rectify( stringRect, Graphics::GetRect<int>() );
+	auto stringRect = Rectify( Recti( ix, iy, stringSize ), Graphics::GetRect<int>() );
 
 	const int startIndex = std::max( stringRect.left / chSize.width, 0 );
 	const auto charCount = ( stringRect.right + chSize.width ) / chSize.width;
 	const int endIndex = std::min( charCount, maxCharsPerRow );
 
-	for( int i = 0, j = startIndex; j < endIndex; ++i, ++j )
+	if( Graphics::IsInView( stringRect ) ) 
 	{
-		const auto xPixelOffset = startIndex * chSize.width;
-		const auto xCharOffset = i * chSize.width;
+		for( int i = 0, j = startIndex; j < endIndex; ++i, ++j )
+		{
+			const auto xPixelOffset = ( startIndex + i ) * chSize.width;
+			//const auto xCharOffset = i * chSize.width;
 
-		const float x = static_cast< float >( ix + xPixelOffset + xCharOffset );
-		const float y = static_cast< float >( iy + stringRect.top );
+			const float x = static_cast< float >( ix + xPixelOffset /*+ xCharOffset*/ );
+			const float y = static_cast< float >( iy + stringRect.top );
 
-		DrawChar( x, y, Str[ j ], font, Clr );
+			DrawChar( x, y, Str[ j ], font, Clr );
+		}
 	}
 }
 
