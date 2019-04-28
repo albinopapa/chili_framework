@@ -14,7 +14,7 @@ ParticleSetupDesc::ParticleSetupDesc(
 {
 }
 
-Particle::Particle( Vec2 const& _origin, Vec2 const& _direction, ParticleSetupDesc const& _desc )noexcept
+Particle::Particle( Vec2f const& _origin, Vec2f const& _direction, ParticleSetupDesc const& _desc )noexcept
 	:
 	m_position( _origin ),
 	m_velocity( _direction * _desc.speed ),

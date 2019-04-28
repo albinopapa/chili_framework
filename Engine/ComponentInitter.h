@@ -1,11 +1,12 @@
 #pragma once
 
+#include "ChiliWin.h"
 #include "COMInitializer.h"
 #include "Logger.h"
-#include <wrl/client.h>
 #include <memory>
 #include <dwrite.h>
 #include <wincodec.h>
+#include <wrl/client.h>
 
 #define WIC_EXCEPTION(hr, note)DXException(hr, note, _CRT_WIDE( __FILE__), __LINE__);
 #define DWRITE_EXCEPTION( hr,note ) DXException( hr,note,_CRT_WIDE(__FILE__),__LINE__ )

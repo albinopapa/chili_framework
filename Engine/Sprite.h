@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Colors.h"
+#include "ImageLoader.h"
 #include "Rect.h"
 #include <surface.h>
 

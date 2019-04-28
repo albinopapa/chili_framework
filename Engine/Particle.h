@@ -37,7 +37,7 @@ class Particle
 {
 public:
 	Particle() = default;
-	Particle( Vec2 const& _origin, Vec2 const& _direction, ParticleSetupDesc const& _desc )noexcept;
+	Particle( Vec2f const& _origin, Vec2f const& _direction, ParticleSetupDesc const& _desc )noexcept;
 
 	void Update( float DeltaTime )noexcept;
 	
@@ -49,7 +49,7 @@ public:
 	}
 
 	void Position( const Vec2f &Pos )noexcept { m_position = Pos; }
-	void Velocity( const Vec2 &Vel )noexcept { m_velocity = Vel; }
+	void Velocity( const Vec2f &Vel )noexcept { m_velocity = Vel; }
 
 	auto Position()const noexcept { return m_position; }
 	auto Velocity()const noexcept { return m_velocity; }

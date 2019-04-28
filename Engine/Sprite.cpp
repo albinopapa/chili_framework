@@ -1,5 +1,4 @@
 #include "Sprite.h"
-#include "ImageLoader.h"
 #include "DXException.h"
 #include "Logger.h"
 #include <algorithm>

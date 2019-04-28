@@ -16,7 +16,7 @@ public:
 	void Position( const Vec2f &Pos ) { m_position = Pos; }
 	Vec2f Position()const { return m_position; }
 
-	void Velocity( const Vec2 &Vel ) { m_velocity = Vel; }
+	void Velocity( const Vec2f &Vel ) { m_velocity = Vel; }
 	Vec2f Velocity()const { return m_velocity; }
 
 protected:
