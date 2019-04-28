@@ -86,21 +86,33 @@ void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
 	const auto sqRadius = sq( Radius );
 
 	const Vec2i vRadius = { Radius, Radius };
-	
+
 	auto const circleRect = Recti( Center - vRadius, Center + vRadius );
 	const auto bounds = Rectify( circleRect, GetRect<int>() ).Translate( Center );
 
-	auto const beg = dim2d::index_iterator( bounds.left, bounds.top, bounds.right,bounds.bottom, pSysBuffer );
-	auto const end = beg + dim2d::offset{ bounds.GetWidth(),bounds.GetHeight() };
+	auto src = dim2d::surface_wrapper(
+		dim2d::offset{ bounds.left,bounds.top },
+		bounds.GetWidth(),
+		bounds.GetHeight(),
+		pSysBuffer.columns(),
+		pSysBuffer
+	);
 
-	dim2d::for_each( beg, end, [ & ]( dim2d::index idx, Color& color )
+	auto isInRadius = [ & ]( dim2d::index idx, const Color& color )->bool
 	{
-		const auto sqDist = sq( idx.x - Center.x ) + sq( idx.y - Center.y );
+		return ( sq( idx.x - vRadius.x ) + sq( idx.y - vRadius.y ) ) < sqRadius;
+	};
+
+	dim2d::replace_if( src.begin(), src.end(), src.begin(), C, isInRadius );
+	/*dim2d::for_each( src.begin(), src.end(), [ & ]( dim2d::index idx, Color& color )
+	{
+		const auto sqDist = sq( idx.x - vRadius.x ) + sq( idx.y - vRadius.y );
+
 		if( sqDist < sqRadius )
 		{
 			color = C;
 		}
-	} );
+	} );*/
 }
 
 void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
@@ -143,21 +155,21 @@ void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
 void Graphics::DrawRectAlpha( const Recti & Rect, Color C )
 {
 	const auto bounds = Rectify( Rect, GetRect<int>() ).Translate( Rect.LeftTop() );
-	
+
 	auto beg = dim2d::index_iterator( bounds.left, bounds.top, bounds.right, bounds.bottom, pSysBuffer );
 	auto end = beg + dim2d::offset{ bounds.GetWidth(),bounds.GetHeight() };
-	
+
 	dim2d::fill( beg, end, C );
 }
 
 bool Graphics::IsInView( const Recti & _rect )
 {
 	return
-		_rect.left < screenRect.GetWidth()  && _rect.right >= 0 &&
-		_rect.top <  screenRect.GetHeight() && _rect.bottom >= 0;
+		_rect.left < screenRect.GetWidth() && _rect.right >= 0 &&
+		_rect.top < screenRect.GetHeight() && _rect.bottom >= 0;
 }
 
-void Graphics::DrawChar( float X, float Y, char C, Font const& font, Color color ) 
+void Graphics::DrawChar( float X, float Y, char C, Font const& font, Color color )
 {
 	const auto position = Vec2i( static_cast< int >( X ), static_cast< int >( Y ) );
 
@@ -166,20 +178,19 @@ void Graphics::DrawChar( float X, float Y, char C, Font const& font, Color color
 		RectI( position, Sizei( sourceRect.GetSize() ) ),
 		GetRect<int>()
 	).Translate( position );
-	
+
 	if( IsInView( destinationRect ) )
 	{
 		const auto vBegOffset = sourceRect.LeftTop() + ( destinationRect.LeftTop() - position );
-		const auto vEndOffset = vBegOffset + destinationRect.GetSize();
 
-		auto src =
+		const auto src =
 			dim2d::surface_wrapper(
 				dim2d::offset{ vBegOffset.x,vBegOffset.y },
 				destinationRect.GetWidth(),
 				destinationRect.GetHeight(),
 				font.GetSurface().columns(),
 				font.GetSurface()
-				);
+			);
 		auto dst =
 			dim2d::surface_wrapper<dim2d::surface<Color>>(
 				dim2d::offset{ destinationRect.left, destinationRect.top },
@@ -189,22 +200,22 @@ void Graphics::DrawChar( float X, float Y, char C, Font const& font, Color color
 				pSysBuffer
 				);
 
-		auto is_black = 
+		auto is_black =
 			[]( dim2d::index _idx, const Color& _font_color )
 		{
-			return _font_color == Colors::Black; 
+			return _font_color == Colors::Black;
 		};
 
 		dim2d::replace_if( src.begin(), src.end(), dst.begin(), color, is_black );
 	}
 }
 
-void Graphics::DrawChar( const Vec2f & Pos, char C, Font const& font, Color Clr ) 
+void Graphics::DrawChar( const Vec2f & Pos, char C, Font const& font, Color Clr )
 {
 	DrawChar( Pos.x, Pos.y, C, font, Clr );
 }
 
-void Graphics::DrawString( float X, float Y, Font const& font, const std::string & Str, Color Clr ) 
+void Graphics::DrawString( float X, float Y, Font const& font, const std::string & Str, Color Clr )
 {
 	if( Str.empty() ) return;
 
@@ -224,7 +235,7 @@ void Graphics::DrawString( float X, float Y, Font const& font, const std::string
 	const auto charCount = ( stringRect.right + chSize.width ) / chSize.width;
 	const int endIndex = std::min( charCount, maxCharsPerRow );
 
-	if( Graphics::IsInView( stringRect ) ) 
+	if( Graphics::IsInView( stringRect ) )
 	{
 		for( int i = 0, j = startIndex; j < endIndex; ++i, ++j )
 		{
@@ -239,12 +250,12 @@ void Graphics::DrawString( float X, float Y, Font const& font, const std::string
 	}
 }
 
-void Graphics::DrawString( const Vec2f & Pos, Font const& font, const std::string & Str, Color Clr ) 
+void Graphics::DrawString( const Vec2f & Pos, Font const& font, const std::string & Str, Color Clr )
 {
-	DrawString( Pos.x, Pos.y, font, Str, Clr);
+	DrawString( Pos.x, Pos.y, font, Str, Clr );
 }
 
-void Graphics::DrawText( const Vec2f &Position, Text const& text, Color C ) 
+void Graphics::DrawText( const Vec2f &Position, Text const& text, Color C )
 {
 	for( size_t i = 0; i < text.GetStrings().size(); ++i )
 	{
@@ -278,9 +289,9 @@ void Graphics::DrawSprite( const Rectf &Src, const Rectf &Dst, const Sprite& spr
 		dim2d::offset{ int( dst.left ), int( dst.top ) },
 		int( dst.GetWidth() ),
 		int( dst.GetHeight() ),
-		int( dst.GetWidth() ),
+		pSysBuffer.columns(),
 		pSysBuffer
-	);
+		);
 
 	dim2d::copy( srcWrapper.begin(), srcWrapper.end(), dstWrapper.begin() );
 }
@@ -304,7 +315,7 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 	// create device and swap chain/get render target view
 	DXGI_SWAP_CHAIN_DESC sd = {};
 	sd.BufferCount = 1;
-	sd.BufferDesc.Width  = screenRect.GetWidth();
+	sd.BufferDesc.Width = screenRect.GetWidth();
 	sd.BufferDesc.Height = screenRect.GetHeight();
 	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	sd.BufferDesc.RefreshRate.Numerator = 60;
@@ -394,7 +405,7 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 	///////////////////////////////////////
 	// create texture for cpu render target
 	D3D11_TEXTURE2D_DESC sysTexDesc;
-	sysTexDesc.Width  = screenRect.GetWidth();
+	sysTexDesc.Width = screenRect.GetWidth();
 	sysTexDesc.Height = screenRect.GetHeight();
 	sysTexDesc.MipLevels = 1;
 	sysTexDesc.ArraySize = 1;
@@ -417,7 +428,7 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 	srvDesc.Texture2D.MipLevels = 1;
 	// create the resource view on the texture
 	if( FAILED( hr = pDevice->CreateShaderResourceView( pSysBufferTexture.Get(),
-														&srvDesc, &pSysBufferTextureView ) ) )
+		&srvDesc, &pSysBufferTextureView ) ) )
 	{
 		throw CHILI_GFX_EXCEPTION( hr, L"Creating view on sysBuffer texture" );
 	}
@@ -484,9 +495,9 @@ Graphics::Direct3D::Direct3D( HWND WinHandle, Graphics & Parent )
 
 	// Ignore the intellisense error "namespace has no member"
 	if( FAILED( hr = pDevice->CreateInputLayout( ied, 2,
-												 FramebufferShaders::FramebufferVSBytecode,
-												 sizeof( FramebufferShaders::FramebufferVSBytecode ),
-												 &pInputLayout ) ) )
+		FramebufferShaders::FramebufferVSBytecode,
+		sizeof( FramebufferShaders::FramebufferVSBytecode ),
+		&pInputLayout ) ) )
 	{
 		throw CHILI_GFX_EXCEPTION( hr, L"Creating input layout" );
 	}
@@ -521,7 +532,7 @@ void Graphics::Direct3D::Present( Graphics& gfx )
 
 	// lock and map the adapter memory for copying over the sysbuffer
 	if( FAILED( hr = pImmediateContext->Map( pSysBufferTexture.Get(), 0u,
-											 D3D11_MAP_WRITE_DISCARD, 0u, &mappedSysBufferTexture ) ) )
+		D3D11_MAP_WRITE_DISCARD, 0u, &mappedSysBufferTexture ) ) )
 	{
 		throw CHILI_GFX_EXCEPTION( hr, L"Mapping sysbuffer" );
 	}
@@ -532,7 +543,7 @@ void Graphics::Direct3D::Present( Graphics& gfx )
 		auto dest = dim2d::raw_pointer_wrapper(
 			dim2d::offset{ 0, 0 },
 			gfx.pSysBuffer.columns(),
-			screenRect.GetHeight(), 
+			screenRect.GetHeight(),
 			mappedSysBufferTexture.RowPitch / sizeof( Color ),
 			reinterpret_cast< Color* >( mappedSysBufferTexture.pData ) );
 

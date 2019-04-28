@@ -29,7 +29,6 @@
 #include "Scene.h"
 
 #include <memory>
-#include <vector>
 
 class Game
 {
