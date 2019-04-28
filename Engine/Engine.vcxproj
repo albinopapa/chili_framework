@@ -69,19 +69,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Dropbox\source\repos\Includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\Includes;$(IncludePath)</IncludePath>
     <SourcePath>C:\Dropbox\source\repos\Includes;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Dropbox\source\repos\Includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\Includes;$(IncludePath)</IncludePath>
     <SourcePath>C:\Dropbox\source\repos\Includes;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Dropbox\source\repos\Includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\Includes;$(IncludePath)</IncludePath>
     <SourcePath>C:\Dropbox\source\repos\Includes;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Dropbox\source\repos\Includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\Includes;$(IncludePath)</IncludePath>
     <SourcePath>C:\Dropbox\source\repos\Includes;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -153,10 +153,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Includes\algorithm2d.h" />
-    <ClInclude Include="..\..\Includes\grid.h" />
-    <ClInclude Include="..\..\Includes\iterator2d.h" />
-    <ClInclude Include="..\..\Includes\surface.h" />
     <ClInclude Include="aligned_ptr.h" />
     <ClInclude Include="AnimatedSprite.h" />
     <ClInclude Include="Camera.h" />

@@ -30,10 +30,10 @@
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
-	gfx( wnd )//,
+	gfx( wnd ),
 	//m_scene( std::make_unique<Scene_Camera>( wnd.kbd, gfx ) )
 	//m_scene( std::make_unique<Scene_AnimatedSprite>( wnd.kbd, gfx ) )
-	//m_scene( std::make_unique<Scene_FontRendering>( wnd.kbd, gfx ) )
+	m_scene( std::make_unique<Scene_FontRendering>( wnd.kbd, gfx ) )
 	//m_scene( std::make_unique<Scene_Sprite>( wnd.kbd, gfx ) )
 {
 }

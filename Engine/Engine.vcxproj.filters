@@ -288,18 +288,6 @@
     <ClInclude Include="ConicalEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Includes\algorithm2d.h">
-      <Filter>Header Files\Framework\Utilities\Algorithm</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Includes\iterator2d.h">
-      <Filter>Header Files\Framework\Utilities\Algorithm</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Includes\grid.h">
-      <Filter>Header Files\Framework\Utilities\Algorithm</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Includes\surface.h">
-      <Filter>Header Files\Framework\Utilities\Algorithm</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Character.cpp">
