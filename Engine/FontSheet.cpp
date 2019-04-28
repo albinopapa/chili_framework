@@ -2,9 +2,10 @@
 #define WINLOADED
 #endif
 
+#include "ChiliWin.h"
 #include "FontSheet.h"
-#include "../../Includes/algorithm2d.h"
 #include "DXException.h"
+#include <algorithm2d.h>
 #include <cassert>
 #include <d2d1.h>
 #include <wrl/client.h>

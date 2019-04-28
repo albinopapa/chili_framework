@@ -3,7 +3,7 @@
 #include "TextFormat.h"
 #include "Colors.h"
 #include "Rect.h"
-#include "../../Includes/surface.h"
+#include <surface.h>
 #undef GetCharWidth
 
 class FontSheet

@@ -5,7 +5,7 @@ SpriteSheet::SpriteSheet( int TileWidth, int TileHeight, const std::string & Fil
 	:
 	m_tileWidth( TileWidth ),
 	m_tileHeight( TileHeight ),
-	m_pSpritesheet( Filename )
+	m_sheet( Filename )
 {
 }
 
@@ -26,15 +26,15 @@ Sprite SpriteSheet::CreateSolidSprite( const Recti & Src ) const
 		surf = dim2d::surface<Color>( Src.GetWidth(), Src.GetHeight() );
 	}
 	const auto src =
-		dim2d::surface_wrapper<const Sprite>( 
+		dim2d::surface_wrapper( 
 			dim2d::offset{ Src.left,Src.top }, 
 			Src.GetWidth(), 
 			Src.GetHeight(), 
-			m_pSpritesheet.columns(), 
-			m_pSpritesheet );
+			m_sheet.columns(),
+			m_sheet );
 
 	auto dst =
-		dim2d::surface_wrapper<Sprite>(
+		dim2d::surface_wrapper(
 			dim2d::offset{ 0, 0 }, 
 			Src.GetWidth(), 
 			Src.GetHeight(), 

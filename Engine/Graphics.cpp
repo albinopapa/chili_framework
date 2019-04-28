@@ -23,7 +23,7 @@
 #include "Graphics.h"
 #include "DXErr.h"
 #include "ChiliException.h"
-#include "../../Includes/algorithm2d.h"
+#include <algorithm2d.h>
 #include <assert.h>
 #include <string>
 #include <array>

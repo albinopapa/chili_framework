@@ -43,12 +43,6 @@ inline T wrap_angle( T theta )
 		( modded - ( T )2.0 * ( T )PI_D ) : modded;
 }
 
-template<class T>
-T Clamp( const T &Value, const T &MinValue, const T &MaxValue )
-{
-	return std::max( MinValue, std::min( MaxValue, Value ) );
-}
-
 constexpr float ToRadians( float A )
 {
 	return deg2rad * A;

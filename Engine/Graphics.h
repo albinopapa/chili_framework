@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../Includes/surface.h"
 #include "ChiliWin.h"
 #include "Colors.h"
 #include "DXException.h"
@@ -8,6 +7,7 @@
 #include "Rect.h"
 #include "Text.h"
 #include "Sprite.h"
+#include <surface.h>
 #include <d3d11.h>
 #include <wrl.h>
 

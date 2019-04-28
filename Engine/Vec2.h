@@ -142,10 +142,6 @@ _Vec2<T> Reflect( const _Vec2<T> &Direction, const _Vec2<T> &Normal )
 	return Direction - ( Normal * ( 2.f * ( Direction * Normal ) ) );
 }
 
-typedef _Vec2<float>  Vec2;
-typedef _Vec2<double> Ved2;
-typedef _Vec2<int>    Vei2;
-
 using Vec2f = _Vec2<float>;
 using Vec2d = _Vec2<double>;
 using Vec2i = _Vec2<int>;

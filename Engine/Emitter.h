@@ -2,10 +2,7 @@
 
 #include "Particle.h"
 #include <optional>
-#include <random>
-#include <vector>
 
-using ParticleVector = std::vector<Particle>;
 class Emitter
 {
 public:

@@ -1,8 +1,9 @@
 #include "Sprite.h"
-#include <algorithm>
+#include "ImageLoader.h"
 #include "DXException.h"
 #include "Logger.h"
-#include "../../Includes/algorithm2d.h"
+#include <algorithm>
+#include <algorithm2d.h>
 
 Sprite::Sprite( const std::string & Filename )	
 {

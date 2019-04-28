@@ -15,7 +15,7 @@ public:
 	Frames CreateFrames( const std::vector<Recti> &Src )const;
 	
 private:
-	Sprite m_pSpritesheet;
+	Sprite m_sheet;
 	int m_tileWidth, m_tileHeight;
 };
 

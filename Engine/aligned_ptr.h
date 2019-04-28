@@ -1,15 +1,17 @@
 #pragma once
 
+#include <memory>
+
 template<class T>
 class aligned_ptr
 {
 public:
 	aligned_ptr() = default;
-	aligned_ptr( size_t CountElements, size_t Alignment )
+	aligned_ptr( size_t CountElements, std::align_val_t Alignment = std::align_val_t{ alignof( T ) } )
 		:
 		m_count( CountElements ),
 		m_alignment( Alignment ),
-		m_pPtr( reinterpret_cast<T*>( _aligned_malloc( CountElements * sizeof( T ), Alignment ) ) )
+		m_pPtr( reinterpret_cast< T* >( _aligned_malloc( CountElements * sizeof( T ), (size_t)Alignment ) ) )
 	{
 	}
 	aligned_ptr( aligned_ptr &&Src )
@@ -27,13 +29,16 @@ public:
 
 	aligned_ptr &operator=( aligned_ptr &&Src )
 	{
-		m_count = Src.m_count;
-		m_alignment = Src.m_alignment;
-		m_pPtr = Src.m_pPtr;
+		if(this != std::addressof(Src))
+		{
+			m_count = Src.m_count;
+			m_alignment = Src.m_alignment;
+			m_pPtr = Src.m_pPtr;
 
-		Src.m_alignment = 0u;
-		Src.m_count = 0u;
-		Src.m_pPtr = nullptr;
+			Src.m_alignment = std::align_val_t{ alignof( T ) };
+			Src.m_count = 0u;
+			Src.m_pPtr = nullptr;
+		}
 
 		return *this;
 	}
@@ -41,7 +46,7 @@ public:
 	aligned_ptr( const aligned_ptr & ) = delete;
 	aligned_ptr &operator=( const aligned_ptr & ) = delete;
 
-	size_t Alignment()const
+	std::align_val_t Alignment()const
 	{
 		return m_alignment;
 	}
@@ -113,6 +118,7 @@ public:
 
 private:
 	T *m_pPtr;
-	size_t m_count = 0u, m_alignment = 4u;
+	size_t m_count = 0u;
+	std::align_val_t m_alignment = std::align_val_t{ alignof( T ) };
 };
 

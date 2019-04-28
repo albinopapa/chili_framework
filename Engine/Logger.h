@@ -15,13 +15,12 @@ public:
 	virtual ~Logger();
 
 	template<class ValType>
-	Logger &LogMessage( std::string &&Var, const ValType &Val )
+	Logger &LogMessage( std::string Var, const ValType &Val )
 	{
 		return LogMessage( std::move( Var ), std::to_string( Val ) );
 	}
 
-	template<>
-	Logger &LogMessage<std::string>( std::string &&Var, const std::string &Val )
+	Logger &LogMessage( std::string Var, const std::string &Val )
 	{
 		return LogMessage( Var + " = " + Val );
 	}

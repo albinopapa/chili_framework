@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Colors.h"
-#include "ImageLoader.h"
 #include "Rect.h"
-#include "../../Includes/surface.h"
+#include <surface.h>
 
 class Sprite :public dim2d::surface<Color>
 {

@@ -24,16 +24,6 @@ int Font::MaxCharsPerColumn( int ColumnHeight )const noexcept
 	return ColumnHeight / GetCharSize().height;
 }
 
-std::pair<Font::iterator, Font::iterator> Font::make_char_iterator( char c )const noexcept
-{
-	const auto rect = RectI( m_fontsheet.GetCharRect( c ) );
-
-	return {
-		iterator(  rect.left,    rect.top, rect.right, rect.bottom, m_fontsheet.m_pPixels ),
-		iterator( rect.right, rect.bottom, rect.right, rect.bottom, m_fontsheet.m_pPixels )
-	};
-}
-
 dim2d::surface<Color> const & Font::GetSurface() const noexcept
 {
 	return m_fontsheet.GetSurface();

@@ -14,7 +14,6 @@ public:
 	Sizei GetCharSize()const noexcept;
 	int MaxCharsPerRow( int LineWidth )const noexcept;
 	int MaxCharsPerColumn( int ColumnHeight )const noexcept;
-	std::pair<iterator, iterator> make_char_iterator( char c )const noexcept;
 	dim2d::surface<Color> const& GetSurface()const noexcept;
 	RectF GetRect( char c )const noexcept;
 private:
