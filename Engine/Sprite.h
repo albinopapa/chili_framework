@@ -16,6 +16,7 @@ public:
 
 public:
 	Sprite() = default;
+	Sprite( dim2d::surface<Color> _surface )noexcept;
 	Sprite( const std::string &Filename );
 	Sprite( Sprite&& ) = default;
 	Sprite& operator=( Sprite&& ) = default;
@@ -26,6 +27,5 @@ public:
 
 private:
 	dim2d::surface<Color> GatherBitmapPixels( Microsoft::WRL::ComPtr<IWICBitmap> pBitmap )const;
-	Sprite( dim2d::surface<Color> _surface )noexcept;
 };
 

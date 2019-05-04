@@ -34,10 +34,8 @@ void Camera::SetPosition(const Vec2f & _position)noexcept
 
 void Camera::ClampTo( const Rectf & Boundary )noexcept
 {
-	const auto hWidth  = m_viewrect.GetWidth() * .5f;
-	const auto hHeight = m_viewrect.GetHeight() * .5f;
 	m_position = Vec2f(
-		std::clamp( m_position.x, Boundary.left + hWidth, Boundary.right  - hWidth ),
-		std::clamp( m_position.y, Boundary.top  + hHeight, Boundary.bottom - hHeight )
+		std::clamp( m_position.x, Boundary.left, Boundary.right ),
+		std::clamp( m_position.y, Boundary.top, Boundary.bottom )
 	);
 }

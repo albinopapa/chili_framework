@@ -61,6 +61,7 @@ public:
 	void DrawCircle( const Vec2i &Center, int Radius, Color C );
 	void DrawCircleAlpha( const Recti &Rect, Color C );
 	void DrawRectAlpha( const Recti &Rect, Color C );
+	void DrawRect( const RectI &_rect, Color _color )noexcept;
 
 	static bool IsInView( const Recti& _rect );
 	void DrawChar( float X, float Y, char C, Font const& font, Color Clr );

@@ -142,6 +142,9 @@
     <Filter Include="Header Files\Framework\Utilities\Algorithm">
       <UniqueIdentifier>{87141237-bf70-441f-bbec-ce23c689748f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Framework\Utilities\Physics">
+      <UniqueIdentifier>{141801ef-9382-4ac1-abdc-0ca87ba0bc84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -288,6 +291,21 @@
     <ClInclude Include="ConicalEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Scene_FeatureDemo.h">
+      <Filter>Source Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="choice.h">
+      <Filter>Header Files\Scenes\DemoCode</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalEnums.h">
+      <Filter>Header Files\Scenes\DemoCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Maze.h">
+      <Filter>Header Files\Scenes\DemoCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics.h">
+      <Filter>Header Files\Framework\Utilities\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Character.cpp">
@@ -392,6 +410,15 @@
     <ClCompile Include="DXErr.cpp">
       <Filter>Source Files\Framework\Utilities\Exceptions</Filter>
     </ClCompile>
+    <ClCompile Include="Scene_FeatureDemo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Maze.cpp">
+      <Filter>Source Files\Scenes\DemoCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FramebufferPS.hlsl">
@@ -410,5 +437,8 @@
     <Image Include="Chili.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="dim2dgrid.natvis" />
   </ItemGroup>
 </Project>

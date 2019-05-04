@@ -138,8 +138,9 @@ namespace Colors
 {
 	constexpr Color White		= Color( 255u,255u,255u );
 	constexpr Color Black		= Color( 0u,0u,0u );
-	constexpr Color Gray		= Color( 0x80u,0x80u,0x80u );
-	constexpr Color LightGray	= Color( 0xD3u,0xD3u,0xD3u );
+	constexpr Color Gray		= Color( 127u, 127u, 127u );
+	constexpr Color LightGray	= Color( 192u, 192u, 192u );
+	constexpr Color DarkGray	= Color( 96u, 96u, 96u );
 	constexpr Color Red			= Color( 255u,0u,0u );
 	constexpr Color Green		= Color( 0u,255u,0u );
 	constexpr Color Blue		= Color( 0u,0u,255u );

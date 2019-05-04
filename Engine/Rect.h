@@ -71,7 +71,7 @@ template < typename T >
 class _Rect
 {
 public:
-	constexpr _Rect() :left( 0 ), top( 0 ), right( 0 ), bottom( 0 ) {}
+	_Rect() = default;
 	constexpr _Rect( T Left, T Top, T Right, T Bottom )
 		:
 		left( Left ),
@@ -99,7 +99,10 @@ public:
 	template <typename T2>
 	constexpr operator _Rect<T2>() const
 	{
-		return{ _Vec2<T2>{( T2 )left, ( T2 )top}, _Vec2<T2>{( T2 )right, ( T2 )bottom } };
+		return{
+			_Vec2<T2>{( T2 )left, ( T2 )top},
+			_Vec2<T2>{( T2 )right, ( T2 )bottom }
+		};
 	}
 
 	constexpr _Rect Translate( const _Vec2<T> &d )const
@@ -123,6 +126,23 @@ public:
 		left = std::max( left, rect.left );
 		right = std::min( right, rect.right );
 		return *this;
+	}
+
+	constexpr T Left()const noexcept
+	{
+		return left;
+	}
+	constexpr T Top()const noexcept
+	{
+		return top;
+	}
+	constexpr T Right()const noexcept
+	{
+		return right;
+	}
+	constexpr T Bottom()const noexcept
+	{
+		return bottom;
 	}
 
 	constexpr _Vec2<T> LeftTop()const
@@ -168,8 +188,8 @@ public:
 	constexpr bool Contains( const _Vec2<T2> &p ) const
 	{
 		return
-			( ( p.y >= top ) && ( p.y <= bottom ) ) &&
-			( ( p.x >= left ) && ( p.x <= right ) );
+			( ( p.y >= top ) && ( p.y < bottom ) ) &&
+			( ( p.x >= left ) && ( p.x < right ) );
 	}
 	template <typename T2>
 	constexpr bool Contains( const _Rect<T2> &p ) const
@@ -198,7 +218,7 @@ public:
 		return *this;
 	}
 public:
-	T left, top, right, bottom;
+	T left = T( 0 ), top = T( 0 ), right = T( 0 ), bottom = T( 0 );
 };
 
 typedef _Rect< int > RectI;

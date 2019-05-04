@@ -130,7 +130,7 @@ void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
 	auto beg = dim2d::index_iterator( bounds.left, bounds.top, bounds.right, bounds.bottom, pSysBuffer );
 	auto end = beg + dim2d::offset{ bounds.GetWidth(),bounds.GetHeight() };
 
-	auto generator = [ & ]( dim2d::index _idx, Color const& _color )
+	auto generator = [ & ]( dim2d::index _idx, Color& _color )
 	{
 		const auto sqDist = sq( _idx.x ) + sq( _idx.y );
 
@@ -142,14 +142,12 @@ void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
 			const auto alpha =
 				static_cast< unsigned char >( ( 1.f - step ) * 255.f );
 
-			return ( sqDist < sqInner ) ?
+			_color = ( sqDist < sqInner ) ?
 				Color( centerColor, alpha ) : Color( C, alpha );
 		}
-
-		return _color;
 	};
 
-	dim2d::generate( beg, end, beg, generator );
+	dim2d::for_each( beg, end, generator );
 }
 
 void Graphics::DrawRectAlpha( const Recti & Rect, Color C )
@@ -160,6 +158,33 @@ void Graphics::DrawRectAlpha( const Recti & Rect, Color C )
 	auto end = beg + dim2d::offset{ bounds.GetWidth(),bounds.GetHeight() };
 
 	dim2d::fill( beg, end, C );
+}
+
+void Graphics::DrawRect( const RectI & _rect, Color _color ) noexcept
+{
+	auto rectified = _rect.ClipTo( GetRect<int>() );
+	rectified.bottom -= rectified.bottom == GetHeight<int>() ? 1 : 0;
+	rectified.right -= rectified.right == GetWidth<int>() ? 1 : 0;
+
+	if( IsInView( rectified ) )
+	{
+		if( rectified.GetHeight() > 0 )
+		{
+			for( int x = rectified.left; x < rectified.right; ++x )
+			{
+				PutPixel( x, rectified.top, _color );
+				PutPixel( x, rectified.bottom, _color );
+			}	
+		}
+		if( rectified.GetWidth() > 0 )
+		{
+			for( int y = rectified.top; y < rectified.bottom; ++y )
+			{
+				PutPixel( rectified.left, y, _color );
+				PutPixel( rectified.right, y, _color );
+			}
+		}
+	}
 }
 
 bool Graphics::IsInView( const Recti & _rect )
@@ -272,28 +297,33 @@ void Graphics::DrawSprite( const Rectf &Dst, const Sprite& sprite )
 void Graphics::DrawSprite( const Rectf &Src, const Rectf &Dst, const Sprite& sprite )
 {
 	const auto rectified = Rectify( Dst, GetRect<float>() );
-	const auto src = rectified.Translate( Src.LeftTop() );
-	const auto dst = rectified.Translate( Dst.LeftTop() );
+	const auto src = RectI( rectified ).Translate( Vec2i( Src.LeftTop() ) );
+	const auto dst = RectI( rectified ).Translate( Vec2i( Dst.LeftTop() ) );
 
-	// No point in even going through the loop if completely off screen
-	if( !IsInView( dst ) ) return;
+	// check if source and destination have size
+	const auto src_has_size = src.GetSize().Area() != 0;
+	const auto dst_has_size = dst.GetSize().Area() != 0;
 
-	const auto srcWrapper = dim2d::surface_wrapper<const Sprite>(
-		dim2d::offset{ int( src.left ),int( src.top ) },
-		int( src.GetWidth() ),
-		int( src.GetHeight() ),
-		int( src.GetWidth() ),
-		sprite
-		);
-	auto dstWrapper = dim2d::surface_wrapper<dim2d::surface<Color>>(
-		dim2d::offset{ int( dst.left ), int( dst.top ) },
-		int( dst.GetWidth() ),
-		int( dst.GetHeight() ),
-		pSysBuffer.columns(),
-		pSysBuffer
-		);
+	// check if sprite is in view and source and destination rects have size > 0
+	if( IsInView( dst ) && src_has_size && dst_has_size )
+	{
+		const auto srcWrapper = dim2d::surface_wrapper(
+			dim2d::offset{ src.left ,src.top },
+			src.GetWidth(),
+			src.GetHeight(),
+			src.GetWidth(),
+			sprite
+			);
+		auto dstWrapper = dim2d::surface_wrapper(
+			dim2d::offset{ dst.left, dst.top },
+			dst.GetWidth(),
+			dst.GetHeight(),
+			pSysBuffer.columns(),
+			pSysBuffer
+			);
 
-	dim2d::copy( srcWrapper.begin(), srcWrapper.end(), dstWrapper.begin() );
+		dim2d::copy( srcWrapper.begin(), srcWrapper.end(), dstWrapper.begin() );
+	}
 }
 
 void Graphics::SetResolution( const RECT & WinRect )
