@@ -158,10 +158,18 @@ void Graphics::DrawRectAlpha( const Recti & Rect, Color C )
 {
 	const auto bounds = Rectify( Rect, GetRect<int>() ).Translate( Rect.LeftTop() );
 
-	auto beg = dim2d::index_iterator( bounds.left, bounds.top, bounds.right, bounds.bottom, pSysBuffer );
-	auto end = beg + dim2d::offset{ bounds.GetWidth(),bounds.GetHeight() };
-
-	dim2d::fill( beg, end, C );
+	auto src = dim2d::surface_wrapper<dim2d::surface<Color>>(
+		dim2d::offset{ bounds.left,bounds.top },
+		bounds.GetWidth(),
+		bounds.GetHeight(),
+		pSysBuffer.columns(),
+		pSysBuffer
+		);
+	
+	dim2d::transform( src.begin(), src.end(), src.begin(), [ & ]( dim2d::index idx, Color _color )
+	{
+		return C.AlphaBlend( _color );
+	} );
 }
 
 void Graphics::DrawRect( const RectI & _rect, Color _color ) noexcept

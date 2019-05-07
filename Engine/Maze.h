@@ -104,13 +104,13 @@ struct MazeGenerator
 	static constexpr auto s_offset = Vec2i{ 0, 1 };
 	static constexpr auto w_offset = Vec2i{ -1, 0 };
 
-	dim2d::grid<cell, maze_size.width, maze_size.height> operator()( Vec2i startPos );
+	dim2d::grid<cell, maze_size.width, maze_size.height> operator()( Vec2i startPos, Vec2i endPos );
 };
 
 class Maze
 {
 public:
-	Maze( Vec2i _startPos );
+	Maze( Vec2i _startPos, Vec2i endPos );
 
 	auto GetRooms()
 		->dim2d::grid<Room, maze_size.width, maze_size.height>&;

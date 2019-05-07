@@ -1,6 +1,6 @@
 #include "Maze.h"
 
-dim2d::grid<cell, maze_size.width, maze_size.height> MazeGenerator::operator()( Vec2i _startPos)
+dim2d::grid<cell, maze_size.width, maze_size.height> MazeGenerator::operator()( Vec2i _startPos, Vec2i _endPos )
 {
 	using cell_iterator = typename dim2d::grid<cell, maze_size.width, maze_size.height>::iterator;
 	auto get_available_neighbors = 
@@ -76,13 +76,15 @@ dim2d::grid<cell, maze_size.width, maze_size.height> MazeGenerator::operator()( 
 	visited.reserve( maze_size.width * maze_size.height );
 	visited.emplace_back( cells.begin() + startOffset )->visited = true;
 
+	bool endFound = false;
 	while( !visited.empty() )
 	{
 		auto cur = visited.back();
 		auto& cCell = *cur;
 
+		bool cur_is_end = cCell.pos.x == _endPos.x && cCell.pos.y == _endPos.y;
 		const auto available = get_available_neighbors( cur, cells );
-		if( !available.empty() )
+		if( !available.empty() && !cur_is_end )
 		{
 			auto next = choose_next_cell( std::move( available ), rng );
 			auto& nCell = *next;
@@ -100,7 +102,7 @@ dim2d::grid<cell, maze_size.width, maze_size.height> MazeGenerator::operator()( 
 	return cells;
 }
 
-Maze::Maze( Vec2i _startPos )
+Maze::Maze( Vec2i _startPos, Vec2i _endPos )
 {
 	std::mt19937 rng;
 	std::uniform_int_distribution<int> valDist( 112, 144 );
@@ -117,7 +119,7 @@ Maze::Maze( Vec2i _startPos )
 	m_eastwall	= generate_sprite( [ & ]( dim2d::index idx ) {return Colors::Black; } );
 	m_southwall = generate_sprite( [ & ]( dim2d::index idx ) {return Colors::Black; } );
 
-	auto cells = MazeGenerator{}( _startPos );
+	auto cells = MazeGenerator{}( _startPos, _endPos );
 
 	dim2d::transform( cells.begin(), cells.end(), m_rooms.begin(),
 		[ & ]( dim2d::index, cell const& _cell )
