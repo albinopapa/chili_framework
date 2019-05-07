@@ -12,8 +12,8 @@ public:
 	Frames( std::vector<Sprite> pSprites );
 	Frames( int NumFrames, std::string BaseFilename, std::string FileExtension );
 
-	Sprite const& GetFrame( size_t Idx )const;
-	size_t Count()const;
+	Sprite const& GetFrame( size_t Idx )const noexcept;
+	size_t Count()const noexcept;
 
 private:
 	std::vector<Sprite> m_sprites;
@@ -25,12 +25,12 @@ class AnimationController
 {
 public:
 	AnimationController() = default; 
-	AnimationController( float HoldFrameTime, const Frames &FrameSet);
+	AnimationController( float HoldFrameTime, const Frames &FrameSet, size_t _startFrame = 0u )noexcept;
 	virtual ~AnimationController() = default;
 
 	Sprite const& CurrentFrame()const noexcept;
-	virtual void Advance( float DeltaTime );
-
+	virtual void Advance( float DeltaTime )noexcept;
+	size_t CurrentFrameIndex()const noexcept;
 protected:
 	size_t m_currFrame = 0;
 	const Frames *m_pFrames;
@@ -42,7 +42,7 @@ class PendulumAnimController :public AnimationController
 public:
 	using AnimationController::AnimationController;
 
-	void Advance( float DeltaTime )override;
+	void Advance( float DeltaTime )noexcept override;
 
 private:
 	bool m_forward = true;

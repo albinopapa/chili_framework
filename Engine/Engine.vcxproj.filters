@@ -312,6 +312,9 @@
     <ClInclude Include="SpriteState.h">
       <Filter>Header Files\Scenes\DemoCode</Filter>
     </ClInclude>
+    <ClInclude Include="WallCrawler.h">
+      <Filter>Header Files\Scenes\DemoCode</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Character.cpp">
@@ -430,6 +433,9 @@
     </ClCompile>
     <ClCompile Include="SpriteState.cpp">
       <Filter>Source Files\Scenes\DemoCode</Filter>
+    </ClCompile>
+    <ClCompile Include="WallCrawler.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

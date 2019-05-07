@@ -208,6 +208,7 @@
     <ClInclude Include="TextFormat.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Visitor.h" />
+    <ClInclude Include="WallCrawler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimatedSprite.cpp" />
@@ -249,6 +250,7 @@
     <ClCompile Include="SpriteState.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="TextFormat.cpp" />
+    <ClCompile Include="WallCrawler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FramebufferPS.hlsl">

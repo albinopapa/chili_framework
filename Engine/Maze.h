@@ -7,6 +7,7 @@
 #include "Physics.h"
 #include "Rect.h"
 #include "Sprite.h"
+#include "Vec2.h"
 
 // Dim2d headers
 #include <algorithm2d.h>
@@ -71,10 +72,8 @@ struct Tile
 		type( _type )
 	{}
 	Sprite const& operator*()const { return *m_pSprite; }
-	void SetLightLevel( std::uint8_t _level )noexcept { m_lightlevel = _level; }
 
 	Sprite const* m_pSprite = nullptr;
-	std::uint8_t m_lightlevel = 0ui8;
 	Type type = Type::floor;
 };
 
@@ -87,6 +86,7 @@ struct Room
 		Sprite const& _eastwall,
 		Sprite const& _southwall,
 		Sprite const& _westwall,
+		Sprite const& _corner,
 		cell const& _cell );
 
 	auto GetTiles()
@@ -141,4 +141,5 @@ public:
 private:
 	dim2d::grid<Room, maze_size.width, maze_size.height> m_rooms;
 	Sprite m_ground, m_northwall, m_eastwall, m_southwall, m_westwall;
+	Sprite m_corner;
 };

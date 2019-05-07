@@ -105,7 +105,7 @@ dim2d::grid<cell, maze_size.width, maze_size.height> MazeGenerator::operator()( 
 Maze::Maze( Vec2i _startPos, Vec2i _endPos )
 {
 	std::mt19937 rng;
-	std::uniform_int_distribution<int> valDist( 112, 144 );
+	std::uniform_int_distribution<int> valDist( 48, 80 );
 	auto generate_sprite = []( auto GenFn )->Sprite
 	{
 		auto tile = dim2d::surface<Color>( tile_size.width, tile_size.height );
@@ -114,17 +114,22 @@ Maze::Maze( Vec2i _startPos, Vec2i _endPos )
 	};
 
 	m_ground	= generate_sprite( [ & ]( dim2d::index idx ) { return Colors::White * valDist( rng ); } );
-	m_northwall = generate_sprite( [ & ]( dim2d::index idx ) {return Colors::White; } );
-	m_westwall	= generate_sprite( [ & ]( dim2d::index idx ) {return Colors::White; } );
-	m_eastwall	= generate_sprite( [ & ]( dim2d::index idx ) {return Colors::Black; } );
-	m_southwall = generate_sprite( [ & ]( dim2d::index idx ) {return Colors::Black; } );
+	m_northwall = generate_sprite( [ & ]( dim2d::index idx ) {return Colors::LightGray; } );
+	m_westwall	= generate_sprite( [ & ]( dim2d::index idx ) {return Colors::LightGray; } );
+	m_eastwall	= generate_sprite( [ & ]( dim2d::index idx ) {return Colors::DarkGray; } );
+	m_southwall = generate_sprite( [ & ]( dim2d::index idx ) {return Colors::DarkGray; } );
+	m_corner	= generate_sprite( [ & ]( dim2d::index idx ) {
+		return ( idx.x < ( tile_size.height -1 ) - idx.y ) ? 
+			Colors::LightGray : Colors::DarkGray;
+	} );
+	
 
 	auto cells = MazeGenerator{}( _startPos, _endPos );
 
 	dim2d::transform( cells.begin(), cells.end(), m_rooms.begin(),
 		[ & ]( dim2d::index, cell const& _cell )
 	{
-		return Room( m_ground, m_northwall, m_eastwall, m_southwall, m_westwall, _cell );
+		return Room( m_ground, m_northwall, m_eastwall, m_southwall, m_westwall, m_corner, _cell );
 	} );
 
 }
@@ -232,6 +237,7 @@ Room::Room(
 	Sprite const& _eastwall,
 	Sprite const& _southwall,
 	Sprite const& _westwall,
+	Sprite const& _corner,
 	cell const& _cell )
 {
 	auto generate_cell = [ & ]( dim2d::index idx )
@@ -246,12 +252,18 @@ Room::Room(
 		{
 			if( ( _cell.wall & Wall::north ) == Wall::north )
 			{
-				return Tile( Tile::Type::wall, _northwall );
+				if( idx.x == room_size.width - 1 )
+					return Tile( Tile::Type::wall, _corner );
+				else
+					return Tile( Tile::Type::wall, _northwall );
 			}
 
-			if( idx.x >= 0 && idx.x <= 3 || idx.x >= 6 && idx.x < 10 )
+			if( idx.x >= 0 && idx.x <= 3 || idx.x >= 6 && idx.x < room_size.width )
 			{
-				return Tile( Tile::Type::wall, _northwall );
+				if( idx.x == room_size.width - 1 )
+					return Tile( Tile::Type::wall, _corner );
+				else
+					return Tile( Tile::Type::wall, _northwall );
 			}
 		}
 		else if( idx.y > 0 && idx.y < room_size.height - 1 )
@@ -263,34 +275,40 @@ Room::Room(
 					return Tile( Tile::Type::wall, _westwall );
 				}
 
-				if( idx.y >= 0 && idx.y <= 3 || idx.y >= 6 && idx.y < 10 )
+				if( idx.y > 0 && idx.y <= 3 || idx.y >= 6 && idx.y < room_size.height )
 				{
-					return Tile( Tile::Type::wall, _eastwall );
+					return Tile( Tile::Type::wall, _westwall );
 				}
 			}
 			else if( idx.x == room_size.height - 1 )
 			{
-				if( ( _cell.wall & Wall::east ) == Wall::east && idx.x == room_size.width - 1 )
+				if( ( _cell.wall & Wall::east ) == Wall::east )
 				{
 					return Tile( Tile::Type::wall, _eastwall );
 				}
 
-				if( idx.y >= 0 && idx.y <= 3 || idx.y >= 6 && idx.y < 10 )
+				if( idx.y > 0 && idx.y <= 3 || idx.y >= 6 && idx.y < room_size.height )
 				{
-					return Tile( Tile::Type::wall, _westwall );
+					return Tile( Tile::Type::wall, _eastwall );
 				}
 			}
 		}
 		else if( idx.y == room_size.height - 1 )
 		{
-			if( ( _cell.wall & Wall::south ) == Wall::south && idx.y == room_size.height - 1 )
+			if( ( _cell.wall & Wall::south ) == Wall::south )
 			{
-				return Tile( Tile::Type::wall, _southwall );
+				if( idx.x == 0 )
+					return Tile( Tile::Type::wall, _corner );
+				else
+					return Tile( Tile::Type::wall, _southwall );
 			}
 
-			if( idx.x >= 0 && idx.x <= 3 || idx.x >= 6 && idx.x < 10 )
+			if( idx.x >= 0 && idx.x <= 3 || idx.x >= 6 && idx.x < room_size.width )
 			{
-				return Tile( Tile::Type::wall, _southwall );
+				if( idx.x == 0 )
+					return Tile( Tile::Type::wall, _corner );
+				else
+					return Tile( Tile::Type::wall, _southwall );
 			}
 		}
 

@@ -24,7 +24,7 @@ Frames::Frames( int NumFrames, std::string BaseFilename, std::string FileExtensi
 	}
 }
 
-Sprite const& Frames::GetFrame( size_t Idx )const
+Sprite const& Frames::GetFrame( size_t Idx )const noexcept
 {
 	assert( Idx >= 0 );
 	assert( Idx < m_sprites.size() );
@@ -32,7 +32,7 @@ Sprite const& Frames::GetFrame( size_t Idx )const
 	return m_sprites[ Idx ];
 }
 
-size_t Frames::Count() const
+size_t Frames::Count()const noexcept
 {
 	return m_sprites.size();
 }
@@ -42,7 +42,7 @@ Sprite const & AnimationController::CurrentFrame() const noexcept
 	return m_pFrames->GetFrame( m_currFrame );
 }
 
-void AnimationController::Advance( float DeltaTime )
+void AnimationController::Advance( float DeltaTime )noexcept
 {
 	m_frameTimeCounter -= DeltaTime;
 	if( m_frameTimeCounter <= 0.f )
@@ -53,15 +53,20 @@ void AnimationController::Advance( float DeltaTime )
 	}
 }
 
-AnimationController::AnimationController( float HoldFrameTime, const Frames &FrameSet )
+size_t AnimationController::CurrentFrameIndex() const noexcept
+{
+	return m_currFrame;
+}
+
+AnimationController::AnimationController( float HoldFrameTime, const Frames &FrameSet, size_t _startFrame )noexcept
 	:
 	m_holdFrameTime( HoldFrameTime ),
 	m_frameTimeCounter( HoldFrameTime ),
-	m_pFrames( &FrameSet )
-{
-}
+	m_pFrames( &FrameSet ),
+	m_currFrame( _startFrame % FrameSet.Count() )
+{}
 
-void PendulumAnimController::Advance( float DeltaTime )
+void PendulumAnimController::Advance( float DeltaTime )noexcept
 {
 	m_frameTimeCounter -= DeltaTime;
 	if( m_frameTimeCounter <= 0.f )

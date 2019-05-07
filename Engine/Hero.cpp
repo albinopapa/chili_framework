@@ -113,7 +113,10 @@ void Hero::Update( Keyboard& _keyboard, float dt )
 			}
 			else if( direction != m_direction )
 			{
-				m_animation = AnimationController( holdTime, sprites.hero_running[ int( direction ) ] );
+				m_animation = AnimationController(
+					holdTime,
+					sprites.hero_running[ int( direction ) ],
+					m_animation.CurrentFrameIndex() );
 				m_direction = direction;
 			}
 			break;
