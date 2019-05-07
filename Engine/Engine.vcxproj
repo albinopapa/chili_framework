@@ -164,7 +164,6 @@
     <ClInclude Include="Colors.h" />
     <ClInclude Include="COMInitializer.h" />
     <ClInclude Include="ComponentInitter.h" />
-    <ClInclude Include="ConicalEmitter.h" />
     <ClInclude Include="DXErr.h" />
     <ClInclude Include="DXException.h" />
     <ClInclude Include="Emitter.h" />
@@ -175,6 +174,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GlobalEnums.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Hero.h" />
     <ClInclude Include="ImageLoader.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Logger.h" />
@@ -198,7 +198,9 @@
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteCache.h" />
+    <ClInclude Include="SpriteResource.h" />
     <ClInclude Include="SpriteSheet.h" />
+    <ClInclude Include="SpriteState.h" />
     <ClInclude Include="SSE.h" />
     <ClInclude Include="SSE_Utils.h" />
     <ClInclude Include="StaticHandler.h" />
@@ -222,6 +224,7 @@
     <ClCompile Include="Frametimer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="Hero.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Logger.cpp" />
@@ -243,6 +246,7 @@
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SpriteCache.cpp" />
     <ClCompile Include="SpriteSheet.cpp" />
+    <ClCompile Include="SpriteState.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="TextFormat.cpp" />
   </ItemGroup>
@@ -313,14 +317,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Chili.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="dim2dgrid.natvis">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </Natvis>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

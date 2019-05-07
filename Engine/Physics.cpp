@@ -4,8 +4,6 @@
 
 std::optional<PhysicsPropertiesOut> HandleCollision( PhysicsPropertiesIn const& _left, PhysicsPropertiesIn const& _right )noexcept
 {
-	assert( _left.can_move && !_right.can_move && "Right object must be static" );
-
 	Vec2f velocity = _left.can_move ? _left.velocity : _right.velocity;
 	Vec2f position = _left.can_move ? _left.position : _right.position;
 

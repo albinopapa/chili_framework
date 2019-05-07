@@ -7,9 +7,12 @@
 #include "Rect.h"
 #include "Text.h"
 #include "Sprite.h"
+#include <algorithm2d.h>
 #include <surface.h>
 #include <d3d11.h>
 #include <wrl.h>
+
+struct AlphaEffect;
 
 class Graphics
 {
@@ -57,6 +60,9 @@ public:
 
 	void PutPixel( int x, int y, int r, int g, int b );
 	void PutPixel( int x,int y,Color c );
+
+	dim2d::surface<Color>& GetBuffer()noexcept;
+
 	void PutPixelAlpha( int X, int Y, Color C );
 	void DrawCircle( const Vec2i &Center, int Radius, Color C );
 	void DrawCircleAlpha( const Recti &Rect, Color C );
@@ -69,8 +75,29 @@ public:
 	void DrawString( float X, float Y, Font const& font, const std::string &Str, Color Clr );
 	void DrawString( const Vec2f &Pos, Font const& font, const std::string &Str, Color Clr );
 	void DrawText( const Vec2f &Position, Text const& text, Color C );
-	void DrawSprite( const Rectf &Dst, const Sprite& sprite );
-	void DrawSprite( const Rectf &Src, const Rectf &Dst, const Sprite& sprite );
+
+	template<typename Effect>
+	void DrawSprite( const Rectf &Dst, const Sprite& sprite, Effect effect )
+	{
+		DrawSprite( sprite.GetRect(), Dst, sprite, std::move( effect ) );
+	}
+	template<typename Effect>
+	void DrawSprite( const Rectf &Src, const Rectf &Dst, const Sprite& sprite, Effect effect )
+	{
+		const auto rectified = Rectify( Dst, GetRect<float>() );
+		const auto src = RectI( rectified ).Translate( Vec2i( Src.LeftTop() ) );
+		const auto dst = RectI( rectified ).Translate( Vec2i( Dst.LeftTop() ) );
+
+		// check if source and destination have size
+		const auto src_has_size = src.GetSize().Area() != 0;
+		const auto dst_has_size = dst.GetSize().Area() != 0;
+
+		// check if sprite is in view and source and destination rects have size > 0
+		if( IsInView( dst ) && src_has_size && dst_has_size )
+		{
+			effect( src, dst, sprite );
+		}
+	}
 
 
 	static void SetResolution( const RECT &WinRect );
@@ -106,4 +133,73 @@ private:
 	friend class Direct3D;
 	dim2d::surface<Color>	pSysBuffer;
 	static Recti			screenRect;
+};
+
+
+struct SpriteEffect
+{
+	template<typename T>
+	dim2d::surface_wrapper<T> make_wrapper( Recti const& rect, int stride, T& sprite )
+	{
+		return dim2d::surface_wrapper<T>(
+			dim2d::offset{ rect.left, rect.top },
+			rect.GetWidth(),
+			rect.GetHeight(),
+			stride,
+			sprite
+		);
+	}
+};
+
+struct AlphaEffect : SpriteEffect
+{
+	AlphaEffect( Graphics& _graphics )
+		:
+		m_graphics( _graphics )
+	{}
+	void operator()( const Recti &Src, const Recti &Dst, const Sprite& sprite )
+	{
+		const auto src = make_wrapper( Src, Src.GetWidth(), sprite );
+		auto dst = make_wrapper( Dst, Graphics::GetWidth<int>(), m_graphics.GetBuffer() );
+
+		auto blend = [ & ]( dim2d::index src1idx, Color src1, dim2d::index src2idx, Color src2 )
+		{
+			return src1.AlphaBlend( src2 );
+		};
+
+		dim2d::transform( src.begin(), src.end(), dst.begin(), dst.begin(), blend );
+	}
+	Graphics& m_graphics;
+};
+
+struct CopyEffect : SpriteEffect
+{
+	CopyEffect( Graphics& _graphics )
+		:
+		m_graphics( _graphics )
+	{}
+	void operator()( const Recti &Src, const Recti &Dst, const Sprite& sprite )
+	{
+		const auto src = make_wrapper( Src, Src.GetWidth(), sprite );
+		auto dst = make_wrapper( Dst, Graphics::GetWidth<int>(), m_graphics.GetBuffer() );
+
+		dim2d::copy( src.begin(), src.end(), dst.begin() );
+	}
+	Graphics& m_graphics;
+};
+
+struct MirrorEffect : SpriteEffect
+{
+	MirrorEffect( Graphics& _graphics )
+		:
+		m_graphics( _graphics )
+	{}
+	void operator()( const Recti &Src, const Recti &Dst, const Sprite& sprite )
+	{
+		const auto src = make_wrapper( Src, Src.GetWidth(), sprite );
+		auto dst = make_wrapper( Dst, Graphics::GetWidth<int>(), m_graphics.GetBuffer() );
+
+		dim2d::copy( src.mbegin(), src.mend(), dst.begin() );
+	}
+	Graphics& m_graphics;
 };

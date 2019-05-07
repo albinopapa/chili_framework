@@ -73,7 +73,7 @@ public:
 	// Binary operators
 	constexpr _Vec2	operator+( const _Vec2 &rhs ) const
 	{
-		return _Vec2( *this ) += rhs;
+		return{ x + rhs.x,y + rhs.y };
 	}
 	constexpr _Vec2	operator-( const _Vec2 &rhs ) const
 	{

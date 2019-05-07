@@ -14,7 +14,7 @@ Frames::Frames( int NumFrames, std::string BaseFilename, std::string FileExtensi
 	{
 		std::stringstream ss;
 		ss.fill( '0' );
-		ss << BaseFilename << std::setw( 2 ) << Idx << FileExtension;
+		ss << BaseFilename << std::setw( 2 ) << Idx << '.' << FileExtension;
 		return ss.str();
 	};
 

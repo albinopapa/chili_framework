@@ -227,6 +227,17 @@ using Rectf = _Rect<float>;
 using Recti = _Rect<int>;
 
 template<class T>
+_Rect<T> operator/( const _Rect<T>& _rect, const Size_t<T>& _size )noexcept
+{
+	return{ 
+		_rect.left / _size.width, 
+		_rect.top / _size.height,
+		_rect.right / _size.width,
+		_rect.bottom / _size.height 
+	};
+}
+
+template<class T>
 _Rect<T> MakeRectFromCenter( const _Vec2<T> &Center, const Size_t<T> &Size )
 {
 	const _Rect<T> result( Center, Size );

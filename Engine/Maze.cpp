@@ -1,10 +1,10 @@
 #include "Maze.h"
 
-dim2d::grid<cell, maze_width, maze_height> MazeGenerator::operator()(dim2d::offset _startPos)
+dim2d::grid<cell, maze_size.width, maze_size.height> MazeGenerator::operator()( Vec2i _startPos)
 {
-	using cell_iterator = typename dim2d::grid<cell, maze_width, maze_height>::iterator;
+	using cell_iterator = typename dim2d::grid<cell, maze_size.width, maze_size.height>::iterator;
 	auto get_available_neighbors = 
-		[](cell_iterator cur, dim2d::grid<cell, maze_width, maze_height>& cells)
+		[](cell_iterator cur, dim2d::grid<cell, maze_size.width, maze_size.height>& cells)
 	{
 		auto neighbors = std::array{
 				( cur.Index() + n_offset ),
@@ -16,10 +16,11 @@ dim2d::grid<cell, maze_width, maze_height> MazeGenerator::operator()(dim2d::offs
 		auto available = std::vector<cell_iterator>();
 		for( auto neighbor : neighbors )
 		{
-			constexpr auto mazeRect = RectI( 0, 0, maze_width, maze_height );
+			constexpr auto mazeRect = RectI( 0, 0, maze_size.width, maze_size.height );
 			if( mazeRect.Contains( Vec2i{ neighbor.x, neighbor.y } ) )
 			{
-				auto it = cells.begin() + neighbor;
+				const auto nOffset = dim2d::offset{ neighbor.x,neighbor.y };
+				auto it = cells.begin() + nOffset;
 
 				if( !it->visited )
 				{
@@ -66,13 +67,14 @@ dim2d::grid<cell, maze_width, maze_height> MazeGenerator::operator()(dim2d::offs
 
 	std::mt19937 rng;
 
-	dim2d::grid<cell, maze_width, maze_height> cells;
+	dim2d::grid<cell, maze_size.width, maze_size.height> cells;
 	dim2d::generate( cells.begin(), cells.end(), cells.begin(),
 		[ & ]( dim2d::index idx ) { return cell{ idx }; } );
 
+	const auto startOffset = dim2d::offset{ _startPos.x,_startPos.y };
 	std::vector<cell_iterator> visited;
-	visited.reserve( maze_width * maze_height );
-	visited.emplace_back( cells.begin() + _startPos )->visited = true;
+	visited.reserve( maze_size.width * maze_size.height );
+	visited.emplace_back( cells.begin() + startOffset )->visited = true;
 
 	while( !visited.empty() )
 	{
@@ -98,13 +100,13 @@ dim2d::grid<cell, maze_width, maze_height> MazeGenerator::operator()(dim2d::offs
 	return cells;
 }
 
-Maze::Maze( dim2d::offset _startPos )
+Maze::Maze( Vec2i _startPos )
 {
 	std::mt19937 rng;
 	std::uniform_int_distribution<int> valDist( 112, 144 );
 	auto generate_sprite = []( auto GenFn )->Sprite
 	{
-		auto tile = dim2d::surface<Color>( tile_width, tile_height );
+		auto tile = dim2d::surface<Color>( tile_size.width, tile_size.height );
 		dim2d::generate( tile.begin(), tile.end(), tile.begin(), GenFn );
 		return Sprite{ std::move( tile ) };
 	};
@@ -125,40 +127,33 @@ Maze::Maze( dim2d::offset _startPos )
 
 }
 
-auto Maze::GetRooms()
-->dim2d::grid<Room, maze_width, maze_height>&
+auto Maze::GetRooms()->dim2d::grid<Room, maze_size.width, maze_size.height>&
 {
 	return m_rooms;
 }
 
-auto Maze::GetRooms()const
-->dim2d::grid<Room, maze_width, maze_height> const&
+auto Maze::GetRooms()const->dim2d::grid<Room, maze_size.width, maze_size.height> const&
 {
 	return m_rooms;
 }
 
-dim2d::offset Maze::GetRoomIndex( const Vec2f & _position ) const noexcept
+Vec2i Maze::GetRoomIndex( const Vec2f & _position ) const noexcept
 {
-	return dim2d::offset{
-		int( std::floorf( _position.x / room_pixel_width ) ),
-		int( std::floorf( _position.y / room_pixel_height ) )
+	return Vec2i{
+		int( std::floorf( _position.x / room_pixel_size.width ) ),
+		int( std::floorf( _position.y / room_pixel_size.height ) )
 	};
 }
 
-Vec2i Maze::GetRoomPosition( dim2d::offset const & room_idx ) const noexcept
+Vec2i Maze::GetTileIndex( const Vec2i& room_index, const Vec2f& _position, bool isBack ) const noexcept
 {
-	return Vec2i(room_idx.x * room_pixel_width,room_idx.y * room_pixel_height);
-}
-
-dim2d::offset Maze::GetTileIndex( const dim2d::offset& room_index, const Vec2f& _position, bool isBack ) const noexcept
-{
-	const auto room_position = GetRoomPosition( room_index );
-	auto tile_index = dim2d::offset{
-		( int( std::floorf( _position.x ) ) - room_position.x ) / tile_width,
-		( int( std::floorf( _position.y ) ) - room_position.y ) / tile_height
+	const auto room_position = GetRoomPosition<int>( room_index );
+	auto tile_index = Vec2i{
+		( int( std::floorf( _position.x ) ) - room_position.x ) / tile_size.width,
+		( int( std::floorf( _position.y ) ) - room_position.y ) / tile_size.height
 	};
-	tile_index.x = std::clamp( tile_index.x, 0, room_width );
-	tile_index.y = std::clamp( tile_index.y, 0, room_height );
+	tile_index.x = std::clamp( tile_index.x, 0, room_size.width );
+	tile_index.y = std::clamp( tile_index.y, 0, room_size.height );
 
 	if( isBack )
 	{
@@ -171,26 +166,24 @@ dim2d::offset Maze::GetTileIndex( const dim2d::offset& room_index, const Vec2f& 
 	return tile_index;
 }
 
-Vec2i Maze::GetTilePosition( dim2d::offset const & room_idx, dim2d::offset const& tile_index ) const noexcept
+Vec2i Maze::GetTilePosition( Vec2i const & room_idx, Vec2i const& tile_index ) const noexcept
 {
-	auto const room_position = GetRoomPosition( room_idx );
-	return Vec2i(
-		( tile_index.x * tile_width ) + room_position.x,
-		( tile_index.y * tile_height ) + room_position.y 
-	);
+	auto const room_position = GetRoomPosition<int>( room_idx );
+	return ( tile_index * tile_size ) + room_position;
 }
 
 
 std::optional<Rectf> Maze::GetTileRect( const Rectf& rect, const Vec2f& velocity )const noexcept
 {
 	const auto room_idx			= GetRoomIndex( rect.GetCenter() );
-	const auto room_position	= GetRoomPosition( room_idx );
+	const auto room_position	= GetRoomPosition<float>( room_idx );
 
 	auto check_for_wall =
-		[&]( dim2d::grid<Tile, room_width, room_height> const& tiles, dim2d::index const& tile_idx )
+		[&]( dim2d::grid<Tile, room_size.width, room_size.height> const& tiles, dim2d::index const& tile_idx )
 	{
-		auto const rect =
-			Recti( GetTilePosition( room_idx, tile_idx ), Sizei{ tile_width, tile_height } );
+		auto const rect = Recti(
+			GetTilePosition( room_idx, Vec2i{ tile_idx.x,tile_idx.y } ),
+			tile_size );
 
 		auto result = ( tiles[ tile_idx ].type == Tile::Type::wall ) ?
 			std::optional<Rectf>( rect ) : std::optional<Rectf>();
@@ -198,10 +191,11 @@ std::optional<Rectf> Maze::GetTileRect( const Rectf& rect, const Vec2f& velocity
 		return result;
 	};
 
+
 	auto const left_top_idx		= GetTileIndex( room_idx, rect.LeftTop() );
 	auto const right_bottom_idx = GetTileIndex( room_idx, rect.RightBottom(), true );
 
-	auto const& tiles			= m_rooms[ room_idx ].GetTiles();
+	auto const& tiles			= m_rooms[ dim2d::index{ room_idx.x,room_idx.y } ].GetTiles();
 
 	for( int y = left_top_idx.y; y <= right_bottom_idx.y; ++y )
 	{
@@ -240,8 +234,8 @@ Room::Room(
 {
 	auto generate_cell = [ & ]( dim2d::index idx )
 	{
-		if( idx.x > 0 && idx.x < room_width - 1 &&
-			idx.y > 0 && idx.y < room_height - 1 )
+		if( idx.x > 0 && idx.x < room_size.width - 1 &&
+			idx.y > 0 && idx.y < room_size.height - 1 )
 		{
 			return Tile( Tile::Type::floor, _ground );
 		}
@@ -258,7 +252,7 @@ Room::Room(
 				return Tile( Tile::Type::wall, _northwall );
 			}
 		}
-		else if( idx.y > 0 && idx.y < room_height - 1 )
+		else if( idx.y > 0 && idx.y < room_size.height - 1 )
 		{
 			if( idx.x == 0 )
 			{
@@ -272,9 +266,9 @@ Room::Room(
 					return Tile( Tile::Type::wall, _eastwall );
 				}
 			}
-			else if( idx.x == room_height - 1 )
+			else if( idx.x == room_size.height - 1 )
 			{
-				if( ( _cell.wall & Wall::east ) == Wall::east && idx.x == room_width - 1 )
+				if( ( _cell.wall & Wall::east ) == Wall::east && idx.x == room_size.width - 1 )
 				{
 					return Tile( Tile::Type::wall, _eastwall );
 				}
@@ -285,9 +279,9 @@ Room::Room(
 				}
 			}
 		}
-		else if( idx.y == room_height - 1 )
+		else if( idx.y == room_size.height - 1 )
 		{
-			if( ( _cell.wall & Wall::south ) == Wall::south && idx.y == room_height - 1 )
+			if( ( _cell.wall & Wall::south ) == Wall::south && idx.y == room_size.height - 1 )
 			{
 				return Tile( Tile::Type::wall, _southwall );
 			}
@@ -304,14 +298,12 @@ Room::Room(
 	dim2d::generate( m_tiles.begin(), m_tiles.end(), m_tiles.begin(), generate_cell );
 }
 
-auto Room::GetTiles()
-->dim2d::grid<Tile, room_width, room_height>&
+auto Room::GetTiles()->dim2d::grid<Tile, room_size.width, room_size.height>&
 {
 	return m_tiles;
 }
 
-auto Room::GetTiles()const
-->dim2d::grid<Tile, room_width, room_height>const&
+auto Room::GetTiles()const->dim2d::grid<Tile, room_size.width, room_size.height>const&
 {
 	return m_tiles;
 }

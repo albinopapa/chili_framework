@@ -23,7 +23,6 @@
 #include "Graphics.h"
 #include "DXErr.h"
 #include "ChiliException.h"
-#include <algorithm2d.h>
 #include <assert.h>
 #include <string>
 #include <array>
@@ -74,6 +73,11 @@ void Graphics::PutPixel( int x, int y, int r, int g, int b )
 void Graphics::PutPixel( int x, int y, Color c )
 {
 	pSysBuffer[ {x, y} ] = c;
+}
+
+dim2d::surface<Color>& Graphics::GetBuffer() noexcept
+{
+	return pSysBuffer;
 }
 
 void Graphics::PutPixelAlpha( int x, int y, Color c )
@@ -286,43 +290,6 @@ void Graphics::DrawText( const Vec2f &Position, Text const& text, Color C )
 	{
 		const auto position = static_cast< Vec2f >( text.GetStringPositions()[ i ] ) + Position;
 		DrawString( position.x, position.y, text.GetFont(), text.GetStrings()[ i ], C );
-	}
-}
-
-void Graphics::DrawSprite( const Rectf &Dst, const Sprite& sprite )
-{
-	DrawSprite( sprite.GetRect(), Dst, sprite );
-}
-
-void Graphics::DrawSprite( const Rectf &Src, const Rectf &Dst, const Sprite& sprite )
-{
-	const auto rectified = Rectify( Dst, GetRect<float>() );
-	const auto src = RectI( rectified ).Translate( Vec2i( Src.LeftTop() ) );
-	const auto dst = RectI( rectified ).Translate( Vec2i( Dst.LeftTop() ) );
-
-	// check if source and destination have size
-	const auto src_has_size = src.GetSize().Area() != 0;
-	const auto dst_has_size = dst.GetSize().Area() != 0;
-
-	// check if sprite is in view and source and destination rects have size > 0
-	if( IsInView( dst ) && src_has_size && dst_has_size )
-	{
-		const auto srcWrapper = dim2d::surface_wrapper(
-			dim2d::offset{ src.left ,src.top },
-			src.GetWidth(),
-			src.GetHeight(),
-			src.GetWidth(),
-			sprite
-			);
-		auto dstWrapper = dim2d::surface_wrapper(
-			dim2d::offset{ dst.left, dst.top },
-			dst.GetWidth(),
-			dst.GetHeight(),
-			pSysBuffer.columns(),
-			pSysBuffer
-			);
-
-		dim2d::copy( srcWrapper.begin(), srcWrapper.end(), dstWrapper.begin() );
 	}
 }
 

@@ -32,9 +32,9 @@ public:
 	virtual void Advance( float DeltaTime );
 
 protected:
-	float m_frameTimeCounter = 0.f, m_holdFrameTime = 0.f;
 	size_t m_currFrame = 0;
 	const Frames *m_pFrames;
+	float m_frameTimeCounter = 0.f, m_holdFrameTime = 0.f;
 };
 
 class PendulumAnimController :public AnimationController

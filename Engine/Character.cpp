@@ -18,7 +18,7 @@ void Character::Update( float DeltaTime )
 void Character::Draw( const Rectf &Viewport, Graphics & Gfx )const
 {
 	const auto playerrect = GetRect().Translate( -Viewport.LeftTop() );
-	Gfx.DrawSprite( playerrect, m_animController.CurrentFrame() );
+	Gfx.DrawSprite( playerrect, m_animController.CurrentFrame(), AlphaEffect{ Gfx } );
 }
 
 const Vec2f & Character::GetPosition() const
