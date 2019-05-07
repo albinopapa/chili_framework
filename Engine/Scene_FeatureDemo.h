@@ -23,8 +23,8 @@ private:
 	void DoWallCollision()noexcept;
 
 	void DrawMaze( RectF const& view)const noexcept;
-	void DrawHero( RectF const& view )const noexcept;
-	void DrawHUD( RectF const& view )const noexcept;
+	void DrawHero( )const noexcept;
+	void DrawHUD( )const noexcept;
 private:
 	static constexpr int ui_height = 128;
 	Maze m_maze;

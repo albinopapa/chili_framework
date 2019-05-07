@@ -60,8 +60,8 @@ void Scene_FeatureDemo::Draw() const
 	view.bottom = std::ceilf( view.bottom / room_size.height );
 
 	DrawMaze( view );
-	DrawHero( view );
-	DrawHUD( view );
+	DrawHero( );
+	DrawHUD( );
 
 }
 
@@ -140,14 +140,14 @@ void Scene_FeatureDemo::DrawMaze( RectF const & view ) const noexcept
 	} );
 }
 
-void Scene_FeatureDemo::DrawHero( RectF const & view ) const noexcept
+void Scene_FeatureDemo::DrawHero( ) const noexcept
 {
-	auto rect = m_ranger.GetSpriteRect()
+	auto const rect = m_ranger.GetSpriteRect()
 		.Translate( m_camera.WorldToScreen( m_ranger.GetPosition() ) );
 	m_graphics.DrawSprite( rect, m_ranger.GetSprite(), AlphaEffect{ m_graphics } );
 }
 
-void Scene_FeatureDemo::DrawHUD( RectF const & view ) const noexcept
+void Scene_FeatureDemo::DrawHUD( ) const noexcept
 {
 	auto const charSize = m_consolas.GetCharSize();
 	auto const& room_idx = m_maze.GetRoomIndex( m_ranger.GetPosition() );
