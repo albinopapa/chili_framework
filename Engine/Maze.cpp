@@ -240,6 +240,9 @@ Room::Room(
 	Sprite const& _corner,
 	cell const& _cell )
 {
+	constexpr auto partialWallWidth = ( room_size.width - 2 ) / 2;
+	constexpr auto partialWallHeight = ( room_size.height - 2 ) / 2;
+
 	auto generate_cell = [ & ]( dim2d::index idx )
 	{
 		if( idx.x > 0 && idx.x < room_size.width - 1 &&
@@ -258,7 +261,8 @@ Room::Room(
 					return Tile( Tile::Type::wall, _northwall );
 			}
 
-			if( idx.x >= 0 && idx.x <= 3 || idx.x >= 6 && idx.x < room_size.width )
+			if( idx.x >= 0 && idx.x < partialWallWidth || 
+				idx.x >= partialWallWidth + 2 && idx.x < room_size.width )
 			{
 				if( idx.x == room_size.width - 1 )
 					return Tile( Tile::Type::wall, _corner );
@@ -275,7 +279,8 @@ Room::Room(
 					return Tile( Tile::Type::wall, _westwall );
 				}
 
-				if( idx.y > 0 && idx.y <= 3 || idx.y >= 6 && idx.y < room_size.height )
+				if( idx.y > 0 && idx.y < partialWallHeight || 
+					idx.y >= partialWallHeight + 2 && idx.y < room_size.height )
 				{
 					return Tile( Tile::Type::wall, _westwall );
 				}
@@ -287,7 +292,8 @@ Room::Room(
 					return Tile( Tile::Type::wall, _eastwall );
 				}
 
-				if( idx.y > 0 && idx.y <= 3 || idx.y >= 6 && idx.y < room_size.height )
+				if( idx.y > 0 && idx.y < partialWallHeight ||
+					idx.y >= partialWallHeight + 2 && idx.y < room_size.height )
 				{
 					return Tile( Tile::Type::wall, _eastwall );
 				}
@@ -303,7 +309,8 @@ Room::Room(
 					return Tile( Tile::Type::wall, _southwall );
 			}
 
-			if( idx.x >= 0 && idx.x <= 3 || idx.x >= 6 && idx.x < room_size.width )
+			if( idx.x >= 0 && idx.x < partialWallWidth ||
+				idx.x >= partialWallWidth + 2 && idx.x < room_size.width )
 			{
 				if( idx.x == 0 )
 					return Tile( Tile::Type::wall, _corner );

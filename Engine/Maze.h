@@ -39,8 +39,8 @@ constexpr _Vec2<T> operator*( const _Vec2<T>& _left, const Size_t<T>& _right )no
 
 using Point = dim2d::offset;
 
-constexpr Sizei tile_size		= { 32,32 };
-constexpr Sizei room_size		= { 10, 10 };
+constexpr Sizei tile_size		= { 32, 32 };
+constexpr Sizei room_size		= { 25, 25 };
 constexpr Sizei maze_size		= { 25, 25 };
 constexpr Sizei maze_pixel_size = { 
 	maze_size.width * room_size.width * tile_size.width,
