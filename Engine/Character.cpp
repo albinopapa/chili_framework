@@ -1,4 +1,5 @@
 #include "Character.h"
+#include "MathOps.h"
 
 Character::Character( const Vec2f & StartPos, Keyboard &Kbd, const SpriteCache & Cache )
 	:
@@ -17,7 +18,7 @@ void Character::Update( float DeltaTime )
 
 void Character::Draw( const Rectf &Viewport, Graphics & Gfx )const
 {
-	const auto playerrect = GetRect().Translate( -Viewport.LeftTop() );
+	const auto playerrect = GetRect() - Viewport.LeftTop();
 	Gfx.DrawSprite( playerrect, m_animController.CurrentFrame(), AlphaEffect{ Gfx } );
 }
 

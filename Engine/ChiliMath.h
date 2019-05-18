@@ -20,7 +20,7 @@
 ******************************************************************************************/
 #pragma once
 
-#include <math.h>
+#include <cmath>
 
 constexpr float PI = 3.14159265f;
 constexpr double PI_D = 3.1415926535897932;
@@ -28,27 +28,3 @@ constexpr float absMask = -0.0f;
 constexpr float PIDiv2 = PI * .5f;
 constexpr float deg2rad = PI / 180.f;
 constexpr float rad2deg = 180.f / PI;
-
-template <typename T>
-inline auto sq( const T& x )
-{
-	return x * x;
-}
-
-template<typename T>
-inline T wrap_angle( T theta )
-{
-	const T modded = fmod( theta, ( T )2.0 * ( T )PI_D );
-	return ( modded > ( T )PI_D ) ?
-		( modded - ( T )2.0 * ( T )PI_D ) : modded;
-}
-
-constexpr float ToRadians( float A )
-{
-	return deg2rad * A;
-}
-
-constexpr float ToDegrees( float A )
-{
-	return rad2deg * A;
-}

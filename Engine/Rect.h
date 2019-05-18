@@ -38,26 +38,15 @@ public:
 		return width * height;
 	}
 
-	Size_t &operator*=( const T &S )
+	constexpr Size_t &operator*=( const T &S )
 	{
-		width *= S;
-		height *= S;
+		*this = *this * S;
 		return *this;
 	}
-	Size_t operator*( const T &S )const
+	constexpr Size_t &operator/=( const T &S )noexcept
 	{
-		return Size_t( *this ) *= S;
-	}
-
-	Size_t &operator/=( const T &S )
-	{
-		width  /= S;
-		height /= S;
+		*this = *this / S;
 		return *this;
-	}
-	Size_t operator/( const T &S )const
-	{
-		return Size_t( *this ) /= S;
 	}
 
 public:
@@ -104,17 +93,7 @@ public:
 			_Vec2<T2>{( T2 )right, ( T2 )bottom }
 		};
 	}
-
-	constexpr _Rect Translate( const _Vec2<T> &d )const
-	{
-		return _Rect( *this ).Translate( d );
-	}
-	_Rect &Translate( const _Vec2<T> &d )
-	{
-		*this = { LeftTop() + d, RightBottom() + d };
-		return *this;
-	}
-
+	
 	constexpr _Rect ClipTo( const _Rect& rect )const
 	{
 		return _Rect( *this ).ClipTo( rect );
@@ -227,21 +206,16 @@ using Rectf = _Rect<float>;
 using Recti = _Rect<int>;
 
 template<class T>
-_Rect<T> operator/( const _Rect<T>& _rect, const Size_t<T>& _size )noexcept
-{
-	return{ 
-		_rect.left / _size.width, 
-		_rect.top / _size.height,
-		_rect.right / _size.width,
-		_rect.bottom / _size.height 
-	};
-}
-
-template<class T>
 _Rect<T> MakeRectFromCenter( const _Vec2<T> &Center, const Size_t<T> &Size )
 {
-	const _Rect<T> result( Center, Size );
-	return result.Translate( -static_cast<_Vec2<T>>( Size / static_cast< T >( 2 ) ) );
+	const auto halfWidth = Size.width / static_cast< T >( 2 );
+	const auto halfHeight = Size.height / static_cast< T >( 2 );
+	return {
+		Center.x - halfWidth,
+		Center.y - halfHeight,
+		Center.x + halfWidth,
+		Center.y + halfHeight
+	};
 }
 
 inline Rectf RectF_FromInt( int Left, int Top, int Right, int Bottom )

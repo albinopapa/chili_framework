@@ -85,8 +85,8 @@ public:
 	void DrawSprite( const Rectf &Src, const Rectf &Dst, const Sprite& sprite, Effect effect )
 	{
 		const auto rectified = Rectify( Dst, GetRect<float>() );
-		const auto src = RectI( rectified ).Translate( Vec2i( Src.LeftTop() ) );
-		const auto dst = RectI( rectified ).Translate( Vec2i( Dst.LeftTop() ) );
+		const auto src = RectI( rectified ) + Vec2i( Src.LeftTop() );
+		const auto dst = RectI( rectified ) + Vec2i( Dst.LeftTop() );
 
 		// check if source and destination have size
 		const auto src_has_size = src.GetSize().Area() != 0;

@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "Graphics.h"
+#include "MathOps.h"
 
 Camera::Camera( Vec2f const& _origin, RectF const& _viewrect )noexcept
 	:

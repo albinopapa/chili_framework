@@ -1,6 +1,6 @@
 #include "Hero.h"
 #include "SpriteResource.h"
-
+#include "MathOps.h"
 Hero::Hero()
 {
 	sprites.hero_idle[ int( Direction::Up ) ]			= Frames{ 1, "Images\\Idle\\Hero\\Back", "png" };
@@ -153,7 +153,7 @@ RectF Hero::GetRect() const noexcept
 
 RectF Hero::GetSpriteRect() const noexcept
 {
-	return RectF( m_animation.CurrentFrame().GetRect() ).Translate( m_sprite_rect_offset );
+	return RectF( m_animation.CurrentFrame().GetRect() ) + m_sprite_rect_offset;
 }
 
 Sprite const & Hero::GetSprite() const noexcept

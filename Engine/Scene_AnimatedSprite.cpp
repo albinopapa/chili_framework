@@ -1,5 +1,5 @@
 #include "Scene_AnimatedSprite.h"
-
+#include "MathOps.h"
 
 Scene_AnimatedSprite::Scene_AnimatedSprite( Keyboard & Kbd, Graphics & Gfx )
 	:
@@ -37,7 +37,7 @@ void Scene_AnimatedSprite::Update( float DeltaTime )
 void Scene_AnimatedSprite::Draw() const
 {
 	// TODO: Implement sprite drawing effects
-	const auto charRect = m_charRect.Translate( m_charPosition );
+	const auto charRect = m_charRect + m_charPosition;
 	if( m_direction == Direction::Left )
 		m_graphics.DrawSprite( charRect, m_animController.CurrentFrame(), MirrorEffect{ m_graphics } );
 	else

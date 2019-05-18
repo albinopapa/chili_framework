@@ -27,105 +27,107 @@ class _Vec2
 {
 public:
 	_Vec2() = default;
-	constexpr _Vec2( T x,T y )
+	constexpr _Vec2( T x,T y )noexcept
 		:
 		x( x ),
 		y( y )
 	{}
 	template <typename T2>
-	constexpr explicit operator _Vec2<T2>() const
+	constexpr explicit operator _Vec2<T2>() const noexcept
 	{
 		return{ (T2)x,(T2)y };
 	}
 
 	// Unary operator
-	constexpr _Vec2	operator-() const
+	constexpr _Vec2	operator-() const noexcept
 	{
 		return _Vec2( -x,-y );
 	}
 
 	// Assignment operators
-	_Vec2&	operator+=( const _Vec2 &rhs )
+	constexpr _Vec2&	operator+=( const _Vec2 &rhs )noexcept
 	{
 		x += rhs.x;
 		y += rhs.y;
 		return *this;
 	}
-	_Vec2&	operator-=( const _Vec2 &rhs )
+	constexpr _Vec2&	operator-=( const _Vec2 &rhs )noexcept
 	{
 		x -= rhs.x;
 		y -= rhs.y;
 		return *this;
 	}
-	_Vec2&	operator*=( const T &rhs )
+	constexpr _Vec2&	operator*=( const T &rhs )noexcept
 	{
 		x *= rhs;
 		y *= rhs;
 		return *this;
 	}
-	_Vec2&	operator/=( const T &rhs )
+	constexpr _Vec2&	operator/=( const T &rhs )noexcept
 	{
 		x /= rhs;
 		y /= rhs;
 		return *this;
 	}
 
-	// Binary operators
-	constexpr _Vec2	operator+( const _Vec2 &rhs ) const
+	constexpr T		LenSq() const noexcept
 	{
-		return{ x + rhs.x,y + rhs.y };
+		return ( x * x ) + ( y * y );
 	}
-	constexpr _Vec2	operator-( const _Vec2 &rhs ) const
-	{
-		return _Vec2( *this ) -= rhs;
-	}
-	constexpr _Vec2	operator*( const T &rhs ) const
-	{
-		return _Vec2( *this ) *= rhs;
-	}
-	constexpr T		operator*( const _Vec2 &rhs ) const
-	{
-		return x * rhs.x + y * rhs.y;
-	}
-	constexpr _Vec2	operator/( const T &rhs ) const
-	{
-		return _Vec2( *this ) /= rhs;
-	}
-
-	constexpr bool	operator==( const _Vec2 &rhs ) const
-	{
-		return x == rhs.x && y == rhs.y;
-	}
-	constexpr bool	operator!=( const _Vec2 &rhs ) const
-	{
-		return !(*this == rhs);
-	}
-
-	constexpr T		LenSq() const
-	{
-		return sq( *this );
-	}
-	constexpr T		Len() const
+	constexpr T		Len() const noexcept
 	{
 		return sqrt( LenSq() );
 	}
 
-	_Vec2&	Normalize()
+	_Vec2&	Normalize()noexcept
 	{
 		const auto len = Len();
-		*this *= ( len != static_cast< T >( 0 ) ? 1.f / len : len );
+
+		if( len == 0 )
+			return *this;
+
+		if constexpr(std::is_floating_point_v<T>)
+		{
+			auto const invLen = static_cast< T >( 1 ) / len;
+			x *= invLen;
+			y *= invLen;
+		}
+		else if constexpr( std::is_integral_v<T> )
+		{
+			x /= len;
+			y /= len;
+		}
+		
 		return *this;
 	}
-	constexpr _Vec2	Normalize() const
+	constexpr _Vec2	Normalize() const noexcept
 	{
-		return _Vec2( *this ).Normalize();
+		const auto len = Len();
+		if( len == static_cast< T >( 0 ) )
+			return *this;
+
+		_Vec2 result;
+		if constexpr( std::is_floating_point_v<T> )
+		{
+			auto const invLen = static_cast< T >( 1 ) / len;
+
+			result.x *= invLen;
+			result.y *= invLen;
+		}
+		else if constexpr( std::is_integral_v<T> )
+		{
+			result.x /= len;
+			result.y /= len;
+		}
+
+		return result;
 	}
 
-	constexpr _Vec2	InterpolateTo( const _Vec2& dest,T alpha ) const
+	constexpr _Vec2	InterpolateTo( const _Vec2& dest,T alpha ) const noexcept
 	{
-		return _Vec2( *this ).InterpolateTo( dest, alpha );
+		return ( *this + ( ( dest - *this )*alpha ) );
 	}
-	_Vec2 &InterpolateTo( const _Vec2 &dest, T alpha )
+	constexpr _Vec2 &InterpolateTo( const _Vec2 &dest, T alpha )noexcept
 	{
 		*this += ( ( dest - *this ) * alpha );
 		return *this;
@@ -136,8 +138,23 @@ public:
 	T y = T( 0 );
 };
 
+// Binary operators
+template <typename T>
+constexpr bool operator==( const _Vec2<T>& lhs, const _Vec2<T> &rhs )noexcept
+{
+	return ( lhs.x == rhs.x ) && ( lhs.y == rhs.y );
+}
+
+template <typename T>
+constexpr bool operator!=( const _Vec2<T>& lhs, const _Vec2<T> &rhs )noexcept
+{
+	return !( *this == rhs );
+}
+
+
+
 template<class T>
-_Vec2<T> Reflect( const _Vec2<T> &Direction, const _Vec2<T> &Normal )
+_Vec2<T> Reflect( const _Vec2<T> &Direction, const _Vec2<T> &Normal ) noexcept
 {
 	return Direction - ( Normal * ( 2.f * ( Direction * Normal ) ) );
 }

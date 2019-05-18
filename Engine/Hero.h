@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Graphics.h"
+#include "ItemBase.h"
 #include "Keyboard.h"
 #include "Rect.h"
 #include "SpriteState.h"
+#include <vector>
 
 class Hero
 {
@@ -37,4 +39,5 @@ private:
 	AnimationController m_animation;
 	Direction m_direction = Direction::Left;
 	State m_state = State::idle;
+	std::vector<InventoryItem> m_items;
 };

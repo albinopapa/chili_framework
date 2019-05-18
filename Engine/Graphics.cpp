@@ -20,13 +20,14 @@
 ******************************************************************************************/
 
 #include "MainWindow.h"
-#include "Graphics.h"
-#include "DXErr.h"
 #include "ChiliException.h"
+#include "DXErr.h"
+#include "Graphics.h"
+#include "MathOps.h"
+#include "SSE.h"
+#include <array>
 #include <assert.h>
 #include <string>
-#include <array>
-#include "SSE.h"
 
 // Ignore the intellisense error "cannot open source file" for .shh files.
 // They will be created during the build sequence before the preprocessor runs.
@@ -92,7 +93,7 @@ void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
 	const Vec2i vRadius = { Radius, Radius };
 
 	auto const circleRect = Recti( Center - vRadius, Center + vRadius );
-	const auto bounds = Rectify( circleRect, GetRect<int>() ).Translate( Center );
+	const auto bounds = Rectify( circleRect, GetRect<int>() ) + Center;
 
 	auto src = dim2d::surface_wrapper(
 		dim2d::offset{ bounds.left,bounds.top },
@@ -128,7 +129,7 @@ void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
 	const auto vRadius = Vec2i{ radius, radius };
 	const auto center = Rect.GetCenter();
 	const auto circleRect = Recti( center - vRadius, center + vRadius );
-	const auto bounds = Rectify( circleRect, GetRect<int>() ).Translate( center );
+	const auto bounds = Rectify( circleRect, GetRect<int>() ) + center;
 
 	const Color centerColor = Colors::White * ( C.Brightness() );
 	auto beg = dim2d::index_iterator( bounds.left, bounds.top, bounds.right, bounds.bottom, pSysBuffer );
@@ -156,7 +157,7 @@ void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
 
 void Graphics::DrawRectAlpha( const Recti & Rect, Color C )
 {
-	const auto bounds = Rectify( Rect, GetRect<int>() ).Translate( Rect.LeftTop() );
+	const auto bounds = Rectify( Rect, GetRect<int>() ) + Rect.LeftTop();
 
 	auto src = dim2d::surface_wrapper<dim2d::surface<Color>>(
 		dim2d::offset{ bounds.left,bounds.top },
@@ -214,7 +215,7 @@ void Graphics::DrawChar( float X, float Y, char C, Font const& font, Color color
 	const auto destinationRect = Rectify(
 		RectI( position, Sizei( sourceRect.GetSize() ) ),
 		GetRect<int>()
-	).Translate( position );
+	) + position;
 
 	if( IsInView( destinationRect ) )
 	{

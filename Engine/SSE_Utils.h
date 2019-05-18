@@ -9,6 +9,7 @@
 
 #include <memory>
 #include "ChiliMath.h"
+#include "MathOps.h"
 
 using FLOAT8 = __m256;
 using FLOAT4 = __m128;
@@ -702,19 +703,21 @@ namespace float_sse
 	}
 
 	// Matrix operations
-	inline void _vectorcall Transpose(const Matrix &M, Matrix &Out)
+	inline Matrix _vectorcall Transpose(const Matrix &M)
 	{
 		FLOAT4 t0, t1;
-
+		Matrix out;
 		t0 = Shuffle(M.r[0], M.r[1], XYXY);
 		t1 = Shuffle(M.r[2], M.r[3], XYXY);
-		Out.r[0] = Shuffle(t0, t1, XZXZ);
-		Out.r[1] = Shuffle(t0, t1, YWYW);
+		out.r[0] = Shuffle(t0, t1, XZXZ);
+		out.r[1] = Shuffle(t0, t1, YWYW);
 
 		t0 = Shuffle(M.r[0], M.r[1], ZWZW);
 		t1 = Shuffle(M.r[2], M.r[3], ZWZW);
-		Out.r[2] = Shuffle(t0, t1, XZXZ);
-		Out.r[3] = Shuffle(t0, t1, YWYW);
+		out.r[2] = Shuffle(t0, t1, XZXZ);
+		out.r[3] = Shuffle(t0, t1, YWYW);
+
+		return out;
 	}
 	inline Matrix _vectorcall operator+(const Matrix &M0, const Matrix &M1)
 	{
@@ -738,8 +741,7 @@ namespace float_sse
 	}
 	inline FLOAT4 _vectorcall operator*(const FLOAT4 &V, const Matrix &M)
 	{		
-		Matrix tm;
-		Transpose(M, tm);		
+		Matrix tm = Transpose( M );
 
 		FLOAT4 X = V * tm.r[0];
 		FLOAT4 Y = V * tm.r[1];
@@ -787,7 +789,7 @@ namespace float_sse
 	}
 	inline Matrix _vectorcall RotateY(const float theta)
 	{
-		float angle = (3.14159f * (1.0f / 180.0f)) * theta;
+		float angle = ToRadians( theta );
 		float sinTheta = sin(angle);
 		float cosTheta = cos(angle);
 
@@ -799,7 +801,7 @@ namespace float_sse
 	}
 	inline Matrix _vectorcall RotateZ(const float theta)
 	{
-		float angle = (3.14159f * (1.0f / 180.0f)) * theta;
+		float angle = ToRadians( theta );
 		float sinTheta = sin(angle);
 		float cosTheta = cos(angle);
 

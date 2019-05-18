@@ -1,4 +1,5 @@
 #include "Maze.h"
+#include "MathOps.h"
 
 dim2d::grid<cell, maze_size.width, maze_size.height> MazeGenerator::operator()( Vec2i _startPos, Vec2i _endPos )
 {

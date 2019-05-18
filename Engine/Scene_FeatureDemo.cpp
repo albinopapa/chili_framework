@@ -1,6 +1,7 @@
 #include "Scene_FeatureDemo.h"
-#include <algorithm2d.h>
+#include "MathOps.h"
 #include "Physics.h"
+#include <algorithm2d.h>
 
 Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 	:
@@ -31,7 +32,7 @@ void Scene_FeatureDemo::Update( float dt )
 
 	// Update camera
 	const auto offset = m_ranger.GetPosition() - m_camera.GetRect().GetCenter();
-	auto camPos = m_camera.GetRect().Translate( offset ).LeftTop();
+	auto camPos = ( m_camera.GetRect() + offset ).LeftTop();
 	m_camera.SetPosition( camPos );
 
 	// Clamp camera to maze boundries
@@ -52,7 +53,7 @@ void Scene_FeatureDemo::Update( float dt )
 void Scene_FeatureDemo::Draw() const
 {
 	constexpr auto room_size = Sizef( room_pixel_size );
-	auto view = m_camera.GetRect().Translate( m_camera.GetPosition() );
+	auto view = m_camera.GetRect() + m_camera.GetPosition();
 
 	view.left   = std::floorf( view.left / room_size.width );
 	view.top    = std::floorf( view.top  / room_size.height );
@@ -68,7 +69,7 @@ void Scene_FeatureDemo::Draw() const
 void Scene_FeatureDemo::DoWallCollision() noexcept
 {
 	const auto room_rect = m_maze.GetRoomRect( m_ranger.GetPosition() );
-	auto hero_rect = m_ranger.GetRect().Translate( m_ranger.GetPosition() ).ClipTo( room_rect );
+	auto hero_rect = ( m_ranger.GetRect() + m_ranger.GetPosition() ).ClipTo( room_rect );
 
 	bool isColliding = false;
 	do
@@ -88,7 +89,7 @@ void Scene_FeatureDemo::DoWallCollision() noexcept
 				m_ranger.SetPosition( ( *properties ).position );
 				m_ranger.SetVelocity( ( *properties ).velocity );
 				hero_rect =
-					m_ranger.GetRect().Translate( ( *properties ).position ).ClipTo( room_rect );
+					( m_ranger.GetRect() + ( *properties ).position ).ClipTo( room_rect );
 			}
 		}
 	} while( isColliding );
@@ -142,8 +143,9 @@ void Scene_FeatureDemo::DrawMaze( RectF const & view ) const noexcept
 
 void Scene_FeatureDemo::DrawHero( ) const noexcept
 {
-	auto const rect = m_ranger.GetSpriteRect()
-		.Translate( m_camera.WorldToScreen( m_ranger.GetPosition() ) );
+	auto const rect = m_ranger.GetSpriteRect() + 
+		m_camera.WorldToScreen( m_ranger.GetPosition() );
+
 	m_graphics.DrawSprite( rect, m_ranger.GetSprite(), AlphaEffect{ m_graphics } );
 }
 

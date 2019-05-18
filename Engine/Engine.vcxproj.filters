@@ -145,6 +145,12 @@
     <Filter Include="Header Files\Framework\Utilities\Physics">
       <UniqueIdentifier>{141801ef-9382-4ac1-abdc-0ca87ba0bc84}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scenes\DemoCode\MazeCrawler">
+      <UniqueIdentifier>{4a8b0eae-3561-48e4-9a31-85733572ee5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scenes\DemoCode\MazeCrawler">
+      <UniqueIdentifier>{e3b5da29-eac5-4e0c-b094-db60276f3db4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -288,32 +294,41 @@
     <ClInclude Include="StaticHandler.h">
       <Filter>Header Files\Framework\Utilities\Handlers</Filter>
     </ClInclude>
-    <ClInclude Include="Scene_FeatureDemo.h">
-      <Filter>Source Files\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="choice.h">
-      <Filter>Header Files\Scenes\DemoCode</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalEnums.h">
-      <Filter>Header Files\Scenes\DemoCode</Filter>
-    </ClInclude>
-    <ClInclude Include="Maze.h">
       <Filter>Header Files\Scenes\DemoCode</Filter>
     </ClInclude>
     <ClInclude Include="Physics.h">
       <Filter>Header Files\Framework\Utilities\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Hero.h">
-      <Filter>Header Files\Scenes\DemoCode</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteResource.h">
-      <Filter>Header Files\Scenes\DemoCode</Filter>
-    </ClInclude>
     <ClInclude Include="SpriteState.h">
       <Filter>Header Files\Scenes\DemoCode</Filter>
     </ClInclude>
+    <ClInclude Include="GlobalEnums.h">
+      <Filter>Header Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClInclude>
+    <ClInclude Include="Hero.h">
+      <Filter>Header Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClInclude>
+    <ClInclude Include="Maze.h">
+      <Filter>Header Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteResource.h">
+      <Filter>Header Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClInclude>
     <ClInclude Include="WallCrawler.h">
-      <Filter>Header Files\Scenes\DemoCode</Filter>
+      <Filter>Header Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene_FeatureDemo.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemBase.h">
+      <Filter>Header Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClInclude>
+    <ClInclude Include="Chest.h">
+      <Filter>Header Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClInclude>
+    <ClInclude Include="MathOps.h">
+      <Filter>Header Files\Framework\Utilities\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -419,22 +434,25 @@
     <ClCompile Include="DXErr.cpp">
       <Filter>Source Files\Framework\Utilities\Exceptions</Filter>
     </ClCompile>
-    <ClCompile Include="Maze.cpp">
-      <Filter>Source Files\Scenes\DemoCode</Filter>
-    </ClCompile>
-    <ClCompile Include="Hero.cpp">
-      <Filter>Source Files\Scenes\DemoCode</Filter>
-    </ClCompile>
     <ClCompile Include="Physics.cpp">
-      <Filter>Source Files\Scenes\DemoCode</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene_FeatureDemo.cpp">
       <Filter>Source Files\Scenes\DemoCode</Filter>
     </ClCompile>
     <ClCompile Include="SpriteState.cpp">
       <Filter>Source Files\Scenes\DemoCode</Filter>
     </ClCompile>
+    <ClCompile Include="Hero.cpp">
+      <Filter>Source Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClCompile>
+    <ClCompile Include="Maze.cpp">
+      <Filter>Source Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene_FeatureDemo.cpp">
+      <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
     <ClCompile Include="WallCrawler.cpp">
+      <Filter>Source Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClCompile>
+    <ClCompile Include="Chest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

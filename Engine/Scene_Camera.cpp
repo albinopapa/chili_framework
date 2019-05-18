@@ -1,5 +1,5 @@
 #include "Scene_Camera.h"
-
+#include "MathOps.h"
 
 Scene_Camera::Scene_Camera( Keyboard & Kbd, Graphics & Gfx )
 	:
@@ -19,7 +19,7 @@ void Scene_Camera::Update( float DeltaTime )
 
 void Scene_Camera::Draw() const
 {
-	const auto viewport = m_camera.GetRect().Translate( m_camera.GetPosition() );
+	const auto viewport = m_camera.GetRect() + m_camera.GetPosition();
 
 	m_graphics.DrawSprite( viewport, Graphics::GetRect<float>(), m_cache.m_background, CopyEffect{ m_graphics } );
 	m_player.Draw( viewport, m_graphics );
