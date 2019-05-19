@@ -4,6 +4,7 @@
 #include "choice.h"
 #include "Colors.h"
 #include "GlobalEnums.h"
+#include "ItemBase.h"
 #include "Physics.h"
 #include "Rect.h"
 #include "Sprite.h"
@@ -17,6 +18,7 @@
 #include <array>
 #include <optional>
 #include <random>
+#include <vector>
 
 constexpr Vec2i operator+( const Vec2i& _left, const dim2d::offset& _right )noexcept
 {
@@ -77,6 +79,8 @@ struct Tile
 	Type type = Type::floor;
 };
 
+using TileGrid = dim2d::grid<Tile, room_size.width, room_size.height>;
+using RoomItemList = std::vector<std::unique_ptr<ItemBase>>;
 struct Room
 {
 	Room() = default;
@@ -89,14 +93,21 @@ struct Room
 		Sprite const& _corner,
 		cell const& _cell );
 
-	auto GetTiles()
-		->dim2d::grid<Tile, room_size.width, room_size.height>&;
-	auto GetTiles()const
-		->const dim2d::grid<Tile, room_size.width, room_size.height>&;
+	void AddItem( std::unique_ptr<ItemBase> _item );
+	
+	RoomItemList& GetItems()noexcept;
+	RoomItemList const& GetItems()const noexcept;
 
-	dim2d::grid<Tile, room_size.width, room_size.height> m_tiles;
+	auto GetTiles()->TileGrid&;
+	auto GetTiles()const->TileGrid const&;
+
+	TileGrid m_tiles;
+	RoomItemList m_items;
+	bool isDeadEnd = false;
 };
 
+using RoomGrid = dim2d::grid<Room, maze_size.width, maze_size.height>;
+using CellGrid = dim2d::grid<cell, maze_size.width, maze_size.height>;
 struct MazeGenerator
 {
 	static constexpr auto n_offset = Vec2i{ 0, -1 };
@@ -104,7 +115,7 @@ struct MazeGenerator
 	static constexpr auto s_offset = Vec2i{ 0, 1 };
 	static constexpr auto w_offset = Vec2i{ -1, 0 };
 
-	dim2d::grid<cell, maze_size.width, maze_size.height> operator()( Vec2i startPos, Vec2i endPos );
+	CellGrid operator()( Vec2i startPos, Vec2i endPos );
 };
 
 class Maze
@@ -112,10 +123,8 @@ class Maze
 public:
 	Maze( Vec2i _startPos, Vec2i endPos );
 
-	auto GetRooms()
-		->dim2d::grid<Room, maze_size.width, maze_size.height>&;
-	auto GetRooms()const
-		->dim2d::grid<Room, maze_size.width, maze_size.height> const&;
+	auto GetRooms()->RoomGrid&;
+	auto GetRooms()const->RoomGrid const&;
 
 	Vec2i GetRoomIndex( const Vec2f& _position )const noexcept;
 	template<typename T> _Vec2<T> GetRoomPosition( Vec2i const& room_idx )const noexcept
@@ -134,12 +143,13 @@ public:
 		return _Rect<T>( room_position, room_size );
 	}
 
+	
 	Vec2i GetTileIndex( const Vec2i& room_index, const Vec2f& _position, bool isBack = false )const noexcept;
 	Vec2i GetTilePosition( Vec2i const & room_idx, Vec2i const& tile_index )const noexcept;
 	std::optional<Rectf> GetTileRect( const Rectf& rect, const Vec2f& velocity )const noexcept;
 
 private:
-	dim2d::grid<Room, maze_size.width, maze_size.height> m_rooms;
+	RoomGrid m_rooms;
 	Sprite m_ground, m_northwall, m_eastwall, m_southwall, m_westwall;
 	Sprite m_corner;
 };

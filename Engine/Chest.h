@@ -9,8 +9,10 @@ public:
 	Chest() = default;
 	Chest( Vec2f const& _position, Sprite const& _sprite, std::optional<InventoryItem> _treasure )noexcept;
 
-	Rectf GetRect()const noexcept;
-	Sprite const& GetSprite()const noexcept;
+	Vec2f const& GetPosition()const noexcept override;
+	Rectf GetRect()const noexcept override;
+	Sprite const& GetSprite()const noexcept override;
+	
 	std::optional<InventoryItem> const& GetItem()const noexcept;
 
 private:

@@ -244,8 +244,25 @@ Room::Room(
 	constexpr auto partialWallWidth = ( room_size.width - 2 ) / 2;
 	constexpr auto partialWallHeight = ( room_size.height - 2 ) / 2;
 
+	int wall_count = 0;
 	auto generate_cell = [ & ]( dim2d::index idx )
 	{
+		auto hasWall = []( Wall subject, Wall control )
+		{
+			return ( subject & control ) == control;
+		};
+
+		int count = 0;
+		if( hasWall( _cell.wall, Wall::north ) )
+			++count;
+		if( hasWall( _cell.wall, Wall::east ) )
+			++count;
+		if( hasWall( _cell.wall, Wall::south ) )
+			++count;
+		if( hasWall( _cell.wall, Wall::west ) )
+			++count;
+		isDeadEnd = count == 3;
+
 		if( idx.x > 0 && idx.x < room_size.width - 1 &&
 			idx.y > 0 && idx.y < room_size.height - 1 )
 		{
@@ -254,7 +271,7 @@ Room::Room(
 
 		if( idx.y == 0 )
 		{
-			if( ( _cell.wall & Wall::north ) == Wall::north )
+			if( hasWall( _cell.wall, Wall::north ) )
 			{
 				if( idx.x == room_size.width - 1 )
 					return Tile( Tile::Type::wall, _corner );
@@ -275,7 +292,7 @@ Room::Room(
 		{
 			if( idx.x == 0 )
 			{
-				if( ( _cell.wall & Wall::west ) == Wall::west )
+				if( hasWall( _cell.wall, Wall::west ) )
 				{
 					return Tile( Tile::Type::wall, _westwall );
 				}
@@ -288,7 +305,7 @@ Room::Room(
 			}
 			else if( idx.x == room_size.height - 1 )
 			{
-				if( ( _cell.wall & Wall::east ) == Wall::east )
+				if( hasWall( _cell.wall, Wall::east ) )
 				{
 					return Tile( Tile::Type::wall, _eastwall );
 				}
@@ -302,7 +319,7 @@ Room::Room(
 		}
 		else if( idx.y == room_size.height - 1 )
 		{
-			if( ( _cell.wall & Wall::south ) == Wall::south )
+			if( hasWall( _cell.wall, Wall::south ) )
 			{
 				if( idx.x == 0 )
 					return Tile( Tile::Type::wall, _corner );
@@ -326,12 +343,27 @@ Room::Room(
 	dim2d::generate( m_tiles.begin(), m_tiles.end(), m_tiles.begin(), generate_cell );
 }
 
-auto Room::GetTiles()->dim2d::grid<Tile, room_size.width, room_size.height>&
+void Room::AddItem( std::unique_ptr<ItemBase> _item )
+{
+	m_items.push_back( std::move( _item ) );
+}
+
+RoomItemList & Room::GetItems() noexcept
+{
+	return m_items;
+}
+
+RoomItemList const & Room::GetItems() const noexcept
+{
+	return m_items;
+}
+
+auto Room::GetTiles()->TileGrid&
 {
 	return m_tiles;
 }
 
-auto Room::GetTiles()const->dim2d::grid<Tile, room_size.width, room_size.height>const&
+auto Room::GetTiles()const->TileGrid const&
 {
 	return m_tiles;
 }

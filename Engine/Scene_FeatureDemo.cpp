@@ -1,52 +1,122 @@
 #include "Scene_FeatureDemo.h"
+#include "Chest.h"
+
 #include "MathOps.h"
 #include "Physics.h"
+#include "SpriteResource.h"
 #include <algorithm2d.h>
 
 Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 	:
 	Scene( Kbd, Gfx ),
+	m_consolas( TextFormat::Properties{} ),
 	m_maze( { maze_size.width - 1, maze_size.height / 2 }, { 0, maze_size.height / 2 } )
 {
+	sprites.chest = Sprite( "Images\\Items\\chest.png" );
+	sprites.key = Sprite( "Images\\Items\\key.png" );
+
+	// Calculate starting position for hero
 	start_index = { maze_size.width - 1, maze_size.height / 2 };
 	end_index = { 0, maze_size.height / 2 };
 
-	m_consolas = Font{ TextFormat::Properties{} };
 	constexpr auto startPos = Vec2f(
 		float( ( maze_size.width - 1 ) * room_pixel_size.width ),
 		float( ( maze_size.height / 2 ) * room_pixel_size.height )
 	) + Vec2f{ float( room_pixel_size.width / 2 ), float( room_pixel_size.height / 2 ) };
 	m_ranger.SetPosition( startPos );
 
+	// Position camera centered on hero
 	const auto halfSize = Graphics::GetRect<float>().GetSize() * .5f;
 	m_camera = Camera( m_ranger.GetPosition() - halfSize, Graphics::GetRect<float>() );
+
+	// Find all dead end rooms
+	dim2d::for_each(m_maze.GetRooms().begin(),m_maze.GetRooms().end(),
+		[ & ]( dim2d::index idx, Room const& room )
+	{
+		if( room.isDeadEnd )
+			m_deadends.push_back( idx );
+	} );
+
+	// Randomly pick rooms to place key chests in
+	std::mt19937 rng;
+	std::array<int, 3> indices;
+	for( auto& i : indices )
+	{
+		auto idx = [ & ] {
+			do
+			{
+				std::uniform_int_distribution<int> idx_dist( 0, int( m_deadends.size() ) - 1 );
+				auto idx = idx_dist( rng );
+				if( auto it = std::find( indices.begin(), indices.end(), idx ); 
+					it == indices.end() )
+				{
+					return idx;
+				}
+			} while( true );
+		}( );
+
+		i = idx;
+	}
+
+	// sort descending
+	std::sort( indices.begin(), indices.end(), 
+		[ & ]( int i, int j ){ return j < i; } 
+	);
+
+	for( auto i : indices )
+	{
+		// Calculate where to put the chests
+		auto const room_idx = m_deadends[ i ];
+		auto constexpr tile_idx = Vec2i{ room_size.width / 2, room_size.height / 2 };
+		auto tile_position = 
+			Vec2f( m_maze.GetTilePosition( Vec2i{ room_idx.x, room_idx.y }, tile_idx ) );
+		tile_position.x += float( tile_size.width / 2 ) - ( sprites.chest.GetWidth() / 2 );
+		tile_position.y += float( tile_size.height / 2 ) - ( sprites.chest.GetHeight() / 2 );
+
+		// Place chest
+		auto key = InventoryItem{ "key", std::addressof( sprites.key ) };
+		auto& room = m_maze.GetRooms()[ room_idx ];
+		room.AddItem(
+			std::make_unique<Chest>( tile_position, sprites.chest, std::move( key ) ) 
+		);
+
+		// Remove chest rooms from dead end list
+		m_deadends.erase( m_deadends.begin() + i );
+	}
 }
 
 void Scene_FeatureDemo::Update( float dt )
 {
-	// Update hero
+	// Update entities
 	m_ranger.Update( m_keyboard, dt );
 
 	// Do collisions
 	DoWallCollision();
+	DoItemCollision();
 
 	// Update camera
-	const auto offset = m_ranger.GetPosition() - m_camera.GetRect().GetCenter();
-	auto camPos = ( m_camera.GetRect() + offset ).LeftTop();
-	m_camera.SetPosition( camPos );
+	{
+		const auto offset = m_ranger.GetPosition() - m_camera.GetRect().GetCenter();
+		auto camPos = ( m_camera.GetRect() + offset ).LeftTop();
+		m_camera.SetPosition( camPos );
+	}
 
 	// Clamp camera to maze boundries
-	const auto left = 0.f;
-	const auto top = 0.f;
-	const auto right = maze_pixel_size.width - m_camera.GetRect().GetWidth();
-	const auto bottom = maze_pixel_size.height - m_camera.GetRect().GetHeight();
-	m_camera.ClampTo( { left, top, right, bottom } );
+	{
+		const auto left = 0.f;
+		const auto top = 0.f;
+		const auto right = maze_pixel_size.width - m_camera.GetRect().GetWidth();
+		const auto bottom = maze_pixel_size.height - m_camera.GetRect().GetHeight();
+		m_camera.ClampTo( { left, top, right, bottom } );
+	}
 
 	// Check if hero reaches end room
-	auto const hero_room_index = m_maze.GetRoomIndex( m_ranger.GetPosition() );
-	if( hero_room_index.x == end_index.x && hero_room_index.y == end_index.y )
 	{
-		m_success = true;
+		auto const hero_room_index = m_maze.GetRoomIndex( m_ranger.GetPosition() );
+		if( hero_room_index.x == end_index.x && hero_room_index.y == end_index.y )
+		{
+			m_success = true;
+		}
 	}
 }
 
@@ -95,12 +165,48 @@ void Scene_FeatureDemo::DoWallCollision() noexcept
 	} while( isColliding );
 }
 
+void Scene_FeatureDemo::DoItemCollision() noexcept
+{
+	auto const room_idx = m_maze.GetRoomIndex( m_ranger.GetPosition() );
+	auto const& room = m_maze.GetRooms()[ dim2d::index{ room_idx.x,room_idx.y } ];
+	auto const& items = room.GetItems();
+
+	bool isColliding = false;
+	do
+	{
+		auto const hero_rect = ( m_ranger.GetRect() + m_ranger.GetPosition() );
+
+		isColliding = false;
+		for( auto const& item : items )
+		{
+			auto const item_rect = item->GetRect() + item->GetPosition();
+			if( item_rect.Overlaps( hero_rect ) )
+			{
+				isColliding = true;
+				const auto hero_props =
+					PhysicsPropertiesIn{ m_ranger.GetPosition(), m_ranger.GetVelocity(), hero_rect, true };
+
+				const auto item_props =
+					PhysicsPropertiesIn{ Vec2f( 0.f,0.f ), Vec2f( 0.f,0.f ), item_rect, false };
+
+				if( auto properties = HandleCollision( hero_props, item_props ); properties )
+				{
+					m_ranger.SetPosition( ( *properties ).position );
+					m_ranger.SetVelocity( ( *properties ).velocity );
+					break;
+				}
+			}
+		}
+	} while( isColliding );
+
+}
+
 void Scene_FeatureDemo::DrawMaze( RectF const & view ) const noexcept
 {
 	auto& rooms = m_maze.GetRooms();
 
 	const auto view_offset = dim2d::offset{ int( view.left ), int( view.top ) };
-	const dim2d::surface_wrapper<const dim2d::grid<Room, 25, 25>> wrapper(
+	const dim2d::surface_wrapper<const RoomGrid> wrapper(
 		view_offset,
 		int( view.GetWidth() ),
 		int( view.GetHeight() ),
@@ -108,8 +214,7 @@ void Scene_FeatureDemo::DrawMaze( RectF const & view ) const noexcept
 		rooms );
 
 	// Draw tiles
-	dim2d::for_each( wrapper.begin(), wrapper.end(),
-		[ & ]( const dim2d::index _idx, const Room& _room )
+	auto draw_rooms = [ & ]( const dim2d::index _idx, const Room& _room )
 	{
 		const auto room_idx = view_offset + _idx;
 
@@ -117,7 +222,7 @@ void Scene_FeatureDemo::DrawMaze( RectF const & view ) const noexcept
 			float( room_idx.x * room_pixel_size.width ),
 			float( room_idx.y * room_pixel_size.height )
 			} );
-
+		
 		if( Graphics::GetRect<float>().Overlaps( RectF( room_offset, Sizef( room_pixel_size ) ) ) )
 		{
 			auto const& tiles = _room.GetTiles();
@@ -134,11 +239,36 @@ void Scene_FeatureDemo::DrawMaze( RectF const & view ) const noexcept
 
 				auto const& sprite = *_tile;
 				m_graphics.DrawSprite( sprite.GetRect(), dst, *_tile, CopyEffect{ m_graphics } );
+
+
 			};
 
 			dim2d::for_each( tiles.begin(), tiles.end(), draw_tile );
 		}
-	} );
+	};
+
+	dim2d::for_each( wrapper.begin(), wrapper.end(), draw_rooms );
+
+	auto draw_items = [ & ]( dim2d::index idx, Room const& _room )
+	{
+		if( !_room.m_items.empty() )
+		{
+			for( auto const& item : _room.m_items )
+			{
+				auto item_position = m_camera.WorldToScreen( item->GetPosition() );
+				auto item_rect = Rectf( item->GetSprite().GetRect() ) + item_position;
+				if( Graphics::GetRect<float>().Overlaps( item_rect ) )
+				{
+					m_graphics.DrawSprite(
+						item_rect,
+						item->GetSprite(),
+						AlphaEffect{ m_graphics }
+					);
+				}
+			}
+		}
+	};
+	dim2d::for_each( wrapper.begin(), wrapper.end(), draw_items );
 }
 
 void Scene_FeatureDemo::DrawHero( ) const noexcept

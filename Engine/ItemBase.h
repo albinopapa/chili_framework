@@ -5,6 +5,7 @@
 
 struct ItemBase
 {
+	virtual Vec2f const& GetPosition()const noexcept = 0;
 	virtual Rectf GetRect()const noexcept = 0;
 	virtual Sprite const& GetSprite()const noexcept = 0;
 };

@@ -9,9 +9,14 @@ Chest::Chest( Vec2f const & _position, Sprite const & _sprite, std::optional<Inv
 {
 }
 
+Vec2f const & Chest::GetPosition() const noexcept
+{
+	return m_position;
+}
+
 Rectf Chest::GetRect() const noexcept
 {
-	return m_rect + m_position;
+	return m_rect;
 }
 
 Sprite const & Chest::GetSprite() const noexcept
