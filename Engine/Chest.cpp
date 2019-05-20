@@ -19,6 +19,11 @@ Rectf Chest::GetRect() const noexcept
 	return m_rect;
 }
 
+Rectf Chest::GetSpriteRect() const noexcept
+{
+	return Rectf( m_pSprite->GetRect() ) + m_sprite_offset;
+}
+
 Sprite const & Chest::GetSprite() const noexcept
 {
 	return *m_pSprite;

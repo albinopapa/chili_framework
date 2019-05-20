@@ -20,9 +20,9 @@ Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 	end_index = { 0, maze_size.height / 2 };
 
 	constexpr auto startPos = Vec2f(
-		float( ( maze_size.width - 1 ) * room_pixel_size.width ),
-		float( ( maze_size.height / 2 ) * room_pixel_size.height )
-	) + Vec2f{ float( room_pixel_size.width / 2 ), float( room_pixel_size.height / 2 ) };
+		float( /*( maze_size.width - 1 )*/21 * room_pixel_size.width ),
+		float( /*( maze_size.height / 2 ) */5* room_pixel_size.height )
+	) + Vec2f{ float( room_pixel_size.width / 2  + 20), float( room_pixel_size.height / 2 ) };
 	m_ranger.SetPosition( startPos );
 
 	// Position camera centered on hero
@@ -40,6 +40,23 @@ Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 	// Randomly pick rooms to place key chests in
 	std::mt19937 rng;
 	std::array<int, 3> indices;
+	
+	auto remove_deadend = [&]( dim2d::index idx )
+	{
+		auto is_index = [&]( dim2d::index const& _idx )
+		{
+			return _idx.x == idx.x && _idx.y == idx.y;
+		};
+		if( auto it = std::find_if( m_deadends.begin(), m_deadends.end(), is_index );
+			it != m_deadends.end() )
+		{
+			m_deadends.erase( it );
+		}
+	};
+
+	remove_deadend( dim2d::index{ start_index.x, start_index.y } );
+	remove_deadend( dim2d::index{ end_index.x, end_index.y } );
+
 	for( auto& i : indices )
 	{
 		auto idx = [ & ] {
@@ -70,8 +87,8 @@ Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 		auto constexpr tile_idx = Vec2i{ room_size.width / 2, room_size.height / 2 };
 		auto tile_position = 
 			Vec2f( m_maze.GetTilePosition( Vec2i{ room_idx.x, room_idx.y }, tile_idx ) );
-		tile_position.x += float( tile_size.width / 2 ) - ( sprites.chest.GetWidth() / 2 );
-		tile_position.y += float( tile_size.height / 2 ) - ( sprites.chest.GetHeight() / 2 );
+
+		tile_position.y += ( float( tile_size.height ) - sprites.chest.GetHeight() );
 
 		// Place chest
 		auto key = InventoryItem{ "key", std::addressof( sprites.key ) };
@@ -256,7 +273,8 @@ void Scene_FeatureDemo::DrawMaze( RectF const & view ) const noexcept
 			for( auto const& item : _room.m_items )
 			{
 				auto item_position = m_camera.WorldToScreen( item->GetPosition() );
-				auto item_rect = Rectf( item->GetSprite().GetRect() ) + item_position;
+
+				auto item_rect = item->GetSpriteRect() + item_position;
 				if( Graphics::GetRect<float>().Overlaps( item_rect ) )
 				{
 					m_graphics.DrawSprite(
