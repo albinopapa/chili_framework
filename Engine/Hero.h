@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GlobalEnums.h"
 #include "Graphics.h"
 #include "ItemBase.h"
 #include "Keyboard.h"

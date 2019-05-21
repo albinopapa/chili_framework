@@ -88,7 +88,7 @@ constexpr Size_t<T> operator*( Size_t<T> const& _lhs, const Size_t<T>& _rhs )noe
 template <typename T>
 constexpr Size_t<T> operator/( Size_t<T> const& _lhs, const T &S )noexcept
 {
-	return { _lhs.width / S, lhs.height / S };
+	return { _lhs.width / S, _lhs.height / S };
 }
 
 template<class T>

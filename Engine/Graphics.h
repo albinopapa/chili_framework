@@ -180,7 +180,7 @@ struct CopyEffect : SpriteEffect
 	{}
 	void operator()( const Recti &Src, const Recti &Dst, const Sprite& sprite )
 	{
-		const auto src = make_wrapper( Src, Src.GetWidth(), sprite );
+		const auto src = make_wrapper( Src, sprite.GetWidth(), sprite );
 		auto dst = make_wrapper( Dst, Graphics::GetWidth<int>(), m_graphics.GetBuffer() );
 
 		dim2d::copy( src.begin(), src.end(), dst.begin() );

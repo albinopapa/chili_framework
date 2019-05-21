@@ -3,23 +3,6 @@
 #include "MathOps.h"
 Hero::Hero()
 {
-	sprites.hero_idle[ int( Direction::Up ) ]			= Frames{ 1, "Images\\Idle\\Hero\\Back", "png" };
-	sprites.hero_idle[ int( Direction::RightUp ) ]		= Frames{ 1, "Images\\Idle\\Hero\\BackRight", "png" };
-	sprites.hero_idle[ int( Direction::Right ) ]		= Frames{ 1, "Images\\Idle\\Hero\\Right", "png" };
-	sprites.hero_idle[ int( Direction::RightDown ) ]	= Frames{ 1, "Images\\Idle\\Hero\\FrontRight", "png" };
-	sprites.hero_idle[ int( Direction::Down ) ]			= Frames{ 1, "Images\\Idle\\Hero\\Front", "png" };
-	sprites.hero_idle[ int( Direction::LeftDown ) ]		= Frames{ 1, "Images\\Idle\\Hero\\FrontLeft", "png" };
-	sprites.hero_idle[ int( Direction::Left ) ]			= Frames{ 1, "Images\\Idle\\Hero\\Left", "png" };
-	sprites.hero_idle[ int( Direction::LeftUp ) ]		= Frames{ 1, "Images\\Idle\\Hero\\BackLeft", "png" };
-
-	sprites.hero_running[ int( Direction::Up ) ]		= Frames{ 30, "Images\\Run\\Hero\\Back", "png" };
-	sprites.hero_running[ int( Direction::RightUp ) ]	= Frames{ 30, "Images\\Run\\Hero\\BackRight", "png" };
-	sprites.hero_running[ int( Direction::Right ) ]		= Frames{ 30, "Images\\Run\\Hero\\Right", "png" };
-	sprites.hero_running[ int( Direction::RightDown ) ]	= Frames{ 30, "Images\\Run\\Hero\\FrontRight", "png" };
-	sprites.hero_running[ int( Direction::Down ) ]		= Frames{ 30, "Images\\Run\\Hero\\Front", "png" };
-	sprites.hero_running[ int( Direction::LeftDown ) ]  = Frames{ 30, "Images\\Run\\Hero\\FrontLeft", "png" };
-	sprites.hero_running[ int( Direction::Left ) ]		= Frames{ 30, "Images\\Run\\Hero\\Left", "png" };
-	sprites.hero_running[ int( Direction::LeftUp ) ]	= Frames{ 30, "Images\\Run\\Hero\\BackLeft", "png" };
 	m_animation = AnimationController( holdTime, sprites.hero_idle[ int( m_direction ) ] );
 }
 

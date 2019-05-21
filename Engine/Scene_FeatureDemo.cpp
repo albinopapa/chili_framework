@@ -1,6 +1,6 @@
 #include "Scene_FeatureDemo.h"
 #include "Chest.h"
-
+#include "GlobalEnums.h"
 #include "MathOps.h"
 #include "Physics.h"
 #include "SpriteResource.h"
@@ -9,19 +9,29 @@
 Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 	:
 	Scene( Kbd, Gfx ),
-	m_consolas( TextFormat::Properties{} ),
-	m_maze( { maze_size.width - 1, maze_size.height / 2 }, { 0, maze_size.height / 2 } )
+	m_consolas( TextFormat::Properties{} )/*,
+	m_maze( { maze_size.width - 1, maze_size.height / 2 }, { 0, maze_size.height / 2 } )*/
 {
-	sprites.chest = Sprite( "Images\\Items\\chest.png" );
-	sprites.key = Sprite( "Images\\Items\\key.png" );
-
 	// Calculate starting position for hero
 	start_index = { maze_size.width - 1, maze_size.height / 2 };
 	end_index = { 0, maze_size.height / 2 };
 
+	auto const cells = MazeGenerator{}( start_index, end_index );
+	
+	dim2d::transform( cells.begin(), cells.end(), m_tilemap.GetRooms().begin(),
+		[ & ]( dim2d::index, cell const& _cell )
+	{
+		return Tilemap::Room( _cell, m_tilemap );
+	} );
+
+	constexpr auto room_pixel_size = Sizei{
+		room_size.width * tile_size.width,
+		room_size.height * tile_size.height
+	};
+
 	constexpr auto startPos = Vec2f(
-		float( /*( maze_size.width - 1 )*/21 * room_pixel_size.width ),
-		float( /*( maze_size.height / 2 ) */5* room_pixel_size.height )
+		float( 21 * room_pixel_size.width ),
+		float( 5 * room_pixel_size.height )
 	) + Vec2f{ float( room_pixel_size.width / 2  + 20), float( room_pixel_size.height / 2 ) };
 	m_ranger.SetPosition( startPos );
 
@@ -30,10 +40,10 @@ Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 	m_camera = Camera( m_ranger.GetPosition() - halfSize, Graphics::GetRect<float>() );
 
 	// Find all dead end rooms
-	dim2d::for_each(m_maze.GetRooms().begin(),m_maze.GetRooms().end(),
-		[ & ]( dim2d::index idx, Room const& room )
+	dim2d::for_each(m_tilemap.GetRooms().begin(), m_tilemap.GetRooms().end(),
+		[ & ]( dim2d::index idx, Tilemap::Room const& room )
 	{
-		if( room.isDeadEnd )
+		if( room.IsDeadEnd() )
 			m_deadends.push_back( idx );
 	} );
 
@@ -53,10 +63,10 @@ Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 			m_deadends.erase( it );
 		}
 	};
-
+	
 	remove_deadend( dim2d::index{ start_index.x, start_index.y } );
 	remove_deadend( dim2d::index{ end_index.x, end_index.y } );
-
+	
 	for( auto& i : indices )
 	{
 		auto idx = [ & ] {
@@ -71,7 +81,7 @@ Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 				}
 			} while( true );
 		}( );
-
+	
 		i = idx;
 	}
 
@@ -79,24 +89,25 @@ Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 	std::sort( indices.begin(), indices.end(), 
 		[ & ]( int i, int j ){ return j < i; } 
 	);
-
+	
+	auto constexpr half_size = room_size / 2;
+	auto constexpr tile_idx = Vec2i{ half_size.width, half_size.height };
 	for( auto i : indices )
 	{
 		// Calculate where to put the chests
 		auto const room_idx = m_deadends[ i ];
-		auto constexpr tile_idx = Vec2i{ room_size.width / 2, room_size.height / 2 };
-		auto tile_position = 
-			Vec2f( m_maze.GetTilePosition( Vec2i{ room_idx.x, room_idx.y }, tile_idx ) );
-
-		tile_position.y += ( float( tile_size.height ) - sprites.chest.GetHeight() );
-
+		auto const room_position = Tilemap::room_to_world( Vec2i{ room_idx.x, room_idx.y } );
+		auto const tile_position = 
+			( Tilemap::tile_to_world( tile_idx ) + room_position ) +
+			Vec2f( 0.f, float( tile_size.height ) - sprites.chest.GetHeight() );
+	
 		// Place chest
 		auto key = InventoryItem{ "key", std::addressof( sprites.key ) };
-		auto& room = m_maze.GetRooms()[ room_idx ];
-		room.AddItem(
-			std::make_unique<Chest>( tile_position, sprites.chest, std::move( key ) ) 
+		m_tilemap.GetRoom( room_idx ).AddItem(
+			std::make_unique<Chest>( tile_position, sprites.chest, std::move( key ) )
 		);
-
+		
+	
 		// Remove chest rooms from dead end list
 		m_deadends.erase( m_deadends.begin() + i );
 	}
@@ -104,12 +115,64 @@ Scene_FeatureDemo::Scene_FeatureDemo( Keyboard &Kbd, Graphics &Gfx ) noexcept
 
 void Scene_FeatureDemo::Update( float dt )
 {
+	fps = 1.f / dt;
 	// Update entities
 	m_ranger.Update( m_keyboard, dt );
 
-	// Do collisions
-	DoWallCollision();
-	DoItemCollision();
+	// Do hero collisions
+	// TODO: Gather all collidable items into vector
+	{
+		bool isColliding = false;
+		do
+		{
+			auto hero_props = PhysicsPropertiesIn{
+				m_ranger.GetPosition(),
+				m_ranger.GetVelocity(),
+				m_ranger.GetRect() + m_ranger.GetPosition(),
+				true
+			};
+
+			if( auto props = DoWallCollision( hero_props ); props )
+			{
+				m_ranger.SetPosition( ( *props ).position );
+				m_ranger.SetVelocity( ( *props ).velocity );
+				isColliding = true;
+			}
+			else
+			{
+				isColliding = false;
+			}
+		} while( isColliding );
+	}
+	{
+		bool isColliding = false;
+		do
+		{
+			auto hero_props = PhysicsPropertiesIn{
+				m_ranger.GetPosition(),
+				m_ranger.GetVelocity(),
+				m_ranger.GetRect() + m_ranger.GetPosition(),
+				true
+			};
+
+			if( auto props = DoItemCollision( hero_props ); props )
+			{
+				m_ranger.SetPosition( ( *props ).position );
+				m_ranger.SetVelocity( ( *props ).velocity );
+				isColliding = true;
+			}
+			else
+			{
+				isColliding = false;
+			}
+		} while( isColliding );
+	}
+	// Do enemy collisions
+	{
+		
+		// DoWallCollision( enemy_rect );
+		// DoItemCollision( enemy_rect );
+	}
 
 	// Update camera
 	{
@@ -120,17 +183,19 @@ void Scene_FeatureDemo::Update( float dt )
 
 	// Clamp camera to maze boundries
 	{
-		const auto left = 0.f;
-		const auto top = 0.f;
-		const auto right = maze_pixel_size.width - m_camera.GetRect().GetWidth();
-		const auto bottom = maze_pixel_size.height - m_camera.GetRect().GetHeight();
-		m_camera.ClampTo( { left, top, right, bottom } );
+		const auto position = Vec2f{ 0.f, 0.f };
+		const auto size = Sizef{
+			float( map_size.width * tile_size.width ) - m_camera.GetRect().GetWidth(),
+			float( map_size.height * tile_size.height ) - m_camera.GetRect().GetHeight()
+		};
+		m_camera.ClampTo( { position, size } );
 	}
 
 	// Check if hero reaches end room
 	{
-		auto const hero_room_index = m_maze.GetRoomIndex( m_ranger.GetPosition() );
-		if( hero_room_index.x == end_index.x && hero_room_index.y == end_index.y )
+		auto const hero_room_index = Tilemap::world_to_room( m_ranger.GetPosition() );
+		
+		if( IsAtEnd( hero_room_index ) )
 		{
 			m_success = true;
 		}
@@ -139,138 +204,166 @@ void Scene_FeatureDemo::Update( float dt )
 
 void Scene_FeatureDemo::Draw() const
 {
-	constexpr auto room_size = Sizef( room_pixel_size );
 	auto view = m_camera.GetRect() + m_camera.GetPosition();
 
-	view.left   = std::floorf( view.left / room_size.width );
-	view.top    = std::floorf( view.top  / room_size.height );
-	view.right  = std::ceilf( view.right  / room_size.width );
-	view.bottom = std::ceilf( view.bottom / room_size.height );
+	view.left   = std::floorf( view.left  / tile_size.width );
+	view.top    = std::floorf( view.top   / tile_size.height );
+	view.right  = std::ceilf( view.right  / tile_size.width );
+	view.bottom = std::ceilf( view.bottom / tile_size.height );
 
 	DrawMaze( view );
 	DrawHero( );
 	DrawHUD( );
-
 }
 
-void Scene_FeatureDemo::DoWallCollision() noexcept
+std::optional<PhysicsPropertiesOut> 
+Scene_FeatureDemo::DoWallCollision( PhysicsPropertiesIn const& props ) noexcept
 {
-	const auto room_rect = m_maze.GetRoomRect( m_ranger.GetPosition() );
-	auto hero_rect = ( m_ranger.GetRect() + m_ranger.GetPosition() ).ClipTo( room_rect );
-
-	bool isColliding = false;
-	do
+	using TileType = Tilemap::Tile::Type;
+	
+	auto check_for_collision = [ & ]( int x, int y )
 	{
-		isColliding = false;
-		if( auto tile_rect = m_maze.GetTileRect( hero_rect, m_ranger.GetVelocity() ); tile_rect )
+		auto const tile_index = dim2d::index{ x,y };
+		if( m_tilemap.GetTile( tile_index ).type == TileType::wall )
 		{
-			isColliding = true;
-			const auto hero_props = 
-				PhysicsPropertiesIn{ m_ranger.GetPosition(), m_ranger.GetVelocity(), hero_rect, true };
+			auto tile_position = Tilemap::tile_to_world( Vec2i{ tile_index.x, tile_index.y } );
+			const auto tile_props = PhysicsPropertiesIn{
+				Vec2f( 0.f,0.f ),
+				Vec2f( 0.f,0.f ),
+				Rectf( tile_position, Sizef( tile_size ) ),
+				false
+			};
 
-			const auto tile_props = 
-				PhysicsPropertiesIn{ Vec2f( 0.f,0.f ), Vec2f( 0.f,0.f ), *tile_rect, false };
-
-			if( auto properties = HandleCollision( hero_props, tile_props ); properties )
-			{
-				m_ranger.SetPosition( ( *properties ).position );
-				m_ranger.SetVelocity( ( *properties ).velocity );
-				hero_rect =
-					( m_ranger.GetRect() + ( *properties ).position ).ClipTo( room_rect );
-			}
+			return HandleCollision( props, tile_props );
 		}
-	} while( isColliding );
-}
 
-void Scene_FeatureDemo::DoItemCollision() noexcept
-{
-	auto const room_idx = m_maze.GetRoomIndex( m_ranger.GetPosition() );
-	auto const& room = m_maze.GetRooms()[ dim2d::index{ room_idx.x,room_idx.y } ];
-	auto const& items = room.GetItems();
+		return std::optional<PhysicsPropertiesOut>{};
+	};
 
-	bool isColliding = false;
-	do
+	auto const left_top_idx = Tilemap::world_to_tile( props.boundingbox.LeftTop() );
+	auto right_bottom_idx = Tilemap::world_to_tile( props.boundingbox.RightBottom() );
 	{
-		auto const hero_rect = ( m_ranger.GetRect() + m_ranger.GetPosition() );
+		auto const right_bottom_position = Tilemap::tile_to_world( right_bottom_idx );
+		if( right_bottom_position.x == props.boundingbox.right )
+			--right_bottom_idx.x;
+		if( right_bottom_position.y == props.boundingbox.bottom )
+			--right_bottom_idx.y;
+	}
 
-		isColliding = false;
-		for( auto const& item : items )
+	if( props.velocity.y > 0.f )
+	{
+		for( int y = left_top_idx.y; y <= right_bottom_idx.y; ++y )
 		{
-			auto const item_rect = item->GetRect() + item->GetPosition();
-			if( item_rect.Overlaps( hero_rect ) )
+			if( props.velocity.x > 0.f )
 			{
-				isColliding = true;
-				const auto hero_props =
-					PhysicsPropertiesIn{ m_ranger.GetPosition(), m_ranger.GetVelocity(), hero_rect, true };
-
-				const auto item_props =
-					PhysicsPropertiesIn{ Vec2f( 0.f,0.f ), Vec2f( 0.f,0.f ), item_rect, false };
-
-				if( auto properties = HandleCollision( hero_props, item_props ); properties )
+				for( int x = left_top_idx.x; x <= right_bottom_idx.x; ++x )
 				{
-					m_ranger.SetPosition( ( *properties ).position );
-					m_ranger.SetVelocity( ( *properties ).velocity );
-					break;
+					if( auto out_props = check_for_collision( x, y ); out_props )
+					{
+						return out_props;
+					}
+				}
+			}
+			else
+			{
+				for( int x = right_bottom_idx.x; x >= left_top_idx.x; --x )
+				{
+					if( auto out_props = check_for_collision( x, y ); out_props )
+					{
+						return out_props;
+					}
 				}
 			}
 		}
-	} while( isColliding );
+	}
+	else
+	{
+		for( int y = right_bottom_idx.y; y >= left_top_idx.y; --y )
+		{
+			if( props.velocity.x > 0.f )
+			{
+				for( int x = left_top_idx.x; x <= right_bottom_idx.x; ++x )
+				{
+					if( auto out_props = check_for_collision( x, y ); out_props )
+					{
+						return out_props;
+					}
+				}
+			}
+			else
+			{
+				for( int x = right_bottom_idx.x; x >= left_top_idx.x; --x )
+				{
+					if( auto out_props = check_for_collision( x, y ); out_props )
+					{
+						return out_props;
+					}
+				}
+			}
+		}
+	}
 
+	return std::optional<PhysicsPropertiesOut>{};
+}
+
+std::optional<PhysicsPropertiesOut> Scene_FeatureDemo::DoItemCollision( PhysicsPropertiesIn const& props ) noexcept
+{
+	auto const room_idx = Tilemap::world_to_room( m_ranger.GetPosition() );
+	auto const& room = m_tilemap.GetRoom( dim2d::index{ room_idx.x,room_idx.y } );
+	auto const& items = room.GetItems();
+	
+	for( auto const& item : items )
+	{
+		const auto item_props = PhysicsPropertiesIn{
+			Vec2f( 0.f,0.f ),
+			Vec2f( 0.f,0.f ),
+			item->GetRect() + item->GetPosition(),
+			false
+		};
+
+		return HandleCollision( props, item_props );
+	}
+
+	return std::optional<PhysicsPropertiesOut>{};
 }
 
 void Scene_FeatureDemo::DrawMaze( RectF const & view ) const noexcept
 {
-	auto& rooms = m_maze.GetRooms();
-
-	const auto view_offset = dim2d::offset{ int( view.left ), int( view.top ) };
-	const dim2d::surface_wrapper<const RoomGrid> wrapper(
-		view_offset,
-		int( view.GetWidth() ),
-		int( view.GetHeight() ),
-		rooms.columns(),
-		rooms );
-
-	// Draw tiles
-	auto draw_rooms = [ & ]( const dim2d::index _idx, const Room& _room )
+	auto view_offset = dim2d::offset{ int( view.left ), int( view.top ) };
 	{
-		const auto room_idx = view_offset + _idx;
+		auto const& tiles = m_tilemap.GetTiles();
+		const auto wrapper = dim2d::surface_wrapper<decltype(tiles)>(
+			view_offset,
+			int( view.GetWidth() ),
+			int( view.GetHeight() ),
+			tiles.columns(),
+			tiles );
 
-		const auto room_offset = m_camera.WorldToScreen( {
-			float( room_idx.x * room_pixel_size.width ),
-			float( room_idx.y * room_pixel_size.height )
-			} );
-		
-		if( Graphics::GetRect<float>().Overlaps( RectF( room_offset, Sizef( room_pixel_size ) ) ) )
+		// Draw tiles
+		auto draw_tile = [ & ]( dim2d::index tile_index, Tilemap::Tile const& _tile )
 		{
-			auto const& tiles = _room.GetTiles();
+			tile_index = tile_index + view_offset;
+			auto const tile_position = m_camera.WorldToScreen( 
+				Tilemap::tile_to_world( Vec2i{ tile_index.x, tile_index.y } )
+			);
 
-			auto draw_tile = [ & ]( dim2d::index tile_index, Tile const& _tile )
-			{
-				m_maze.GetTilePosition( Vec2i( room_offset ), Vec2i{ tile_index.x,tile_index.y } );
-				const auto tile_offset = Vec2f(
-					room_offset.x + float( tile_index.x * tile_size.width ),
-					room_offset.y + float( tile_index.y * tile_size.height )
-				);
+			const auto dst = RectF( tile_position, Sizef{ tile_size } );
 
-				const auto dst = RectF( tile_offset, tile_size );
-
-				auto const& sprite = *_tile;
-				m_graphics.DrawSprite( sprite.GetRect(), dst, *_tile, CopyEffect{ m_graphics } );
+			auto const& sprite = *_tile;
+			m_graphics.DrawSprite( dst, sprite, CopyEffect{ m_graphics } );
+		};
 
 
-			};
+		dim2d::for_each( wrapper.begin(), wrapper.end(), draw_tile );
+	}
 
-			dim2d::for_each( tiles.begin(), tiles.end(), draw_tile );
-		}
-	};
-
-	dim2d::for_each( wrapper.begin(), wrapper.end(), draw_rooms );
-
-	auto draw_items = [ & ]( dim2d::index idx, Room const& _room )
 	{
-		if( !_room.m_items.empty() )
+		auto const& room =
+			m_tilemap.GetRoom( Tilemap::world_to_room( m_ranger.GetPosition() ) );
+
+		if( !room.GetItems().empty() )
 		{
-			for( auto const& item : _room.m_items )
+			for( auto const& item : room.GetItems() )
 			{
 				auto item_position = m_camera.WorldToScreen( item->GetPosition() );
 
@@ -285,8 +378,7 @@ void Scene_FeatureDemo::DrawMaze( RectF const & view ) const noexcept
 				}
 			}
 		}
-	};
-	dim2d::for_each( wrapper.begin(), wrapper.end(), draw_items );
+	}
 }
 
 void Scene_FeatureDemo::DrawHero( ) const noexcept
@@ -299,23 +391,43 @@ void Scene_FeatureDemo::DrawHero( ) const noexcept
 
 void Scene_FeatureDemo::DrawHUD( ) const noexcept
 {
-	auto const charSize = m_consolas.GetCharSize();
-	auto const& room_idx = m_maze.GetRoomIndex( m_ranger.GetPosition() );
-	auto stringPos = Vec2f{
-			float( m_ui_background.left + charSize.width ),
-			float( m_ui_background.top + charSize.height )
-	};
-	auto const room_idx_string =
-		std::string( "Room index: " ) +
-		std::to_string( room_idx.x ) + ", " +
-		std::to_string( room_idx.y );
-
+	// Draw dark translucent background
 	m_graphics.DrawRectAlpha( m_ui_background, Color( 127, 0, 0, 0 ) );
-	m_graphics.DrawString( stringPos, m_consolas, room_idx_string, Colors::White );
+
+	auto const charSize = m_consolas.GetCharSize();
+	auto stringPos = Vec2f{
+		float( m_ui_background.left + charSize.width ),
+		float( m_ui_background.top + ( charSize.height ) )
+	};
+
+	// Draw frame rate
+	{
+		auto const frame_rate_string = "FPS: " + std::to_string( fps );
+		m_graphics.DrawString( stringPos, m_consolas, frame_rate_string, Colors::White );
+	}
+
+	// Draw room index
+	{
+		stringPos.y += float( charSize.height );
+		auto const& room_idx = Tilemap::world_to_room( m_ranger.GetPosition() );
+		auto const room_idx_string =
+			std::string( "Room index: " ) +
+			std::to_string( room_idx.x ) + ", " +
+			std::to_string( room_idx.y );
+
+		m_graphics.DrawString( stringPos, m_consolas, room_idx_string, Colors::White );
+	}
 
 	if( m_success )
 	{
 		stringPos.y += float( charSize.height );
 		m_graphics.DrawString( stringPos, m_consolas, "Success, you found the end.", Colors::Yellow );
 	}
+
+
+}
+
+bool Scene_FeatureDemo::IsAtEnd( Vec2i const & room_idx ) const noexcept
+{
+	return room_idx.x == end_index.x && room_idx.y == end_index.y;
 }

@@ -209,6 +209,7 @@
     <ClInclude Include="StaticHandler.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="TextFormat.h" />
+    <ClInclude Include="Tilemap.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Visitor.h" />
     <ClInclude Include="WallCrawler.h" />
@@ -250,6 +251,7 @@
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SpriteCache.cpp" />
+    <ClCompile Include="SpriteResource.cpp" />
     <ClCompile Include="SpriteSheet.cpp" />
     <ClCompile Include="SpriteState.cpp" />
     <ClCompile Include="Text.cpp" />
