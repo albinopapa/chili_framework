@@ -21,7 +21,7 @@ void Scene_Camera::Draw() const
 {
 	const auto viewport = m_camera.GetRect() + m_camera.GetPosition();
 
-	m_graphics.DrawSprite( viewport, Graphics::GetRect<float>(), m_cache.m_background, CopyEffect{ m_graphics } );
+	m_graphics.DrawSprite( viewport, Graphics::GetRect<float>(), m_cache.m_background, 1.f, CopyEffect{ m_graphics } );
 	m_player.Draw( viewport, m_graphics );
 }
 

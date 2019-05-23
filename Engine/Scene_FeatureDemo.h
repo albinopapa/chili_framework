@@ -2,7 +2,7 @@
 
 #include "Camera.h"
 #include "Hero.h"
-#include "Maze.h"
+#include "Physics.h"
 #include "Scene.h"
 #include "SpriteState.h"
 #include "Tilemap.h"
@@ -29,13 +29,13 @@ private:
 
 	void DrawMaze( RectF const& view)const noexcept;
 	void DrawHero( )const noexcept;
+	void DrawItems()const noexcept;
 	void DrawHUD( )const noexcept;
 
 	bool IsAtEnd( Vec2i const& room_idx )const noexcept;
 private:
 	static constexpr int ui_height = 128;
 	Tilemap m_tilemap;
-	//Maze m_maze;
 	Camera m_camera;
 	Hero m_ranger;
 	RectI m_ui_background = { 0,Graphics::GetHeight<int>() - ui_height, Sizei{Graphics::GetWidth<int>(), ui_height } };

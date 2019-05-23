@@ -33,7 +33,7 @@ private:
 private:
 	static constexpr float speed = 300.f;
 	static constexpr float holdTime = .018f;
-	static constexpr RectF m_rect = { -16.f, -16.f, 16.f, 0.f };
+	static constexpr RectF m_rect = { -16.f, -32.f, 16.f, 0.f };
 	static constexpr Vec2f m_sprite_rect_offset = { -64.f, -96.f };
 	Vec2f m_position = Graphics::GetRect<float>().GetCenter();
 	Vec2f m_velocity = { 0.f, 0.f };

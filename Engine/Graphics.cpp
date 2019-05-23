@@ -48,7 +48,8 @@ RectI Graphics::screenRect = { 100,100,800,600 };
 Graphics::Graphics( HWNDKey& key )
 	:
 	m_direct3d( key.hWnd, *this ),
-	pSysBuffer( screenRect.GetWidth(), screenRect.GetHeight() )
+	pSysBuffer( screenRect.GetWidth(), screenRect.GetHeight() ),
+	dBuffer( GetWidth<int>(), GetHeight<int>() )
 {
 }
 
@@ -59,11 +60,19 @@ void Graphics::EndFrame()
 
 void Graphics::BeginFrame( Color C )
 {
-	// clear the sysbuffer
-	//pSysBuffer.Fill( C );
-	//dim2d::fill( pSysBuffer.begin(), pSysBuffer.end(), Colors::Black );
-	auto* pPixels = std::addressof( pSysBuffer[ dim2d::offset{ 0,0 } ] );
-	memset( pPixels, 0, sizeof( decltype( *pPixels ) )*pSysBuffer.columns()*pSysBuffer.rows() );
+	// clear the buffers
+	auto clear_buffer = []( auto& buffer2d )
+	{
+		auto* buffer = std::addressof( buffer2d[ dim2d::offset{ 0,0 } ] );
+		
+		auto const size =
+			sizeof( decltype( *buffer ) ) * buffer2d.columns() * buffer2d.rows();
+		
+		memset( buffer, 0, size );
+	};
+
+	clear_buffer( pSysBuffer );
+	clear_buffer( dBuffer );
 }
 
 void Graphics::PutPixel( int x, int y, int r, int g, int b )
@@ -81,6 +90,11 @@ dim2d::surface<Color>& Graphics::GetBuffer() noexcept
 	return pSysBuffer;
 }
 
+dim2d::surface<float>& Graphics::GetDBuffer() noexcept
+{
+	return dBuffer;
+}
+
 void Graphics::PutPixelAlpha( int x, int y, Color c )
 {
 	pSysBuffer[ {x, y} ] = c.AlphaBlend( pSysBuffer[ {x, y} ] );
@@ -95,7 +109,7 @@ void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
 	auto const circleRect = Recti( Center - vRadius, Center + vRadius );
 	const auto bounds = Rectify( circleRect, GetRect<int>() ) + Center;
 
-	auto src = dim2d::surface_wrapper(
+	auto src = dim2d::surface_wrapper<decltype(pSysBuffer)>(
 		dim2d::offset{ bounds.left,bounds.top },
 		bounds.GetWidth(),
 		bounds.GetHeight(),
@@ -109,15 +123,6 @@ void Graphics::DrawCircle( const Vec2i & Center, int Radius, Color C )
 	};
 
 	dim2d::replace_if( src.begin(), src.end(), src.begin(), C, isInRadius );
-	/*dim2d::for_each( src.begin(), src.end(), [ & ]( dim2d::index idx, Color& color )
-	{
-		const auto sqDist = sq( idx.x - vRadius.x ) + sq( idx.y - vRadius.y );
-
-		if( sqDist < sqRadius )
-		{
-			color = C;
-		}
-	} );*/
 }
 
 void Graphics::DrawCircleAlpha( const Recti &Rect, Color C )
@@ -220,14 +225,14 @@ void Graphics::DrawChar( float X, float Y, char C, Font const& font, Color color
 	if( IsInView( destinationRect ) )
 	{
 		const auto vBegOffset = sourceRect.LeftTop() + ( destinationRect.LeftTop() - position );
-
+		const auto& fontsheet = font.GetSurface();
 		const auto src =
-			dim2d::surface_wrapper(
+			dim2d::surface_wrapper<decltype(fontsheet)>(
 				dim2d::offset{ vBegOffset.x,vBegOffset.y },
 				destinationRect.GetWidth(),
 				destinationRect.GetHeight(),
 				font.GetSurface().columns(),
-				font.GetSurface()
+				fontsheet
 			);
 		auto dst =
 			dim2d::surface_wrapper<dim2d::surface<Color>>(
@@ -302,12 +307,9 @@ void Graphics::DrawText( const Vec2f &Position, Text const& text, Color C )
 	}
 }
 
-void Graphics::SetResolution( const RECT & WinRect )
+void Graphics::SetResolution( const Recti & WinRect )
 {
-	screenRect.left = WinRect.left;
-	screenRect.top = WinRect.top;
-	screenRect.right = WinRect.right;
-	screenRect.bottom = WinRect.bottom;
+	screenRect = WinRect;
 }
 
 

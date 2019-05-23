@@ -2,6 +2,7 @@
 
 #include "GlobalEnums.h"
 #include "ItemBase.h"
+#include "Maze.h"
 #include "Sprite.h"
 #include "SpriteResource.h"
 #include "Vec2.h"
@@ -32,6 +33,7 @@ public:
 
 	using TileGrid = dim2d::grid<Tile, map_size.width, map_size.height>;
 	using RoomItemList = std::vector<std::unique_ptr<ItemBase>>;
+
 	class Room
 	{
 	public:
@@ -207,6 +209,21 @@ public:
 		};
 	}
 
+	Tilemap() = default;
+	Tilemap( Vec2i startPos, Vec2i endPos, Random random )
+	{
+		// Generate maze
+		auto const cells = GenerateMaze( startPos, endPos, random );
+
+		// Use maze to generate tilemap
+		dim2d::transform( cells.begin(), cells.end(), m_rooms.begin(),
+			[ & ]( dim2d::index, cell const& _cell )
+		{
+			return Tilemap::Room( _cell, *this );
+		} );
+
+
+	}
 	Room& GetRoom( Vec2i const& _room_idx )noexcept
 	{
 		return GetRoom( dim2d::index{ _room_idx.x, _room_idx.y } );

@@ -330,8 +330,11 @@
     <ClInclude Include="MathOps.h">
       <Filter>Header Files\Framework\Utilities\Math</Filter>
     </ClInclude>
+    <ClInclude Include="RandomNumber.h">
+      <Filter>Header Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClInclude>
     <ClInclude Include="Tilemap.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Scenes\DemoCode\MazeCrawler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -459,6 +462,9 @@
       <Filter>Source Files\Scenes\DemoCode\MazeCrawler</Filter>
     </ClCompile>
     <ClCompile Include="SpriteResource.cpp">
+      <Filter>Source Files\Scenes\DemoCode\MazeCrawler</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomNumber.cpp">
       <Filter>Source Files\Scenes\DemoCode\MazeCrawler</Filter>
     </ClCompile>
   </ItemGroup>

@@ -62,6 +62,7 @@ public:
 	void PutPixel( int x,int y,Color c );
 
 	dim2d::surface<Color>& GetBuffer()noexcept;
+	dim2d::surface<float>& GetDBuffer()noexcept;
 
 	void PutPixelAlpha( int X, int Y, Color C );
 	void DrawCircle( const Vec2i &Center, int Radius, Color C );
@@ -77,12 +78,12 @@ public:
 	void DrawText( const Vec2f &Position, Text const& text, Color C );
 
 	template<typename Effect>
-	void DrawSprite( const Rectf &Dst, const Sprite& sprite, Effect effect )
+	void DrawSprite( const Rectf &Dst, const Sprite& sprite, float base, Effect effect )
 	{
-		DrawSprite( sprite.GetRect(), Dst, sprite, std::move( effect ) );
+		DrawSprite( sprite.GetRect(), Dst, sprite, base, std::move( effect ) );
 	}
 	template<typename Effect>
-	void DrawSprite( const Rectf &Src, const Rectf &Dst, const Sprite& sprite, Effect effect )
+	void DrawSprite( const Rectf &Src, const Rectf &Dst, const Sprite& sprite, float base, Effect effect )
 	{
 		const auto rectified = Rectify( Dst, GetRect<float>() );
 		const auto src = RectI( rectified ) + Vec2i( Src.LeftTop() );
@@ -95,12 +96,11 @@ public:
 		// check if sprite is in view and source and destination rects have size > 0
 		if( IsInView( dst ) && src_has_size && dst_has_size )
 		{
-			effect( src, dst, sprite );
+			effect( src, dst, sprite, base );
 		}
 	}
 
-
-	static void SetResolution( const RECT &WinRect );
+	static void SetResolution( const Recti &WinRect );
 	template<typename T>
 	static T GetWidth()noexcept
 	{
@@ -132,6 +132,7 @@ private:
 	Direct3D				m_direct3d;
 	friend class Direct3D;
 	dim2d::surface<Color>	pSysBuffer;
+	dim2d::surface<float>   dBuffer;
 	static Recti			screenRect;
 };
 
@@ -157,17 +158,27 @@ struct AlphaEffect : SpriteEffect
 		:
 		m_graphics( _graphics )
 	{}
-	void operator()( const Recti &Src, const Recti &Dst, const Sprite& sprite )
+	void operator()( const Recti &Src, const Recti &Dst, const Sprite& sprite, float base )
 	{
 		const auto src = make_wrapper( Src, Src.GetWidth(), sprite );
 		auto dst = make_wrapper( Dst, Graphics::GetWidth<int>(), m_graphics.GetBuffer() );
+		auto& dbuffer = m_graphics.GetDBuffer();
+		auto const offset = dim2d::offset{ Dst.left, Dst.top };
 
-		auto blend = [ & ]( dim2d::index src1idx, Color src1, dim2d::index src2idx, Color src2 )
+		dim2d::transform( src.begin(), src.end(), dst.begin(), dst.begin(), 
+			[ & ]( dim2d::index src1idx, Color src1, dim2d::index src2idx, Color src2 )
 		{
-			return src1.AlphaBlend( src2 );
-		};
-
-		dim2d::transform( src.begin(), src.end(), dst.begin(), dst.begin(), blend );
+			auto& d = dbuffer[ src2idx + offset ];
+			if( d < base )
+			{
+				d = base;
+				return src1.AlphaBlend( src2 );
+			}
+			else
+			{
+				return src2;
+			}
+		} );
 	}
 	Graphics& m_graphics;
 };
@@ -178,14 +189,29 @@ struct CopyEffect : SpriteEffect
 		:
 		m_graphics( _graphics )
 	{}
-	void operator()( const Recti &Src, const Recti &Dst, const Sprite& sprite )
+	void operator()( const Recti &Src, const Recti &Dst, const Sprite& sprite, float base )
 	{
 		const auto src = make_wrapper( Src, sprite.GetWidth(), sprite );
 		auto dst = make_wrapper( Dst, Graphics::GetWidth<int>(), m_graphics.GetBuffer() );
-
-		dim2d::copy( src.begin(), src.end(), dst.begin() );
+		auto& dbuffer = m_graphics.GetDBuffer();
+		auto const offset = dim2d::offset{ Dst.left, Dst.top };
+		dim2d::transform( src.begin(), src.end(), dst.begin(), dst.begin(),
+			[ & ]( dim2d::index src1idx, Color src1, dim2d::index src2idx, Color src2 )
+		{
+			auto& d = dbuffer[ src2idx + offset ];
+			if( d < base )
+			{
+				d = base;
+				return src1;
+			}
+			else
+			{
+				return src2;
+			}
+		} );
 	}
 	Graphics& m_graphics;
+
 };
 
 struct MirrorEffect : SpriteEffect
@@ -194,12 +220,27 @@ struct MirrorEffect : SpriteEffect
 		:
 		m_graphics( _graphics )
 	{}
-	void operator()( const Recti &Src, const Recti &Dst, const Sprite& sprite )
+	void operator()( const Recti &Src, const Recti &Dst, const Sprite& sprite, float base )
 	{
 		const auto src = make_wrapper( Src, Src.GetWidth(), sprite );
 		auto dst = make_wrapper( Dst, Graphics::GetWidth<int>(), m_graphics.GetBuffer() );
+		auto const offset = dim2d::offset{ Dst.left, Dst.top };
 
-		dim2d::copy( src.mbegin(), src.mend(), dst.begin() );
+		auto& dbuffer = m_graphics.GetDBuffer();
+		dim2d::transform( src.mbegin(), src.mend(), dst.begin(), dst.begin(),
+			[ & ]( dim2d::index src1idx, Color src1, dim2d::index src2idx, Color src2 )
+		{
+			auto& d = dbuffer[ src2idx + offset ];
+			if( d < base )
+			{
+				d = base;
+				return src1;
+			}
+			else
+			{
+				return src2;
+			}
+		} );
 	}
 	Graphics& m_graphics;
 };

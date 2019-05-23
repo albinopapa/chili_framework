@@ -17,6 +17,6 @@ void Scene_Sprite::Draw() const
 {
 	const Vec2f offset = { float( -m_sprite.GetRect().GetCenter().x ), 0.f };
 	const auto position = Vec2f{ 400.f,300.f } + offset;
-	m_graphics.DrawSprite( Rectf( m_sprite.GetRect() ) + position, m_sprite, CopyEffect{ m_graphics } );
+	m_graphics.DrawSprite( Rectf( m_sprite.GetRect() ) + position, m_sprite, 1.f, CopyEffect{ m_graphics } );
 
 }

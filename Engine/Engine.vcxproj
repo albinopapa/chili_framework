@@ -188,6 +188,7 @@
     <ClInclude Include="Observer.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="RandomNumber.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
@@ -242,6 +243,7 @@
     <ClCompile Include="Observer.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="RandomNumber.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene_AnimatedSprite.cpp" />
     <ClCompile Include="Scene_Camera.cpp" />

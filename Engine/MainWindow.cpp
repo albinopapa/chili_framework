@@ -46,7 +46,7 @@ MainWindow::MainWindow( HINSTANCE hInst,wchar_t * pArgs )
 	const auto style = WS_POPUP;
 	RECT wr = dtRect;
 	AdjustWindowRect( &wr, style, FALSE );
-	Graphics::SetResolution( wr );
+	Graphics::SetResolution( { wr.left, wr.top, wr.right, wr.bottom } );
 
 	hWnd = CreateWindow( 
 		wndClassName, L"Chili DirectX Framework",

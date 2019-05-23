@@ -39,9 +39,9 @@ void Scene_AnimatedSprite::Draw() const
 	// TODO: Implement sprite drawing effects
 	const auto charRect = m_charRect + m_charPosition;
 	if( m_direction == Direction::Left )
-		m_graphics.DrawSprite( charRect, m_animController.CurrentFrame(), MirrorEffect{ m_graphics } );
+		m_graphics.DrawSprite( charRect, m_animController.CurrentFrame(), 1.f, MirrorEffect{ m_graphics } );
 	else
-		m_graphics.DrawSprite( charRect, m_animController.CurrentFrame(), CopyEffect{ m_graphics } );
+		m_graphics.DrawSprite( charRect, m_animController.CurrentFrame(), 1.f, CopyEffect{ m_graphics } );
 }
 
 void Scene_AnimatedSprite::DetermineState()
